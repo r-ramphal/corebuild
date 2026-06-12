@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: "%s | CoreBuild",
   },
   description:
-    "Vergelijk real-time prijzen van de grootste tech-retailers en bouw de ultieme setup met volledige compatibiliteitscontrole.",
+    "Vergelijk real-time prijzen van de grootste tech-retailers en stel je PC samen met slimme wattage-checks.",
   keywords: [
     "pc onderdelen vergelijken",
     "pc bouwen",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     siteName: "CoreBuild",
     title: "CoreBuild — Optimaliseer je build, verfijn je budget",
     description:
-      "Vergelijk real-time prijzen van de grootste tech-retailers en bouw de ultieme setup met volledige compatibiliteitscontrole.",
+      "Vergelijk real-time prijzen van de grootste tech-retailers en stel je PC samen met slimme wattage-checks.",
     images: [
       {
         url: "/images/feature-pc.png",
@@ -85,8 +85,13 @@ export default function RootLayout({
       className={`${hanken.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body>
+        <a href="#main-content" className="skip-link">
+          Direct naar inhoud
+        </a>
         <Navbar />
-        {children}
+        <div id="main-content" className="contents">
+          {children}
+        </div>
         <Footer />
       </body>
     </html>

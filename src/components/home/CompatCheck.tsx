@@ -30,7 +30,7 @@ export function CompatCheck() {
 
         <div>
           <span className="font-label-technical text-label-technical text-primary bg-primary/10 px-3 py-1 rounded mb-6 inline-block">
-            COMPATIBILITEITS CHECK
+            WATTAGE CHECK
           </span>
 
           <h2 className="font-headline-lg text-headline-lg mb-6 text-on-surface">
@@ -38,9 +38,9 @@ export function CompatCheck() {
           </h2>
 
           <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-            Onze engine controleert automatisch of je gekozen moederbord past
-            bij je processor, of je voeding genoeg wattage levert en of je
-            videokaart in je behuizing past.
+            De builder schat het stroomverbruik van je volledige build,
+            waarschuwt wanneer je voeding te licht is en houdt het totaal van
+            alle onderdelen overzichtelijk bij elkaar.
           </p>
 
           <div className="space-y-4">

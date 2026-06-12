@@ -8,6 +8,16 @@
 5 scrapers (TS + Python), Neon-database met DB-first zoekflow, productdetailpagina,
 auth (better-auth) + opgeslagen/deelbare builds. GitHub Actions ververst prijzen elke 6 uur.
 
+**Nieuw (13 juni 2026):** categorie-relevantielaag (geen Harry Potter-figuren meer
+bij CPU's), catalogusmodus per categorie (`category`-kolom in listings), mobiel
+menu + a11y-verbeteringen, `/over`-pagina (privacy/affiliate), security-hardening
+(TLS-verificatie DB, inputvalidatie builds-API, rate limit op /api/search).
+
+**⚠️ NOG UITVOEREN (lokaal, was geblokkeerd in auto-mode):**
+1. `npm run db:push` — voegt de `category`-kolom toe aan Neon (additief, veilig)
+2. `npx tsx scripts/clean-listings.ts` — verwijdert junk-rijen en backfillt categorieën
+Zonder stap 1 crasht elke DB-query zodra deze code deployt (kolom bestaat nog niet)!
+
 **Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
 en fase 3 van de roadmap (officiële API's na KvK-inschrijving).
 
@@ -62,6 +72,24 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - **Bol** — best-effort; cards `div[role="button"]`, prijs uit screen-reader-span ("De prijs van dit product is..."). Bot-detectie blokkeert Vercel → mock-fallback; échte data komt via de lokale Python-runs in de database
 - **Mock-fallback** (`src/lib/mock/catalog.ts`) — ~38 realistische producten over alle 8 categorieën; deterministische prijsvariatie per retailer; resultaten dragen `mock: true` en tonen "· demo" in de retailerbadge
 - `scripts/test-scrapers.ts` — `npx tsx scripts/test-scrapers.ts "zoekterm"` test alle scrapers tegen de echte sites
+
+### Relevantielaag (juni 2026) — tegen junk-resultaten
+- **Probleem**: retailer-zoekmachines matchen fuzzy ("processor" → Harry Potter
+  "**Professor** Sneep"-figuren bij Alternate/Azerty) en geven accessoires terug
+  (waterblocks bij GPU's, SSD-behuizingen bij Opslag, laptops bij RAM/"rtx 4070")
+- `src/lib/relevance.ts` + `scrapers/corebuild_scrapers/relevance.py` (spiegels!):
+  per categorie require/exclude-regexpatronen + globale junk-blocklist;
+  `isJunk()`, `matchesCategory()`, `inferCategory()`
+- `/api/search` accepteert `&cat=` — filtert cache én live resultaten op categorie;
+  zonder `cat` wordt alleen junk geweerd
+- **Catalogusmodus**: `/api/search?cat=cpu` zónder `q` → alle verse rijen voor die
+  categorie uit de DB (TTL 7 dagen, ontdubbeld op retailer+url). Categoriepagina's
+  openen hiermee; leeg → fallback naar de standaard-zoekterm
+- `listings.category`-kolom (migratie `0002`) — gevuld door Python-scrapers
+  (CATEGORY_QUERIES kent de categorie) of `inferCategory()` bij write-through
+- `refresh.py` filtert vóór opslaan en logt "(N irrelevant overgeslagen)"
+- Tests: `npx tsx scripts/test-relevance.ts` (38 cases op echte junk-namen uit de DB)
+- Eenmalige opschoning: `npx tsx scripts/clean-listings.ts` (na `db:push`)
 
 ### UI (Stitch design geïmplementeerd)
 - Homepage (`/`) — hero met gradient bg + zoekbalk, 8 categorie-cards, features-sectie
@@ -143,9 +171,32 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
   repo-secret `DATABASE_URL` is gezet — eerste run geslaagd (963 rijen, juni 2026)
 - Lokaal: `cd scrapers && .\.venv\Scripts\python refresh.py --all`
 
+### UI/UX & security (juni 2026)
+- **Mobiel menu** in de navbar (hamburger, met zoekveld en sessie-acties) — daarvoor
+  was er op mobiel géén navigatie
+- A11y: skip-link, `:focus-visible`-stijl, `prefers-reduced-motion`, aria-labels op
+  sliders/selects/dropdowns (aria-expanded + Escape sluit), `aria-current` op nav
+- `px-4 sm:px-8` op alle paginacontainers (was overal `px-8`)
+- "Exporteer build" werkt nu (kopieert samenvatting naar klembord); h1 op builder
+- Neppe "Sponsor"-kaart op categoriepagina's vervangen door builder-CTA
+- `/over`-pagina (privacy + affiliate disclaimer) — footer-links waren dood (`#`)
+- Homepage-copy eerlijk gemaakt: "volledige compatibiliteitscontrole" → wattage-check
+  (compatibiliteitscheck op socket/formaat bestaat (nog) niet)
+- Security: TLS-certificaatverificatie op de Neon-verbinding (was
+  `rejectUnauthorized: false`), inputvalidatie + limieten op `POST /api/builds`
+  (alleen bekende slots/velden, http(s)-URL's, max 100 builds/user), naïeve
+  rate limit + max querylengte + URL-schema-check op `/api/search`,
+  better-auth rate limit expliciet aan, `getDb()`-nullguards in builds-routes
+- `npm audit --omit=dev`: 7 vulns, allemaal in build-tooling (esbuild via
+  drizzle-kit-in-better-auth, postcss via next) — geen runtime-risico, "fix"
+  zou breaking downgrades doen; periodiek herchecken
+
 ### Nog te bouwen
 - [ ] **Prijshistorie** — aparte tabel of `listings` niet meer verwijderen maar versieneren
 - [ ] **Wachtwoord vergeten** — better-auth reset-flow vereist een e-mailprovider (bijv. Resend)
+- [ ] **Compatibiliteitscheck** (socket CPU↔moederbord, DDR4/5, GPU-lengte) — de
+  homepage beloofde dit al; data zit deels in productnamen (AM5/LGA1700/DDR5)
+- [ ] **Prijsalerts** — "Stel Alert In"-knop op categoriepagina's is nog disabled/dood
 
 ---
 

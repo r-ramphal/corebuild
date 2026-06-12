@@ -6,19 +6,61 @@ import { searchAzerty } from "@/lib/scrapers/azerty";
 import { searchAlternate } from "@/lib/scrapers/alternate";
 import { searchMock } from "@/lib/mock/catalog";
 import { getDb, normalizeQuery } from "@/lib/db";
-import { getFreshListings, saveListings } from "@/lib/db/listings";
-import type { PriceResult, Retailer, SearchResults } from "@/lib/types";
+import { getFreshListings, getCatalogListings, saveListings } from "@/lib/db/listings";
+import { isJunk, matchesCategory, isComponentType } from "@/lib/relevance";
+import { COMPONENT_META } from "@/lib/categories";
+import type { ComponentType, PriceResult, Retailer, SearchResults } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 /**
  * Database-first zoekflow:
- * 1. Verse rijen in de database (< 30 min)? → direct teruggeven.
- * 2. Anders: live scrapen (Bol/Amazon met mock-fallback), resultaat
+ * 1. `cat` zonder `q` → catalogusmodus: alle verse rijen voor die categorie.
+ * 2. Verse rijen in de database (< 30 min)? → direct teruggeven.
+ * 3. Anders: live scrapen (Bol/Amazon met mock-fallback), resultaat
  *    teruggeven én opslaan in de database (write-through cache).
- * Zonder DATABASE_URL werkt alles zoals voorheen, puur live.
+ *
+ * Alle resultaten gaan door de relevantiefilter (`src/lib/relevance.ts`):
+ * junk wordt altijd geweerd, en met `cat` blijven alleen producten over die
+ * echt in die categorie thuishoren.
  */
+
+const MAX_QUERY_LENGTH = 100;
+
+/** Naïeve per-instance rate limit: beperkt scrape-fanout-misbruik. */
+const RATE_LIMIT = 30; // requests per minuut per IP
+const rateWindow = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateWindow.get(ip);
+  if (!entry || entry.resetAt < now) {
+    rateWindow.set(ip, { count: 1, resetAt: now + 60_000 });
+    if (rateWindow.size > 10_000) rateWindow.clear(); // memory-guard
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT;
+}
+
+/** Alleen http(s)-URL's doorlaten — scrape-bronnen zijn extern en onvertrouwd. */
+function hasSafeUrl(item: PriceResult): boolean {
+  try {
+    const u = new URL(item.url);
+    return u.protocol === "https:" || u.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function applyRelevance(results: PriceResult[], cat: ComponentType | null): PriceResult[] {
+  return results.filter((r) => {
+    if (!hasSafeUrl(r)) return false;
+    if (cat) return r.mock ? true : matchesCategory(r.name, cat);
+    return !isJunk(r.name);
+  });
+}
 
 async function withMockFallback(
   retailer: Retailer,
@@ -35,20 +77,54 @@ async function withMockFallback(
 }
 
 export async function GET(req: NextRequest) {
-  const query = req.nextUrl.searchParams.get("q")?.trim();
+  const rawQuery = req.nextUrl.searchParams.get("q")?.trim() ?? "";
+  const rawCat = req.nextUrl.searchParams.get("cat");
+  const cat = isComponentType(rawCat) ? rawCat : null;
 
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Te veel zoekopdrachten, probeer het zo weer" },
+      { status: 429, headers: { "Retry-After": "60" } }
+    );
+  }
+
+  if (rawQuery.length > MAX_QUERY_LENGTH) {
+    return NextResponse.json({ error: "Zoekterm te lang" }, { status: 400 });
+  }
+
+  // Catalogusmodus: categorie browsen zonder zoekterm
+  const db = getDb();
+  if (!rawQuery && cat) {
+    if (db) {
+      try {
+        const catalog = await getCatalogListings(db, cat);
+        if (catalog.length > 0) {
+          const body: SearchResults = { query: "", results: catalog, errors: [] };
+          return NextResponse.json(body, {
+            headers: { "x-corebuild-source": "catalog" },
+          });
+        }
+      } catch (err) {
+        console.error("Catalogus-lookup mislukt:", err);
+      }
+    }
+    // Lege catalogus → val terug op de standaard-zoekterm van de categorie
+  }
+
+  const query = rawQuery || (cat ? COMPONENT_META[cat].searchTerm : "");
   if (!query || query.length < 2) {
     return NextResponse.json({ error: "Zoekterm te kort" }, { status: 400 });
   }
 
-  const db = getDb();
   const nq = normalizeQuery(query);
 
   // 1. Database-cache — alleen serveren als er échte data tussen zit;
   //    puur mock-rijen (bijv. uit de seed) mogen live scrapen niet blokkeren
   if (db) {
     try {
-      const cached = await getFreshListings(db, nq);
+      const cached = applyRelevance(await getFreshListings(db, nq), cat);
       if (cached.length > 0 && cached.some((r) => !r.mock)) {
         const body: SearchResults = { query, results: cached, errors: [] };
         return NextResponse.json(body, {
@@ -77,12 +153,14 @@ export async function GET(req: NextRequest) {
     { retailer: "alternate", outcome: alternate },
   ];
 
-  const results = sources
-    .filter((s): s is typeof s & { outcome: PromiseFulfilledResult<PriceResult[]> } =>
-      s.outcome.status === "fulfilled"
-    )
-    .flatMap((s) => s.outcome.value)
-    .sort((a, b) => a.priceEur - b.priceEur);
+  const results = applyRelevance(
+    sources
+      .filter((s): s is typeof s & { outcome: PromiseFulfilledResult<PriceResult[]> } =>
+        s.outcome.status === "fulfilled"
+      )
+      .flatMap((s) => s.outcome.value),
+    cat
+  ).sort((a, b) => a.priceEur - b.priceEur);
 
   const errors = sources
     .filter((s) => s.outcome.status === "rejected")
@@ -94,7 +172,7 @@ export async function GET(req: NextRequest) {
   // 3. Write-through naar de database (best-effort, blokkeert het antwoord niet lang)
   if (db && results.length > 0) {
     try {
-      await saveListings(db, nq, results);
+      await saveListings(db, nq, results, "scraper", cat ?? undefined);
     } catch (err) {
       console.error("DB-opslag mislukt:", err);
     }

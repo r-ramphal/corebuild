@@ -17,6 +17,11 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
   },
+  // Standaard alleen actief in productie — expliciet aanzetten zodat
+  // login/registratie ook in previews tegen brute-force beschermd is
+  rateLimit: {
+    enabled: true,
+  },
   trustedOrigins: [
     "https://www.corebuildnl.com",
     "https://corebuildnl.com",

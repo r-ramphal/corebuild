@@ -28,8 +28,10 @@ export function getDb(): Db | null {
   const pool = new Pool({
     connectionString: url,
     max: 3, // serverless: weinig connecties per instance
-    // Neon/Supabase vereisen TLS; lokale Postgres niet
-    ssl: /localhost|127\.0\.0\.1/.test(url) ? undefined : { rejectUnauthorized: false },
+    // Neon vereist TLS en gebruikt publiek vertrouwde certificaten —
+    // certificaatverificatie dus aan laten (rejectUnauthorized: false zou
+    // man-in-the-middle op de databaseverbinding mogelijk maken)
+    ssl: /localhost|127\.0\.0\.1/.test(url) ? undefined : { rejectUnauthorized: true },
   });
 
   db = drizzle(pool, { schema });

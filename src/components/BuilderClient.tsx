@@ -45,6 +45,28 @@ export function BuilderClient() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [exported, setExported] = useState(false);
+
+  async function handleExport() {
+    const lines = COMPONENT_TYPES.filter((t) => components[t]).map(
+      (t) =>
+        `${COMPONENT_META[t].shortLabel}: ${components[t]!.name} — ${formatEur(components[t]!.priceEur)}`
+    );
+    const text = [
+      "Mijn PC-build via CoreBuild (corebuildnl.com)",
+      "",
+      ...lines,
+      "",
+      `Totaal: ${formatEur(totalPrice)} (indicatief, incl. BTW)`,
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setExported(true);
+      setTimeout(() => setExported(false), 2500);
+    } catch {
+      // clipboard niet beschikbaar (bijv. zonder https) — stil falen
+    }
+  }
 
   async function handleSave() {
     if (!buildName.trim()) return;
@@ -82,7 +104,7 @@ export function BuilderClient() {
   const noGpuNoPsu = components.gpu && !components.psu;
 
   return (
-    <main className="flex-grow pt-24 pb-16 px-8 max-w-[1280px] mx-auto w-full min-h-screen">
+    <main className="flex-grow pt-24 pb-16 px-4 sm:px-8 max-w-[1280px] mx-auto w-full min-h-screen">
       {/* Compatibility Warning Banner */}
       {noGpuNoPsu && (
         <div className="mb-8 p-4 bg-warning-amber/10 border border-warning-amber rounded-lg flex items-center gap-3">
@@ -96,7 +118,7 @@ export function BuilderClient() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         {/* Left: Component Slots */}
         <div className="lg:col-span-8">
-          <h2 className="font-headline-lg text-headline-lg text-on-surface mb-6">PC Builder</h2>
+          <h1 className="font-headline-lg text-headline-lg text-on-surface mb-6">PC Builder</h1>
 
           <div className="space-y-3">
             {COMPONENT_TYPES.map((type) => {
@@ -184,7 +206,7 @@ export function BuilderClient() {
                     onClick={clearBuild}
                     className="font-label-technical text-label-technical text-primary hover:underline"
                   >
-                    Clear all
+                    Alles wissen
                   </button>
                 )}
               </div>
@@ -225,8 +247,26 @@ export function BuilderClient() {
             </div>
 
             <div className="space-y-3">
-              <button className="w-full py-4 bg-primary text-on-primary font-bold font-label-technical text-label-technical rounded hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
-                <Share className="w-4 h-4" /> Exporteer build
+              <button
+                onClick={handleExport}
+                disabled={filledCount === 0}
+                className={`w-full py-4 font-bold font-label-technical text-label-technical rounded transition-all flex items-center justify-center gap-2 ${
+                  exported
+                    ? "bg-success-emerald text-white"
+                    : filledCount === 0
+                      ? "bg-surface-container text-outline cursor-not-allowed border border-outline-variant/30"
+                      : "bg-primary text-on-primary hover:opacity-90 active:scale-[0.98] shadow-lg shadow-primary/20"
+                }`}
+              >
+                {exported ? (
+                  <>
+                    <Check className="w-4 h-4" /> Gekopieerd naar klembord
+                  </>
+                ) : (
+                  <>
+                    <Share className="w-4 h-4" /> Exporteer build
+                  </>
+                )}
               </button>
               {session ? (
                 saveOpen ? (

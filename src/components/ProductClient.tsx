@@ -52,12 +52,13 @@ export function ProductClient() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/search?q=${encodeURIComponent(name)}`)
+    const catParam = cat ? `&cat=${encodeURIComponent(cat)}` : "";
+    fetch(`/api/search?q=${encodeURIComponent(name)}${catParam}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r)))
       .then((data: SearchResults) => setResults(data))
       .catch(() => setResults({ query: name, results: [], errors: [] }))
       .finally(() => setLoading(false));
-  }, [name]);
+  }, [name, cat]);
 
   useEffect(() => {
     if (!pickerOpen) return;
@@ -66,8 +67,15 @@ export function ProductClient() {
         setPickerOpen(false);
       }
     }
+    function onEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setPickerOpen(false);
+    }
     document.addEventListener("mousedown", onOutsideClick);
-    return () => document.removeEventListener("mousedown", onOutsideClick);
+    document.addEventListener("keydown", onEscape);
+    return () => {
+      document.removeEventListener("mousedown", onOutsideClick);
+      document.removeEventListener("keydown", onEscape);
+    };
   }, [pickerOpen]);
 
   // Filter op relevantie: resultaat moet het merendeel van de naam-tokens bevatten
@@ -94,7 +102,7 @@ export function ProductClient() {
 
   return (
     <main className="pt-16 min-h-screen">
-      <div className="max-w-[1280px] mx-auto px-8 pt-8 pb-16">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-8 pb-16">
         {/* Breadcrumb */}
         <div className="py-4 font-body-sm text-body-sm text-on-surface-variant">
           <Link href="/" className="hover:text-primary">Home</Link>
@@ -179,6 +187,8 @@ export function ProductClient() {
                   <div ref={pickerRef} className="relative">
                     <button
                       onClick={() => (cat ? handleAdd(cat) : setPickerOpen((p) => !p))}
+                      aria-expanded={cat ? undefined : pickerOpen}
+                      aria-haspopup={cat ? undefined : "menu"}
                       className={`px-6 py-3 rounded-lg font-label-technical text-label-technical flex items-center gap-2 transition-all ${
                         added
                           ? "bg-success-emerald text-white"

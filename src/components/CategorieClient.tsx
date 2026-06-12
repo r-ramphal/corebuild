@@ -204,21 +204,28 @@ export function CategorieClient() {
 
   const { setComponent } = useBuildStore();
 
-  const search = useCallback((q: string) => {
-    if (!q) return;
-    setLoading(true);
-    setResults(null);
-    fetch(`/api/search?q=${encodeURIComponent(q)}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data: SearchResults) => setResults(data))
-      .catch(() => setResults({ query: q, results: [], errors: [] }))
-      .finally(() => setLoading(false));
-  }, []);
+  // Lege zoekterm = catalogusmodus: alle bekende producten in deze categorie.
+  // `cat` zorgt er server-side voor dat alleen relevante componenten terugkomen.
+  const search = useCallback(
+    (q: string) => {
+      setLoading(true);
+      setResults(null);
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      params.set("cat", componentType);
+      fetch(`/api/search?${params.toString()}`)
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((data: SearchResults) => setResults(data))
+        .catch(() => setResults({ query: q, results: [], errors: [] }))
+        .finally(() => setLoading(false));
+    },
+    [componentType]
+  );
 
   useEffect(() => {
     if (meta) {
-      setQuery(meta.searchTerm);
-      search(meta.searchTerm);
+      setQuery("");
+      search("");
     }
   }, [meta, search]);
 
@@ -234,7 +241,7 @@ export function CategorieClient() {
 
   if (!meta) {
     return (
-      <main className="mt-16 max-w-[1280px] mx-auto px-8 py-8 min-h-screen">
+      <main className="mt-16 max-w-[1280px] mx-auto px-4 sm:px-8 py-8 min-h-screen">
         <p className="font-body-sm text-body-sm text-on-surface-variant mb-4">
           Categorie niet gevonden.
         </p>
@@ -255,7 +262,7 @@ export function CategorieClient() {
     filtered.find((i) => i.inStock)?.priceEur ?? filtered[0]?.priceEur;
 
   return (
-    <main className="mt-16 max-w-[1280px] mx-auto px-8 py-8 min-h-screen">
+    <main className="mt-16 max-w-[1280px] mx-auto px-4 sm:px-8 py-8 min-h-screen">
       {/* Category Header */}
       <section className="mb-12">
         <div className="flex items-center gap-4 mb-4">
@@ -304,8 +311,8 @@ export function CategorieClient() {
                 onClick={() => {
                   setMaxPrice(2500);
                   setSortBy("asc");
-                  setQuery(meta.searchTerm);
-                  search(meta.searchTerm);
+                  setQuery("");
+                  search("");
                 }}
                 className="text-primary font-label-technical text-label-technical hover:underline"
               >
@@ -346,6 +353,8 @@ export function CategorieClient() {
                 step={50}
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
+                aria-label="Maximale prijs"
+                aria-valuetext={maxPrice >= 2500 ? "Geen limiet" : `€${maxPrice}`}
                 className="w-full h-1 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary"
               />
               <div className="flex justify-between mt-2 font-label-technical text-label-technical text-on-surface-variant">
@@ -355,27 +364,30 @@ export function CategorieClient() {
             </div>
           </div>
 
-          {/* Promo Card */}
-          <div className="relative overflow-hidden rounded-xl h-48 bg-inverse-surface flex flex-col justify-end p-4 group cursor-pointer">
+          {/* Builder CTA */}
+          <Link
+            href="/builder"
+            className="relative overflow-hidden rounded-xl h-48 bg-inverse-surface flex flex-col justify-end p-4 group"
+          >
             <Image
               src="/images/promo-gpu.png"
-              alt="High-performance gaming PC met verticale GPU"
+              alt=""
               fill
               className="object-cover opacity-50 group-hover:scale-105 transition-transform duration-500"
               sizes="(max-width: 768px) 100vw, 300px"
             />
             <div className="relative z-10">
               <span className="bg-primary text-on-primary text-[10px] px-2 py-0.5 rounded font-label-technical uppercase tracking-tighter mb-2 inline-block">
-                Sponsor
+                PC Builder
               </span>
               <h5 className="text-on-primary font-title-md text-title-md">
-                Nieuwe RTX 50-serie Geruchten
+                Stel je volledige PC samen
               </h5>
               <p className="text-surface-variant font-body-sm text-body-sm">
-                Lees de laatste specs...
+                Alle onderdelen + wattage-check →
               </p>
             </div>
-          </div>
+          </Link>
         </aside>
 
         {/* Results List */}
@@ -395,6 +407,7 @@ export function CategorieClient() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as "asc" | "desc")}
+                aria-label="Sorteer resultaten"
                 className="bg-surface border-none font-body-sm text-body-sm font-label-technical text-on-surface focus:ring-0 cursor-pointer"
               >
                 <option value="asc">Laagste prijs</option>

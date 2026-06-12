@@ -13,6 +13,8 @@ from pathlib import Path
 import psycopg
 from dotenv import load_dotenv
 
+from .relevance import infer_category
+
 # Lees DATABASE_URL uit de .env.local van het Next.js-project
 load_dotenv(Path(__file__).resolve().parents[2] / ".env.local")
 load_dotenv()
@@ -29,7 +31,13 @@ def get_conn() -> psycopg.Connection:
     return psycopg.connect(url)
 
 
-def save_listings(conn: psycopg.Connection, query: str, items: list[dict], source: str = "python") -> int:
+def save_listings(
+    conn: psycopg.Connection,
+    query: str,
+    items: list[dict],
+    source: str = "python",
+    category: str | None = None,
+) -> int:
     """Vervang per retailer de rijen voor deze (genormaliseerde) zoekterm."""
     if not items:
         return 0
@@ -46,8 +54,8 @@ def save_listings(conn: psycopg.Connection, query: str, items: list[dict], sourc
             cur.executemany(
                 """
                 INSERT INTO listings
-                  (query, retailer, name, price_cents, url, image_url, in_stock, mock, source)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, false, %s)
+                  (query, retailer, name, price_cents, url, image_url, in_stock, category, mock, source)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, false, %s)
                 """,
                 [
                     (
@@ -58,6 +66,7 @@ def save_listings(conn: psycopg.Connection, query: str, items: list[dict], sourc
                         item["url"],
                         item.get("image_url"),
                         item.get("in_stock", True),
+                        category or infer_category(item["name"]),
                         source,
                     )
                     for item in items

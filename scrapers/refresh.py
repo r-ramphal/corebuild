@@ -15,10 +15,11 @@ import time
 
 from corebuild_scrapers.db import get_conn, save_listings
 from corebuild_scrapers.queries import all_queries
+from corebuild_scrapers.relevance import is_junk, matches_category
 from corebuild_scrapers.retailers import SCRAPERS
 
 
-def refresh_query(conn, query: str, retailers: list[str], delay: float) -> int:
+def refresh_query(conn, query: str, retailers: list[str], delay: float, category: str | None = None) -> int:
     total = 0
     for name in retailers:
         scraper = SCRAPERS[name]
@@ -27,10 +28,20 @@ def refresh_query(conn, query: str, retailers: list[str], delay: float) -> int:
         except Exception as err:  # noqa: BLE001 — één retailer mag niet alles stoppen
             print(f"  {name:<10} FOUT: {err}")
             continue
+
+        # Relevantiefilter: junk weren, en bij een categorie-query alleen
+        # producten bewaren die echt in die categorie thuishoren
+        raw = len(items)
+        if category:
+            items = [i for i in items if matches_category(i["name"], category)]
+        else:
+            items = [i for i in items if not is_junk(i["name"])]
+
         if items:
-            save_listings(conn, query, items)
+            save_listings(conn, query, items, category=category)
             total += len(items)
-        print(f"  {name:<10} {len(items)} rijen")
+        skipped = f" ({raw - len(items)} irrelevant overgeslagen)" if raw != len(items) else ""
+        print(f"  {name:<10} {len(items)} rijen{skipped}")
         time.sleep(delay)
     return total
 
@@ -54,7 +65,9 @@ def main() -> None:
     if unknown:
         sys.exit(f"Onbekende retailer(s): {', '.join(unknown)}")
 
-    queries = [args.query] if args.query else all_queries()
+    queries: list[tuple[str, str | None]] = (
+        [(args.query, None)] if args.query else list(all_queries())
+    )
     if args.limit:
         queries = queries[: args.limit]
 
@@ -62,9 +75,10 @@ def main() -> None:
 
     grand_total = 0
     with get_conn() as conn:
-        for i, q in enumerate(queries, 1):
-            print(f"[{i}/{len(queries)}] {q}")
-            grand_total += refresh_query(conn, q, retailers, args.delay)
+        for i, (q, category) in enumerate(queries, 1):
+            label = f" [{category}]" if category else ""
+            print(f"[{i}/{len(queries)}] {q}{label}")
+            grand_total += refresh_query(conn, q, retailers, args.delay, category)
 
     print(f"\nKlaar - {grand_total} rijen geschreven (source='python').")
 

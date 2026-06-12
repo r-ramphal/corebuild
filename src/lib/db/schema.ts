@@ -35,6 +35,8 @@ export const listings = pgTable(
     url: text("url").notNull(),
     imageUrl: text("image_url"),
     inStock: boolean("in_stock").notNull().default(true),
+    /** Componentcategorie (cpu/gpu/…) — gevuld door scrapers of afgeleid uit de naam */
+    category: text("category"),
     /** Demo-data (mock-catalogus) zolang de retailer-API ontbreekt */
     mock: boolean("mock").notNull().default(false),
     /** Bron van de rij: "scraper" | "mock" | straks "api" / "python" */
@@ -44,6 +46,7 @@ export const listings = pgTable(
   (table) => [
     index("listings_query_retailer_idx").on(table.query, table.retailer),
     index("listings_scraped_at_idx").on(table.scrapedAt),
+    index("listings_category_idx").on(table.category),
   ]
 );
 

@@ -14,7 +14,10 @@ interface Params {
 /** Publieke lookup — voor gedeelde builds (/build/[publicId]). */
 export async function GET(_req: NextRequest, { params }: Params) {
   const { publicId } = await params;
-  const db = getDb()!;
+  const db = getDb();
+  if (!db) {
+    return NextResponse.json({ error: "Database niet beschikbaar" }, { status: 503 });
+  }
 
   const [row] = await db.select().from(builds).where(eq(builds.publicId, publicId));
   if (!row) {
@@ -33,7 +36,10 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
   }
   const { publicId } = await params;
-  const db = getDb()!;
+  const db = getDb();
+  if (!db) {
+    return NextResponse.json({ error: "Database niet beschikbaar" }, { status: 503 });
+  }
 
   const deleted = await db
     .delete(builds)

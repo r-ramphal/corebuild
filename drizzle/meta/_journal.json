@@ -15,6 +15,13 @@
       "when": 1781301645642,
       "tag": "0001_big_red_ghost",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781303369026,
+      "tag": "0002_majestic_strong_guy",
+      "breakpoints": true
     }
   ]
 }

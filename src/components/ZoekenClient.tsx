@@ -80,7 +80,7 @@ export function ZoekenClient() {
   ];
 
   return (
-    <div className="max-w-[1280px] mx-auto px-8 pt-24 pb-16 flex flex-col md:flex-row gap-8">
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-24 pb-16 flex flex-col md:flex-row gap-8">
       {/* Filters Sidebar */}
       <aside className="w-full md:w-1/4 space-y-8 md:sticky top-24 h-fit">
         <div className="flex justify-between items-center pb-4 border-b border-outline-variant">
@@ -105,6 +105,8 @@ export function ZoekenClient() {
             step={50}
             value={maxPrice}
             onChange={(e) => setMaxPrice(Number(e.target.value))}
+            aria-label="Maximale prijs"
+            aria-valuetext={maxPrice >= 2000 ? "Geen limiet" : `€${maxPrice}`}
             className="custom-slider mb-2"
           />
           <div className="flex justify-between items-center">

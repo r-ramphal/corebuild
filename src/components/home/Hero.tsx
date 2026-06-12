@@ -21,8 +21,8 @@ export function Hero() {
           Optimaliseer je build, verfijn je budget.
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-2xl mx-auto">
-          Vergelijk real-time prijzen van de grootste tech-retailers en bouw de
-          ultieme setup met volledige compatibiliteitscontrole.
+          Vergelijk real-time prijzen van de grootste tech-retailers en stel je
+          PC samen met slimme wattage-checks.
         </p>
 
         <HeroSearch />

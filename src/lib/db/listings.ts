@@ -1,10 +1,14 @@
-import { and, eq, gt, inArray } from "drizzle-orm";
+import { and, asc, eq, gt, inArray } from "drizzle-orm";
 import type { Db } from "./index";
 import { listings, type ListingRow } from "./schema";
-import type { PriceResult, Retailer } from "@/lib/types";
+import { inferCategory } from "@/lib/relevance";
+import type { ComponentType, PriceResult, Retailer } from "@/lib/types";
 
 /** Hoe lang cache-rijen als "vers" gelden. */
 export const LISTING_TTL_MS = 30 * 60 * 1000; // 30 minuten
+
+/** Catalogus-rijen (categorie-browsen) mogen ouder zijn: scrape draait elke 6 uur. */
+export const CATALOG_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 dagen
 
 function rowToResult(row: ListingRow): PriceResult {
   return {
@@ -33,15 +37,53 @@ export async function getFreshListings(
 }
 
 /**
+ * Catalogus: alle verse, échte aanbiedingen voor één categorie, over alle
+ * zoektermen heen. Ontdubbeld op URL (hetzelfde product kan onder meerdere
+ * zoektermen zijn opgeslagen), gesorteerd op prijs.
+ */
+export async function getCatalogListings(
+  db: Db,
+  category: ComponentType,
+  ttlMs: number = CATALOG_TTL_MS,
+  limit: number = 100
+): Promise<PriceResult[]> {
+  const cutoff = new Date(Date.now() - ttlMs);
+  const rows = await db
+    .select()
+    .from(listings)
+    .where(
+      and(
+        eq(listings.category, category),
+        eq(listings.mock, false),
+        gt(listings.scrapedAt, cutoff)
+      )
+    )
+    .orderBy(asc(listings.priceCents));
+
+  const seen = new Set<string>();
+  const unique: PriceResult[] = [];
+  for (const row of rows) {
+    const key = `${row.retailer}|${row.url}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(rowToResult(row));
+    if (unique.length >= limit) break;
+  }
+  return unique;
+}
+
+/**
  * Sla scrape-resultaten op: vervang per retailer de oude rijen voor deze
  * zoekterm. Retailers die dit keer niets teruggaven blijven staan tot hun
- * rijen verouderen.
+ * rijen verouderen. `category` komt van de aanroeper (categoriepagina's)
+ * of wordt afgeleid uit de productnaam.
  */
 export async function saveListings(
   db: Db,
   query: string,
   results: PriceResult[],
-  source: string = "scraper"
+  source: string = "scraper",
+  category?: ComponentType
 ): Promise<void> {
   if (results.length === 0) return;
 
@@ -61,6 +103,7 @@ export async function saveListings(
         url: r.url,
         imageUrl: r.imageUrl ?? null,
         inStock: r.inStock,
+        category: category ?? inferCategory(r.name),
         mock: r.mock ?? false,
         source: r.mock ? "mock" : source,
       }))

@@ -67,13 +67,14 @@ CATEGORY_QUERIES: dict[str, list[str]] = {
 }
 
 
-def all_queries() -> list[str]:
+def all_queries() -> list[tuple[str, str]]:
+    """Alle (zoekterm, categorie)-paren, ontdubbeld op zoekterm."""
     seen: set[str] = set()
-    result: list[str] = []
-    for queries in CATEGORY_QUERIES.values():
+    result: list[tuple[str, str]] = []
+    for category, queries in CATEGORY_QUERIES.items():
         for q in queries:
             key = q.lower()
             if key not in seen:
                 seen.add(key)
-                result.append(q)
+                result.append((q, category))
     return result

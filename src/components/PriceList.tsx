@@ -44,8 +44,15 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
         setPickerOpen(false);
       }
     }
+    function onEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setPickerOpen(false);
+    }
     document.addEventListener("mousedown", onOutsideClick);
-    return () => document.removeEventListener("mousedown", onOutsideClick);
+    document.addEventListener("keydown", onEscape);
+    return () => {
+      document.removeEventListener("mousedown", onOutsideClick);
+      document.removeEventListener("keydown", onEscape);
+    };
   }, [pickerOpen]);
 
   function handleAdd(slot: ComponentType) {
@@ -198,6 +205,8 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
                   <>
                     <button
                       onClick={() => setPickerOpen((p) => !p)}
+                      aria-expanded={pickerOpen}
+                      aria-haspopup="menu"
                       className={`flex items-center gap-1 font-label-technical text-label-technical px-3 py-2.5 rounded-lg transition-all ${
                         added
                           ? "bg-success-emerald text-white"

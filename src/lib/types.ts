@@ -1,4 +1,4 @@
-export type Retailer = "amazon" | "megekko" | "azerty" | "alternate";
+export type Retailer = "amazon" | "bol" | "megekko" | "azerty" | "alternate";
 
 export interface PriceResult {
   retailer: Retailer;

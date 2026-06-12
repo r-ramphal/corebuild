@@ -9,6 +9,7 @@ import type { PriceResult, SearchResults } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
   amazon: "Amazon.nl",
+  bol: "Bol.com",
   megekko: "Megekko",
   azerty: "Azerty",
   alternate: "Alternate",

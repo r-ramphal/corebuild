@@ -3,8 +3,14 @@ import type { PriceResult } from "../types";
 
 const BASE = "https://www.bol.com";
 
+/**
+ * Best-effort scraper: bol.com heeft sterke bot-detectie (consent-wall /
+ * client-side rendering). Vanaf datacenter-IP's levert dit vaak 0 resultaten
+ * op; de zoekroute valt dan terug op demo-data totdat de Marketing Catalog
+ * API beschikbaar is (KvK vereist).
+ */
 export async function searchBol(query: string): Promise<PriceResult[]> {
-  const url = `${BASE}/nl/nl/s/?searchtext=${encodeURIComponent(query)}&sort=price&priceSort=ASC`;
+  const url = `${BASE}/nl/nl/s/?searchtext=${encodeURIComponent(query)}`;
 
   const res = await fetch(url, {
     headers: {
@@ -13,6 +19,7 @@ export async function searchBol(query: string): Promise<PriceResult[]> {
       "Accept-Language": "nl-NL,nl;q=0.9",
       "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     },
+    signal: AbortSignal.timeout(8000),
     next: { revalidate: 300 },
   });
 
@@ -22,45 +29,33 @@ export async function searchBol(query: string): Promise<PriceResult[]> {
   const $ = cheerio.load(html);
   const results: PriceResult[] = [];
 
-  $("[data-test='product-item'], .product-item--row, .js_item_root").each((_, el) => {
-    const name = $(el)
-      .find("[data-test='product-title'], .product-title, .sx-heading")
-      .first()
-      .text()
-      .trim();
-
-    // Price — integer + fractional cents, e.g. "549" + "99"
-    const integer = $(el).find(".price__integer, [data-test='price'] .price__integer").first().text().replace(/\D/g, "");
-    const fractional = $(el).find(".price__fractional, [data-test='price'] .price__fractional").first().text().replace(/\D/g, "") || "00";
-    const price = parseFloat(`${integer}.${fractional.padEnd(2, "0")}`);
-
-    // Fallback: plain text price
-    const priceText = !price
-      ? $(el).find("[data-test='price'], .price").first().text().replace(/[^\d,]/g, "").replace(",", ".")
-      : "";
-    const fallbackPrice = parseFloat(priceText);
-
-    const finalPrice = price > 0 ? price : fallbackPrice;
-
-    const href = $(el).find("a[data-test='product-title'], a.product-title, a").first().attr("href") ?? "";
+  // Elke product-card is een div[role="button"] met daarin een /nl/nl/p/-link
+  $('div[role="button"]').each((_, el) => {
+    const titleLink = $(el)
+      .find('a[href^="/nl/nl/p/"]')
+      .filter((_, a) => $(a).text().trim().length > 10)
+      .first();
+    const name = titleLink.text().trim();
+    const href = titleLink.attr("href") ?? "";
     const link = href.startsWith("http") ? href : `${BASE}${href}`;
 
-    const img =
-      $(el).find("img[data-test='product-image'], .product-media img, img").first().attr("src") ??
-      $(el).find("img").first().attr("data-src");
+    // Screen-reader span: "De prijs van dit product is '2261' euro en '00' cent"
+    const srPrice = $(el)
+      .find("span")
+      .filter((_, s) => $(s).text().startsWith("De prijs van dit product"))
+      .first()
+      .text();
+    const m = srPrice.match(/'(\d+)' euro en '(\d+)' cent/);
+    const price = m ? Number(m[1]) + Number(m[2]) / 100 : NaN;
 
-    const stockText = $(el).find("[data-test='delivery-info'], .delivery-highlight").text().toLowerCase();
-    const inStock = !stockText.includes("niet") && !stockText.includes("uitverkocht");
+    // Productafbeelding staat in de parent-wrapper naast de content-kolom
+    const img = $(el).parent().find('img[src*="media.s-bol"]').first().attr("src");
 
-    if (name && !isNaN(finalPrice) && finalPrice > 0) {
-      results.push({
-        retailer: "bol",
-        name,
-        priceEur: finalPrice,
-        url: link,
-        imageUrl: img,
-        inStock,
-      });
+    const cardText = $(el).text();
+    const inStock = !/uitverkocht|niet leverbaar/i.test(cardText);
+
+    if (name && !isNaN(price) && price > 0) {
+      results.push({ retailer: "bol", name, priceEur: price, url: link, imageUrl: img, inStock });
     }
   });
 

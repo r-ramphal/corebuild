@@ -101,6 +101,7 @@ function CategoryResultCard({ item, isBestDeal, componentType, onAddToBuild }: C
             <div>
               <span className="font-label-technical text-label-technical text-outline uppercase tracking-wider">
                 {RETAILER_LABEL[item.retailer] ?? item.retailer}
+                {item.mock ? " · demo" : ""}
               </span>
               <h3 className="font-title-md text-title-md text-on-surface mb-1">
                 {item.name}

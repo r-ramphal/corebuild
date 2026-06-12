@@ -4,10 +4,30 @@ import { searchBol } from "@/lib/scrapers/bol";
 import { searchMegekko } from "@/lib/scrapers/megekko";
 import { searchAzerty } from "@/lib/scrapers/azerty";
 import { searchAlternate } from "@/lib/scrapers/alternate";
+import { searchMock } from "@/lib/mock/catalog";
 import type { PriceResult, Retailer, SearchResults } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+/**
+ * Bol en Amazon blokkeren scrapers vanaf datacenter-IP's. Tot de officiële
+ * API's beschikbaar zijn (KvK / 3 verkopen) proberen we live en vallen we
+ * terug op demo-data uit de mock-catalogus.
+ */
+async function withMockFallback(
+  retailer: Retailer,
+  live: Promise<PriceResult[]>,
+  query: string
+): Promise<PriceResult[]> {
+  try {
+    const results = await live;
+    if (results.length > 0) return results;
+  } catch {
+    // genegeerd — fallback hieronder
+  }
+  return searchMock(retailer, query);
+}
 
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q")?.trim();
@@ -17,8 +37,8 @@ export async function GET(req: NextRequest) {
   }
 
   const [amazon, bol, megekko, azerty, alternate] = await Promise.allSettled([
-    searchAmazon(query),
-    searchBol(query),
+    withMockFallback("amazon", searchAmazon(query), query),
+    withMockFallback("bol", searchBol(query), query),
     searchMegekko(query),
     searchAzerty(query),
     searchAlternate(query),

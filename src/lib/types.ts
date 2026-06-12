@@ -18,6 +18,8 @@ export interface PriceResult {
   imageUrl?: string;
   inStock: boolean;
   asin?: string;
+  /** True wanneer dit demo-data is (retailer-API nog niet beschikbaar) */
+  mock?: boolean;
 }
 
 export interface SearchResults {

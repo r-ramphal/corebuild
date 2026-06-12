@@ -44,12 +44,15 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - Alle tokens als CSS vars (`--cb-*`) + Tailwind utilities via `@theme inline`
 - Retailer-kleuren: amazon #FF9900, bol #0000FF, megekko #00A651, azerty #E30613, alternate #00305F
 
-### Prijsvergelijking (live)
-- `src/lib/scrapers/amazon.ts` — amazon.nl scraper (cheerio)
-- `src/lib/scrapers/bol.ts` — bol.com scraper
-- `src/lib/scrapers/megekko.ts` / `azerty.ts` / `alternate.ts` — HTML-scrapers
+### Prijsvergelijking (live, getest juni 2026)
 - `/api/search?q=` — parallel fanout naar alle 5 bronnen, sorteert op prijs asc
-- **Amazon Associates aanvraag loopt** — scraper werkt al zonder API key
+- **Megekko** — POST naar `/pages/zoeken/v5/v5.php` (XHR-endpoint, JSON met `html`-veld); selectors `.prdContainer` / `.prdTitle` / `.prsEuro`. Eerste query per zoekterm kan 5-15s duren (server-side cache), timeout 15s
+- **Azerty** — `https://azerty.nl/catalogsearch/result/?q=` (zónder www!); container `form[id^="product_addtocart_form"]`, prijs uit `data-price-amount`-attribuut
+- **Alternate** — `/listing.xhtml?q=&s=price_asc`; cards zijn `a.productBox`, prijs `span.price`, voorraad `.delivery-info`
+- **Amazon** — best-effort; URL via `data-asin` → `/dp/<asin>`, voegt `?tag=` toe als `AMAZON_ASSOCIATE_TAG` gezet is. Wordt vanaf Vercel (datacenter-IP) waarschijnlijk geblokkeerd → **mock-fallback**
+- **Bol** — best-effort; cards `div[role="button"]`, prijs uit screen-reader-span ("De prijs van dit product is..."). Sterke bot-detectie → **mock-fallback**
+- **Mock-fallback** (`src/lib/mock/catalog.ts`) — ~38 realistische producten over alle 8 categorieën; deterministische prijsvariatie per retailer; resultaten dragen `mock: true` en tonen "· demo" in de retailerbadge
+- `scripts/test-scrapers.ts` — `npx tsx scripts/test-scrapers.ts "zoekterm"` test alle scrapers tegen de echte sites
 
 ### UI (Stitch design geïmplementeerd)
 - Homepage (`/`) — hero met gradient bg + zoekbalk, 8 categorie-cards, features-sectie
@@ -86,9 +89,28 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - Korte categorienamen (CPU, GPU, PSU…) als `shortLabel` in `COMPONENT_META`; ook `pageTitle`, `description`, `emptyText` per categorie
 
 ### Nog te bouwen
-- [ ] **Scrapers testen** — CSS-selectors uitproberen op echte retailer-HTML (megekko/azerty/alternate meest urgent)
 - [ ] **Productdetailpagina** (`/product/[id]`) — afbeelding, specs, alle retailerprijzen voor 1 product
 - [ ] **Auth + opgeslagen builds** — Convex provisioning (`npx convex dev`), better-auth, opslaan/laden/delen builds
+
+---
+
+## Roadmap: data-architectuur (afgesproken juni 2026)
+
+**Database-first aanpak**: scrapers en API-data komen samen in een centrale database
+(PostgreSQL of MongoDB), niet rechtstreeks naar de Next.js frontend.
+
+1. **Bouwfase (nu)** ✅ deels
+   - Next.js site + scrapers voor Megekko/Azerty/Alternate (werken live)
+   - Bol + Amazon: demo-data via mock-fallback (zichtbaar als "· demo")
+   - Python-scrapers + database volgen zodra DB-keuze gemaakt is
+2. **Inschrijven & livegang**
+   - Vlak vóór serieuze livegang: KvK-inschrijving
+3. **API's aansluiten (na KvK)**
+   - Bol Marketing Catalog API aanvragen (KvK-nummer vereist — daarom is de
+     "API toegang"-knop in het partnerdashboard nu niet zichtbaar)
+   - Awin-aanmelding voor Coolblue (nieuwe retailer toevoegen aan `Retailer`-type)
+   - Amazon: handmatige affiliate-links tot 3 verkopen → dan PA-API
+   - Mock-data vervangen door API-data in de database
 
 ---
 

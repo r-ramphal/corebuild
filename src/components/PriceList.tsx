@@ -97,6 +97,7 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
               style={{ backgroundColor: RETAILER_BG[item.retailer] ?? "#737687" }}
             >
               {RETAILER_LABEL[item.retailer] ?? item.retailer}
+              {item.mock ? " · demo" : ""}
             </span>
             {item.inStock ? (
               <div className="flex items-center gap-1">

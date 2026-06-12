@@ -3,43 +3,68 @@ import type { PriceResult } from "../types";
 
 const BASE = "https://www.megekko.nl";
 
+/**
+ * Megekko rendert zoekresultaten via een XHR-endpoint (v5.php) dat JSON
+ * teruggeeft met een `html`-veld. De resultatenpagina zelf is een lege shell.
+ */
 export async function searchMegekko(query: string): Promise<PriceResult[]> {
-  const url = `${BASE}/zoeken?zoekterm=${encodeURIComponent(query)}&sorteren=laagste_prijs`;
+  const body = new URLSearchParams({
+    zoek: query,
+    cache: "0",
+    pageuri: "/info/zoeken",
+    filter: "",
+    pagemutate: "",
+    output: "html",
+  });
 
-  const res = await fetch(url, {
+  const res = await fetch(`${BASE}/pages/zoeken/v5/v5.php`, {
+    method: "POST",
     headers: {
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
       "Accept-Language": "nl-NL,nl;q=0.9",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-Requested-With": "XMLHttpRequest",
+      Referer: `${BASE}/info/zoeken`,
     },
-    next: { revalidate: 300 },
+    body: body.toString(),
+    signal: AbortSignal.timeout(15000),
   });
 
   if (!res.ok) throw new Error(`Megekko HTTP ${res.status}`);
 
-  const html = await res.text();
-  const $ = cheerio.load(html);
+  const json = (await res.json()) as { html?: string };
+  if (!json.html) return [];
+
+  const $ = cheerio.load(json.html);
   const results: PriceResult[] = [];
 
-  $(".product-container, .product_wrap, [class*='product-card']").each((_, el) => {
-    const name =
-      $(el).find("[class*='product-title'], [class*='product-name'], h2 a").first().text().trim();
+  $(".prdContainer").each((_, el) => {
+    const name = $(el).find(".prdTitle").first().text().trim();
 
-    const priceText = $(el)
-      .find("[class*='price'], .product-price")
-      .first()
-      .text()
-      .replace(/[^\d,]/g, "")
-      .replace(",", ".");
-    const price = parseFloat(priceText);
+    // Prijs als "1299,-" / "1.299,-" / "129,99"
+    const rawPrice = $(el).find(".prsEuro").first().text().trim();
+    const price = parseFloat(
+      rawPrice
+        .replace(/\./g, "")
+        .replace(",-", ",00")
+        .replace(",", ".")
+        .replace(/[^\d.]/g, "")
+    );
 
-    const href = $(el).find("a").attr("href") ?? "";
+    const href = $(el).find("a.prdImg").attr("href") ?? "";
     const link = href.startsWith("http") ? href : `${BASE}${href}`;
 
-    const img = $(el).find("img").attr("src") ?? $(el).find("img").attr("data-src");
+    const imgSrc = $(el).find(".prdImg img").attr("src");
+    const img = imgSrc
+      ? imgSrc.startsWith("http")
+        ? imgSrc
+        : `${BASE}${imgSrc}`
+      : undefined;
 
-    const stockText = $(el).find("[class*='stock'], [class*='lever']").text().toLowerCase();
-    const inStock = stockText.includes("op voorraad") || stockText.includes("leverbaar");
+    const sub = $(el).find(".prdSubheader").text().toLowerCase();
+    const inStock =
+      /leverbaar|voorraad/.test(sub) && !/niet (meer )?leverbaar/.test(sub);
 
     if (name && !isNaN(price) && price > 0) {
       results.push({ retailer: "megekko", name, priceEur: price, url: link, imageUrl: img, inStock });

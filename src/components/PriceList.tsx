@@ -2,9 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ExternalLink, Package, Plus, Check, CircleCheck, CircleAlert } from "lucide-react";
 import { formatEur } from "@/lib/format";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
+import { productUrl } from "@/lib/product-url";
 import type { PriceResult, SearchResults, ComponentType } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
@@ -116,7 +118,7 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
             )}
           </div>
 
-          {/* Product name */}
+          {/* Product name — linkt naar de prijsvergelijkingspagina */}
           <h3
             className={`font-title-md text-title-md mb-2 transition-colors ${
               item.inStock
@@ -124,7 +126,9 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
                 : "text-on-surface-variant"
             }`}
           >
-            {item.name}
+            <Link href={productUrl(item, categorySlot)} className="hover:underline">
+              {item.name}
+            </Link>
           </h3>
         </div>
 

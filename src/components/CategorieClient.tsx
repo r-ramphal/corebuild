@@ -11,6 +11,7 @@ import {
 import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META } from "@/lib/categories";
 import { formatEur } from "@/lib/format";
+import { productUrl } from "@/lib/product-url";
 import type { ComponentType, SearchResults, PriceResult } from "@/lib/types";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -150,14 +151,12 @@ function CategoryResultCard({ item, isBestDeal, componentType, onAddToBuild }: C
             </div>
 
             <div className="flex gap-2">
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href={productUrl(item, componentType)}
                 className="px-4 py-2 border border-outline-variant rounded-lg font-label-technical text-label-technical hover:bg-surface-container transition-colors"
               >
                 Vergelijken
-              </a>
+              </Link>
               <button
                 onClick={handleAdd}
                 className={`px-6 py-2 rounded-lg font-label-technical text-label-technical transition-all ${

@@ -88,8 +88,15 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - Geen dark mode
 - Korte categorienamen (CPU, GPU, PSU…) als `shortLabel` in `COMPONENT_META`; ook `pageTitle`, `description`, `emptyText` per categorie
 
+### Productdetailpagina (`/product/[slug]`)
+- Geen database → de productnaam ís de identifier: slug in het pad, exacte naam als `?q=`, categorie als `?cat=` (bepaalt build-slot, breadcrumb en wattage-schatting)
+- `src/lib/product-url.ts` — `slugify()` + `productUrl(item, category?)`
+- `ProductClient` zoekt live via `/api/search` en filtert op relevantie (≥60% van de naam-tokens); geen match → toont meest vergelijkbare resultaten met melding
+- Hero: afbeelding, laagste prijs (display-lg), "Bekijk bij [retailer]", "Toevoegen aan Build" (direct slot bij `cat`, anders slot-picker)
+- Prijsvergelijkingstabel: alle aanbiedingen gesorteerd op prijs, beste prijs gemarkeerd (emerald), voorraad-dot per rij
+- Bereikbaar via "Vergelijken" (categoriepagina) en de producttitel (zoekresultaten)
+
 ### Nog te bouwen
-- [ ] **Productdetailpagina** (`/product/[id]`) — afbeelding, specs, alle retailerprijzen voor 1 product
 - [ ] **Auth + opgeslagen builds** — Convex provisioning (`npx convex dev`), better-auth, opslaan/laden/delen builds
 
 ---

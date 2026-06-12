@@ -134,11 +134,10 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - Vanaf residentieel IP (thuis) werken **alle 5** retailers, inclusief Bol en Amazon —
   zo komt er échte Bol/Amazon-data in de database terwijl Vercel ze niet kan scrapen
 - GitHub Actions (`.github/workflows/scrape.yml`): elke 6 uur megekko/azerty/alternate;
-  **vereist repo-secret `DATABASE_URL`** (nog toe te voegen door Ravi)
+  repo-secret `DATABASE_URL` is gezet — eerste run geslaagd (963 rijen, juni 2026)
 - Lokaal: `cd scrapers && .\.venv\Scripts\python refresh.py --all`
 
 ### Nog te bouwen
-- [ ] **GitHub-secret `DATABASE_URL`** toevoegen zodat de scrape-workflow draait
 - [ ] **Auth + opgeslagen builds** — better-auth op dezelfde Postgres (Drizzle-adapter); Convex-bestanden kunnen daarna weg
 - [ ] **Prijshistorie** — aparte tabel of `listings` niet meer verwijderen maar versieneren
 

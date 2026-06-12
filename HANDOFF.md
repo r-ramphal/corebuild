@@ -107,6 +107,7 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 
 ## Bekende gotchas
 
+- **Geen ongelayerde CSS in `globals.css`** — regels buiten `@layer` winnen van álle Tailwind-utilities (een `* { margin: 0; padding: 0 }` reset sloeg ooit alle `px-*`/`mx-auto`/linkkleuren plat). Custom base-styles altijd in `@layer base` zetten.
 - `kysely` gepinned op `0.28.17` via `overrides` in `package.json` (niet als directe dep)
 - `lucide-react` v1 — nieuwe icoon-namen: `TriangleAlert` / `CircleAlert` / `CircleCheck`
 - tsconfig path alias `@convex/*` → `./convex/*` voor `@convex/_generated/api` imports

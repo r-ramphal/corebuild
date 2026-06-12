@@ -58,13 +58,37 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - Footer — 3-kolom layout
 - `PriceList` — retailer badges, product image, prijs, externe link knop
 
+### Gebouwd (sessie 2–3)
+
+#### Builder + Staat
+- `src/lib/store/build.ts` — Zustand build store, localStorage persist (`corebuild-build`), 8 component slots
+- `src/lib/categories.ts` — `COMPONENT_META` (label, searchTerm, popularTags, wattage per slot)
+- `src/lib/types.ts` — `ComponentType` union + `PriceResult` / `SearchResults` interfaces
+
+#### Pagina's
+- `/builder` — 12-col grid, gevulde/lege slots, build-overzicht sidebar met 48px prijs, power-bar, wis-knop
+- `/categorie/[type]` — categorie-header met icon, populaire tags, filter sidebar, `CategoryResultCard`
+- `/zoeken` — filter sidebar (retailers/prijs/voorraad/toggle), segmented sort-control, `PriceList`
+
+#### Components
+- `PriceList` — 192px productafbeelding, "Beste prijs" badge, slot-picker dropdown (click-outside), "Aan build" / checkmark
+- `ZoekenClient` — fanout via `/api/search`, filterstate, slot-doorgave aan PriceList
+- Navbar, Footer, HeroSearch — volledig Stitch-typografie
+
+#### Design (Stitch "Technical Precision") — 1:1 met de export
+- Bron: `C:\Users\Lenovo\Downloads\stitch_corebuild_pc_vergelijker\` (4 schermen HTML + PNG + DESIGN.md)
+- `globals.css` — alle `--cb-*` tokens, `@theme inline` Tailwind-mappings, `@layer utilities` Stitch-typografyklassen
+- **Border-radius Stitch-schaal**: `rounded`=2px, `rounded-lg`=4px, `rounded-xl`=8px, `rounded-full`=12px (overrides in `@layer utilities`)
+- `.custom-slider` CSS voor prijs-sliders (4px track, 16px primary thumb)
+- Statische afbeeldingen uit Stitch gedownload naar `public/images/` (feature-pc.png, promo-gpu.png)
+- Fonts: Hanken Grotesk / Inter / JetBrains Mono via `next/font/google`
+- Geen dark mode
+- Korte categorienamen (CPU, GPU, PSU…) als `shortLabel` in `COMPONENT_META`; ook `pageTitle`, `description`, `emptyText` per categorie
+
 ### Nog te bouwen
-- [ ] Scrapers testen + selectors bijstellen op echte retailer-HTML
-- [ ] `/builder` pagina — Zustand, component slots, prijstotaal, compatibiliteitscheck
-- [ ] `/categorie/[type]` pagina — categorie-header, filters, productgrid
-- [ ] Productdetailpagina (`/product/[id]`)
-- [ ] "Toevoegen aan Build" knop op zoekresultaten + categoriepagina
-- [ ] Auth + opgeslagen builds (Convex — later)
+- [ ] **Scrapers testen** — CSS-selectors uitproberen op echte retailer-HTML (megekko/azerty/alternate meest urgent)
+- [ ] **Productdetailpagina** (`/product/[id]`) — afbeelding, specs, alle retailerprijzen voor 1 product
+- [ ] **Auth + opgeslagen builds** — Convex provisioning (`npx convex dev`), better-auth, opslaan/laden/delen builds
 
 ---
 

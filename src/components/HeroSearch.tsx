@@ -27,23 +27,26 @@ export function HeroSearch() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="relative w-full">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant pointer-events-none" />
+    <form
+      onSubmit={handleSubmit}
+      className="relative w-full group transition-transform focus-within:scale-[1.01]"
+    >
+      <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
+        <Search className="w-6 h-6 text-outline group-focus-within:text-primary transition-colors" />
+      </div>
       <input
         ref={inputRef}
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Zoek een component — bijv. RTX 4070, Ryzen 7 9800X3D"
-        className="w-full h-16 pl-14 pr-36 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant font-body-lg text-body-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+        placeholder="Zoek een component — bijv. RTX 4070, Ryzen 7"
+        className="w-full h-16 pl-16 pr-6 bg-white border border-outline-variant rounded-xl shadow-sm text-on-surface placeholder:text-on-surface-variant font-body-lg text-body-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
       />
-      <button
-        type="submit"
-        disabled={!query.trim()}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white px-6 py-2.5 rounded-lg font-label-technical text-label-technical hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Zoeken
-      </button>
+      <div className="absolute inset-y-0 right-4 flex items-center">
+        <kbd className="hidden md:inline-flex h-8 items-center gap-1 rounded border border-outline-variant bg-surface-container-low px-2 font-label-technical text-label-technical text-on-surface-variant">
+          <span>⌘</span>K
+        </kbd>
+      </div>
     </form>
   );
 }

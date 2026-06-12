@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-col gap-1">
           <span className="font-title-md text-title-md font-bold text-on-surface">CoreBuild</span>
           <span className="font-body-sm text-body-sm text-on-surface-variant max-w-xs">
-            Prijzen zijn indicatief en kunnen afwijken. Wij zijn een deelnemer aan het Amazon Associates-programma.
+            Wij zijn deelnemer aan affiliate programma&apos;s. Prijzen zijn indicatief.
           </span>
         </div>
 
@@ -23,7 +23,7 @@ export function Footer() {
           </Link>
         </nav>
 
-        <span className="font-label-technical text-label-technical text-on-surface-variant">© 2025 CoreBuild</span>
+        <span className="font-label-technical text-label-technical text-on-surface-variant">© 2026 CoreBuild</span>
       </div>
     </footer>
   );

@@ -30,11 +30,17 @@ python -m venv .venv
 
 | Bestand | Doel |
 |---|---|
-| `refresh.py` | CLI-runner: scrape → schrijf naar database |
-| `corebuild_scrapers/db.py` | Postgres-verbinding + `save_listings` (vervang per query+retailer) |
-| `corebuild_scrapers/queries.py` | Populaire zoektermen per categorie (spiegel van `src/lib/categories.ts`) |
+| `refresh.py` | CLI-runner: scrape → relevantiefilter → schrijf naar database |
+| `corebuild_scrapers/db.py` | Postgres-verbinding + `save_listings` (vervang per query+retailer; schoont titels en zet `category`) |
+| `corebuild_scrapers/queries.py` | Populaire zoektermen per categorie (spiegel van `src/lib/categories.ts`); `all_queries()` geeft (zoekterm, categorie)-paren |
+| `corebuild_scrapers/relevance.py` | Categorie-relevantiefilter (spiegel van `src/lib/relevance.ts`!) — weert junk zoals Harry Potter-figuren bij "processor" |
+| `corebuild_scrapers/clean_name.py` | Titel-normalisatie (spiegel van `src/lib/clean-name.ts`!) — fixt machinevertaalde Bol-titels |
 | `corebuild_scrapers/retailers/` | Eén module per retailer; elke `search(query)` geeft een lijst dicts |
 | `corebuild_scrapers/retailers/common.py` | HTTP via curl_cffi (Chrome-impersonatie) + prijs-parsing |
+
+> **Let op:** `relevance.py`/`clean_name.py` zijn spiegels van hun TS-tegenhangers
+> in `src/lib/` — wijzig je regels, werk dan **beide** kanten bij
+> (en draai `npx tsx scripts/test-relevance.ts`).
 
 ## Belangrijk
 

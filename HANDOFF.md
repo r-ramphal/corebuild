@@ -8,18 +8,23 @@
 5 scrapers (TS + Python), Neon-database met DB-first zoekflow, productdetailpagina,
 auth (better-auth) + opgeslagen/deelbare builds. GitHub Actions ververst prijzen elke 6 uur.
 
-**Nieuw (13 juni 2026):** categorie-relevantielaag (geen Harry Potter-figuren meer
-bij CPU's), catalogusmodus per categorie (`category`-kolom in listings), mobiel
-menu + a11y-verbeteringen, `/over`-pagina (privacy/affiliate), security-hardening
-(TLS-verificatie DB, inputvalidatie builds-API, rate limit op /api/search).
-
-**⚠️ NOG UITVOEREN (lokaal, was geblokkeerd in auto-mode):**
-1. `npm run db:push` — voegt de `category`-kolom toe aan Neon (additief, veilig)
-2. `npx tsx scripts/clean-listings.ts` — verwijdert junk-rijen en backfillt categorieën
-Zonder stap 1 crasht elke DB-query zodra deze code deployt (kolom bestaat nog niet)!
+**Nieuw (13 juni 2026) — alles live op corebuildnl.com (commits `524987e` + `c257402`):**
+- **Categorie-relevantielaag** — geen Harry Potter-figuren meer bij CPU's; oorzaak was
+  fuzzy retailer-search ("processor" → "Professor Sneep") + ongefilterde overname
+- **Catalogusmodus** per categorie (`category`-kolom in listings; `db:push` ✅ uitgevoerd)
+- **Titel-normalisatie** — machinevertaalde Bol-titels ("Wees Stil!" → be quiet!) opgeschoond
+- **Database opgeschoond** (`clean-listings.ts` ✅ 2x uitgevoerd): 589 + 28 junk-rijen
+  verwijderd, 1235 rijen gecategoriseerd, 205 titels genormaliseerd. Stand: ~1234 rijen,
+  per categorie 108–211, 28 zonder categorie (vrije zoektermen)
+- **Mobiel menu** + a11y-verbeteringen, `/over`-pagina (privacy/affiliate), werkende
+  exporteer-knop, eerlijke homepage-copy
+- **Security-hardening**: TLS-verificatie DB, inputvalidatie builds-API, rate limit
+  op /api/search, better-auth rate limit aan
+- Productie geverifieerd: `?cat=cpu` → 96+ échte CPU's (bron `catalog`), `?cat=gpu` idem
 
 **Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
-en fase 3 van de roadmap (officiële API's na KvK-inschrijving).
+fase 3 van de roadmap (officiële API's na KvK-inschrijving), en de nieuwe
+suggesties onderaan "Nog te bouwen" (compatibiliteitscheck, prijsalerts).
 
 ## Overzicht
 

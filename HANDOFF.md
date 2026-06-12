@@ -2,6 +2,15 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## Status (13 juni 2026)
+
+**Alles uit het oorspronkelijke plan is gebouwd en live:** Stitch-design (1:1),
+5 scrapers (TS + Python), Neon-database met DB-first zoekflow, productdetailpagina,
+auth (better-auth) + opgeslagen/deelbare builds. GitHub Actions ververst prijzen elke 6 uur.
+
+**Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
+en fase 3 van de roadmap (officiële API's na KvK-inschrijving).
+
 ## Overzicht
 
 Dutch-market PC-parts builder (helemaal opnieuw gebouwd, schone start t.o.v. CompuNL).
@@ -21,9 +30,10 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 | Styling | Tailwind v4 + shadcn/ui (Radix Nova preset) |
 | Database | **Postgres (Neon) + Drizzle ORM** |
 | Auth | better-auth 1.6.14 op dezelfde Postgres (Drizzle-adapter) |
-| State | Zustand + SWR |
+| State | Zustand (persist → localStorage) |
 | Forms | react-hook-form + zod |
-| CI | GitHub Actions (Node 22) |
+| CI | GitHub Actions: `ci.yml` (build) + `scrape.yml` (prijzen, elke 6 uur) |
+| Scrapers | TypeScript (cheerio, in `/api/search`) + Python (`scrapers/`, curl_cffi) |
 
 **Shadcn gebruikt Radix** (niet Base/@base-ui) — `Button` heeft dus wél `asChild`.
 
@@ -48,19 +58,19 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - **Megekko** — POST naar `/pages/zoeken/v5/v5.php` (XHR-endpoint, JSON met `html`-veld); selectors `.prdContainer` / `.prdTitle` / `.prsEuro`. Eerste query per zoekterm kan 5-15s duren (server-side cache), timeout 15s
 - **Azerty** — `https://azerty.nl/catalogsearch/result/?q=` (zónder www!); container `form[id^="product_addtocart_form"]`, prijs uit `data-price-amount`-attribuut
 - **Alternate** — `/listing.xhtml?q=&s=price_asc`; cards zijn `a.productBox`, prijs `span.price`, voorraad `.delivery-info`
-- **Amazon** — best-effort; URL via `data-asin` → `/dp/<asin>`, voegt `?tag=` toe als `AMAZON_ASSOCIATE_TAG` gezet is. Wordt vanaf Vercel (datacenter-IP) waarschijnlijk geblokkeerd → **mock-fallback**
-- **Bol** — best-effort; cards `div[role="button"]`, prijs uit screen-reader-span ("De prijs van dit product is..."). Sterke bot-detectie → **mock-fallback**
+- **Amazon** — best-effort; URL via `data-asin` → `/dp/<asin>`, voegt `?tag=` toe als `AMAZON_ASSOCIATE_TAG` gezet is. Vanaf Vercel soms geblokkeerd → mock-fallback; échte data komt via de lokale Python-runs in de database
+- **Bol** — best-effort; cards `div[role="button"]`, prijs uit screen-reader-span ("De prijs van dit product is..."). Bot-detectie blokkeert Vercel → mock-fallback; échte data komt via de lokale Python-runs in de database
 - **Mock-fallback** (`src/lib/mock/catalog.ts`) — ~38 realistische producten over alle 8 categorieën; deterministische prijsvariatie per retailer; resultaten dragen `mock: true` en tonen "· demo" in de retailerbadge
 - `scripts/test-scrapers.ts` — `npx tsx scripts/test-scrapers.ts "zoekterm"` test alle scrapers tegen de echte sites
 
 ### UI (Stitch design geïmplementeerd)
 - Homepage (`/`) — hero met gradient bg + zoekbalk, 8 categorie-cards, features-sectie
 - Zoeken (`/zoeken?q=`) — filter sidebar (retailers/prijs/voorraad), resultatenlijst met "Beste prijs" badge
-- Navbar — fixed, "CoreBuild" tekst, nav-links met active-state, "Inloggen" knop
+- Navbar — fixed, "CoreBuild" tekst, nav-links met active-state, zoekveld (behalve home), "Inloggen" of sessie-dropdown
 - Footer — 3-kolom layout
 - `PriceList` — retailer badges, product image, prijs, externe link knop
 
-### Gebouwd (sessie 2–3)
+### Builder, categorie & zoeken
 
 #### Builder + Staat
 - `src/lib/store/build.ts` — Zustand build store, localStorage persist (`corebuild-build`), 8 component slots
@@ -68,7 +78,7 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - `src/lib/types.ts` — `ComponentType` union + `PriceResult` / `SearchResults` interfaces
 
 #### Pagina's
-- `/builder` — 12-col grid, gevulde/lege slots, build-overzicht sidebar met 48px prijs, power-bar, wis-knop
+- `/builder` — 12-col grid, gevulde/lege slots, build-overzicht sidebar met 48px prijs, power-bar (leest PSU-wattage uit productnaam), Clear all, Bewaar build
 - `/categorie/[type]` — categorie-header met icon, populaire tags, filter sidebar, `CategoryResultCard`
 - `/zoeken` — filter sidebar (retailers/prijs/voorraad/toggle), segmented sort-control, `PriceList`
 
@@ -117,14 +127,11 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - Debug-headers op `/api/search`: `x-corebuild-db: on|off`, `x-corebuild-source: database|live`
 
 #### Lokaal ontwikkelen
-- Docker-container `corebuild-pg` bestaat al: `docker start corebuild-pg`
-- `.env.local`: `DATABASE_URL=postgres://postgres:test@localhost:54329/corebuild`
-
-#### Python-scrapers (volgende stap van het plan)
-- Verbind met dezelfde `DATABASE_URL` (psycopg/SQLAlchemy)
-- Schrijf in `listings`: query lowercase + enkele spaties, prijs in centen,
-  vervang per (query, retailer), `source = 'python'`
-- De site serveert nieuwe rijen direct (TTL 30 min per query)
+- `.env.local` bevat de **Neon**-URL (pooled) + `BETTER_AUTH_SECRET` — lokaal dev praat dus
+  met dezelfde database als productie
+- Wil je een wegwerp-database: Docker-container `corebuild-pg` bestaat
+  (`docker start corebuild-pg`, URL: `postgres://postgres:test@localhost:54329/corebuild`),
+  daarna wel `npm run db:push` voor het schema
 
 ### Python-scrapers (`scrapers/`) — gebouwd & getest tegen Neon
 - 5 retailer-modules (zelfde selectors als de TS-scrapers), `refresh.py` CLI, zie `scrapers/README.md`
@@ -147,11 +154,11 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 **Database-first aanpak**: scrapers en API-data komen samen in een centrale database
 (PostgreSQL of MongoDB), niet rechtstreeks naar de Next.js frontend.
 
-1. **Bouwfase (nu)** ✅ deels
-   - Next.js site + scrapers voor Megekko/Azerty/Alternate (werken live)
-   - Bol + Amazon: demo-data via mock-fallback (zichtbaar als "· demo")
-   - Python-scrapers + database volgen zodra DB-keuze gemaakt is
-2. **Inschrijven & livegang**
+1. **Bouwfase** ✅ KLAAR
+   - Next.js site + TS-scrapers (alle 5) + Neon-database met DB-first zoekflow
+   - Python-scrapers vullen de database; GitHub Actions ververst elke 6 uur
+   - Bol/Amazon: echte data via lokale Python-runs; mock alleen als laatste fallback
+2. **Inschrijven & livegang** ← volgende fase
    - Vlak vóór serieuze livegang: KvK-inschrijving
 3. **API's aansluiten (na KvK)**
    - Bol Marketing Catalog API aanvragen (KvK-nummer vereist — daarom is de

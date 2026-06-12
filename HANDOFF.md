@@ -8,7 +8,7 @@ Dutch-market PC-parts builder (helemaal opnieuw gebouwd, schone start t.o.v. Com
 Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en delen ze.
 
 - **Repo:** https://github.com/r-ramphal/corebuild (branch `master`)
-- **Live:** https://corebuild-ashy.vercel.app (Vercel, auto-deploy van `master`)
+- **Live:** https://corebuildnl.com (Vercel, auto-deploy van `master`; oude URL corebuild-ashy.vercel.app redirect)
 - **Convex deployment:** nog niet aangemaakt (optioneel — app werkt zonder)
 
 ---
@@ -135,7 +135,7 @@ npx convex dev
 
 | Omgeving | URL | Platform |
 |---|---|---|
-| Productie | https://corebuild-ashy.vercel.app | Vercel (auto-deploy `master`) |
+| Productie | https://corebuildnl.com | Vercel (auto-deploy `master`) |
 | Convex dev | nog niet aangemaakt | — |
 
 **Vercel env vars instellen** (na Amazon Associates goedkeuring):

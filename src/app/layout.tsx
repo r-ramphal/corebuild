@@ -26,9 +26,52 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CoreBuild — Optimaliseer je build, verfijn je budget",
+  metadataBase: new URL("https://corebuildnl.com"),
+  title: {
+    default: "CoreBuild — Optimaliseer je build, verfijn je budget",
+    template: "%s | CoreBuild",
+  },
   description:
     "Vergelijk real-time prijzen van de grootste tech-retailers en bouw de ultieme setup met volledige compatibiliteitscontrole.",
+  keywords: [
+    "pc onderdelen vergelijken",
+    "pc bouwen",
+    "pc builder",
+    "componenten prijsvergelijker",
+    "videokaart prijzen",
+    "processor prijzen",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "nl_NL",
+    url: "https://corebuildnl.com",
+    siteName: "CoreBuild",
+    title: "CoreBuild — Optimaliseer je build, verfijn je budget",
+    description:
+      "Vergelijk real-time prijzen van de grootste tech-retailers en bouw de ultieme setup met volledige compatibiliteitscontrole.",
+    images: [
+      {
+        url: "/images/feature-pc.png",
+        width: 960,
+        height: 640,
+        alt: "CoreBuild — PC componenten prijsvergelijker",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CoreBuild — Optimaliseer je build, verfijn je budget",
+    description:
+      "Vergelijk real-time prijzen van de grootste tech-retailers en bouw de ultieme setup.",
+    images: ["/images/feature-pc.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

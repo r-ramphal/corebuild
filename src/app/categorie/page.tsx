@@ -1,7 +1,12 @@
 import { CategoryGrid } from "@/components/CategoryGrid";
 
 export const metadata = {
-  title: "Categorieën — CoreBuild",
+  title: "Categorieën",
+  description:
+    "Blader door alle PC-componentcategorieën: processors, videokaarten, moederborden, RAM, opslag, voedingen, behuizingen en koeling.",
+  alternates: {
+    canonical: "/categorie",
+  },
 };
 
 export default function CategorieIndexPage() {

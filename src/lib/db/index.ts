@@ -13,7 +13,9 @@ let db: Db | null | undefined;
 export function getDb(): Db | null {
   if (db !== undefined) return db;
 
-  const url = process.env.DATABASE_URL;
+  // Vercel-integraties injecteren wisselende namen: Neon Marketplace zet
+  // DATABASE_URL, legacy Vercel Postgres zet POSTGRES_URL
+  const url = process.env.DATABASE_URL ?? process.env.POSTGRES_URL;
   if (!url) {
     db = null;
     return db;

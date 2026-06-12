@@ -35,23 +35,36 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - Next.js 16 + Tailwind v4 + shadcn/ui (Radix, Nova preset)
 - Convex schema klaar maar **niet actief** — app draait zonder database
 - better-auth setup klaar voor later
-- Root layout met ThemeProvider (dark mode ready)
 - GitHub Actions CI + Vercel deployment
+- **Geen dark mode** (verwijderd per design beslissing)
+
+### Design system (Stitch)
+- Fonts: Hanken Grotesk (headlines) + Inter (body) + JetBrains Mono (labels) via next/font/google
+- Kleuren: volledig CoreBuild kleurensysteem in `globals.css` (primair #0049db, surface #faf8ff)
+- Alle tokens als CSS vars (`--cb-*`) + Tailwind utilities via `@theme inline`
+- Retailer-kleuren: amazon #FF9900, bol #0000FF, megekko #00A651, azerty #E30613, alternate #00305F
 
 ### Prijsvergelijking (live)
-- `src/lib/amazon.ts` — Amazon PA API 5.0 (AWS4-signing, `amazon.nl`)
+- `src/lib/scrapers/amazon.ts` — amazon.nl scraper (cheerio)
+- `src/lib/scrapers/bol.ts` — bol.com scraper
 - `src/lib/scrapers/megekko.ts` / `azerty.ts` / `alternate.ts` — HTML-scrapers
-- `/api/search?q=` — parallel fanout naar alle 4 bronnen, sorteert op prijs
-- `SearchForm` + `PriceList` UI — zoekbalk + resultatenlijst met "Goedkoopst" badge
-- **Amazon keys nog niet ingesteld** — aanvraag loopt (site: corebuild-ashy.vercel.app)
+- `/api/search?q=` — parallel fanout naar alle 5 bronnen, sorteert op prijs asc
+- **Amazon Associates aanvraag loopt** — scraper werkt al zonder API key
+
+### UI (Stitch design geïmplementeerd)
+- Homepage (`/`) — hero met gradient bg + zoekbalk, 8 categorie-cards, features-sectie
+- Zoeken (`/zoeken?q=`) — filter sidebar (retailers/prijs/voorraad), resultatenlijst met "Beste prijs" badge
+- Navbar — fixed, "CoreBuild" tekst, nav-links met active-state, "Inloggen" knop
+- Footer — 3-kolom layout
+- `PriceList` — retailer badges, product image, prijs, externe link knop
 
 ### Nog te bouwen
-- [ ] Amazon API keys instellen op Vercel (na goedkeuring Associates)
-- [ ] Scrapers testen + selectors bijstellen per retailer
-- [ ] Navbar + dark mode toggle
-- [ ] Productdetailpagina
-- [ ] Builder (component selectie + prijstotaal)
-- [ ] Auth + opgeslagen builds (Convex)
+- [ ] Scrapers testen + selectors bijstellen op echte retailer-HTML
+- [ ] `/builder` pagina — Zustand, component slots, prijstotaal, compatibiliteitscheck
+- [ ] `/categorie/[type]` pagina — categorie-header, filters, productgrid
+- [ ] Productdetailpagina (`/product/[id]`)
+- [ ] "Toevoegen aan Build" knop op zoekresultaten + categoriepagina
+- [ ] Auth + opgeslagen builds (Convex — later)
 
 ---
 

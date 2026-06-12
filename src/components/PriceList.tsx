@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { ExternalLink, Package } from "lucide-react";
+import { ExternalLink, Package, Plus, Check } from "lucide-react";
 import { formatEur } from "@/lib/format";
-import type { PriceResult, SearchResults } from "@/lib/types";
+import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
+import type { PriceResult, SearchResults, ComponentType } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
   amazon: "Amazon.nl",
@@ -14,139 +16,223 @@ const RETAILER_LABEL: Record<string, string> = {
 };
 
 const RETAILER_BG: Record<string, string> = {
-  amazon: "bg-retailer-amazon",
-  bol: "bg-retailer-bol",
-  megekko: "bg-retailer-megekko",
-  azerty: "bg-retailer-azerty",
-  alternate: "bg-retailer-alternate",
+  amazon: "#FF9900",
+  bol: "#0000FF",
+  megekko: "#00A651",
+  azerty: "#E30613",
+  alternate: "#00305F",
 };
 
-function ResultCard({
-  item,
-  isCheapest,
-}: {
+interface ResultRowProps {
   item: PriceResult;
   isCheapest: boolean;
-}) {
-  const outOfStock = !item.inStock;
+  categorySlot?: ComponentType;
+  onAddToBuild?: (item: PriceResult, slot: ComponentType) => void;
+}
+
+function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowProps) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [added, setAdded] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!pickerOpen) return;
+    function onOutsideClick(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onOutsideClick);
+    return () => document.removeEventListener("mousedown", onOutsideClick);
+  }, [pickerOpen]);
+
+  function handleAdd(slot: ComponentType) {
+    onAddToBuild?.(item, slot);
+    setAdded(true);
+    setPickerOpen(false);
+    setTimeout(() => setAdded(false), 2500);
+  }
 
   return (
-    <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`relative block group bg-surface-container-lowest border rounded-xl p-4 flex gap-6 hover:border-primary hover:shadow-md transition-all ${
-        isCheapest ? "border-2 border-success-emerald" : "border-outline-variant"
-      } ${outOfStock ? "opacity-75" : ""}`}
+    <div
+      className={`relative bg-surface-container-lowest rounded-xl p-4 flex gap-4 transition-all ${
+        isCheapest
+          ? "border-2 border-success-emerald"
+          : "border border-outline-variant hover:border-primary hover:shadow-md"
+      }`}
     >
-      {/* "Beste prijs" badge */}
       {isCheapest && (
-        <span className="absolute -top-3 right-4 bg-success-emerald text-white text-[10px] font-mono font-medium px-3 py-0.5 rounded-full uppercase tracking-wide">
+        <span className="absolute top-3 right-3 bg-success-emerald text-white text-[10px] font-mono uppercase px-2 py-0.5 rounded-full">
           Beste prijs
         </span>
       )}
 
-      {/* Image area */}
-      <div
-        className={`w-48 flex-shrink-0 flex items-center justify-center bg-white rounded-lg border border-outline-variant overflow-hidden ${
-          outOfStock ? "grayscale-[0.5]" : ""
-        }`}
-        style={{ minHeight: "9rem" }}
-      >
+      {/* Product image */}
+      <div className="w-20 h-20 flex-shrink-0 rounded-lg border border-outline-variant bg-white flex items-center justify-center overflow-hidden">
         {item.imageUrl ? (
-          <div className="relative w-full h-36">
-            <Image
-              src={item.imageUrl}
-              alt={item.name}
-              fill
-              className="object-contain p-2"
-              sizes="192px"
-              unoptimized
-            />
-          </div>
+          <Image
+            src={item.imageUrl}
+            alt={item.name}
+            width={80}
+            height={80}
+            className="object-contain"
+            unoptimized
+          />
         ) : (
-          <div className="flex items-center justify-center w-full h-36 bg-surface-container">
-            <Package className="w-8 h-8 text-on-surface-variant" />
-          </div>
+          <Package className="w-8 h-8 text-outline" />
         )}
       </div>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between gap-3">
-        {/* Top row: retailer badge + stock */}
-        <div className="flex items-center gap-2 flex-wrap">
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <span
-            className={`inline-flex items-center px-2 py-0.5 rounded text-white font-mono text-[10px] uppercase tracking-wide ${
-              RETAILER_BG[item.retailer] ?? "bg-on-surface-variant"
-            }`}
+            className="text-[10px] font-mono uppercase text-white px-1.5 py-0.5 rounded flex-shrink-0"
+            style={{ backgroundColor: RETAILER_BG[item.retailer] ?? "#737687" }}
           >
             {RETAILER_LABEL[item.retailer] ?? item.retailer}
           </span>
-          {outOfStock && (
-            <span className="text-[10px] font-mono text-on-surface-variant border border-outline-variant rounded px-2 py-0.5">
-              Niet op voorraad
-            </span>
+          {item.inStock ? (
+            <span className="text-[10px] font-mono text-success-emerald">Op voorraad</span>
+          ) : (
+            <span className="text-[10px] font-mono text-outline">Niet beschikbaar</span>
           )}
         </div>
 
-        {/* Product name */}
-        <div>
-          <p className="text-base font-semibold leading-6 text-on-surface group-hover:text-primary transition-colors line-clamp-1">
-            {item.name}
-          </p>
-        </div>
+        <p className="text-sm font-medium text-on-surface line-clamp-2 mb-3 pr-16">
+          {item.name}
+        </p>
 
-        {/* Bottom row: price + CTA */}
-        <div className="flex items-center justify-between gap-4">
-          <p
-            className={`text-lg font-bold leading-6 ${
-              isCheapest ? "text-primary" : "text-on-surface"
-            }`}
-          >
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className={`text-lg font-bold ${isCheapest ? "text-primary" : "text-on-surface"}`}>
             {formatEur(item.priceEur)}
           </p>
-          <span className="inline-flex items-center gap-1.5 text-xs font-mono text-on-surface-variant border border-outline-variant rounded-lg px-3 py-1.5 group-hover:border-primary group-hover:text-primary transition-colors flex-shrink-0">
-            Bekijk bij retailer
+
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`flex items-center gap-1 text-xs font-mono px-3 py-1.5 rounded-lg border transition-all ${
+              item.inStock
+                ? "border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary"
+                : "border-outline-variant text-outline opacity-50 pointer-events-none"
+            }`}
+          >
             <ExternalLink className="w-3 h-3" />
-          </span>
+            Bekijk
+          </a>
+
+          {onAddToBuild && (
+            <div ref={pickerRef} className="relative">
+              {categorySlot ? (
+                <button
+                  onClick={() => handleAdd(categorySlot)}
+                  className={`flex items-center gap-1 text-xs font-mono px-3 py-1.5 rounded-lg transition-all ${
+                    added
+                      ? "bg-success-emerald text-white"
+                      : "bg-primary text-white hover:opacity-90"
+                  }`}
+                >
+                  {added ? (
+                    <>
+                      <Check className="w-3 h-3" />
+                      Toegevoegd
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-3 h-3" />
+                      Aan build
+                    </>
+                  )}
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setPickerOpen((p) => !p)}
+                    className={`flex items-center gap-1 text-xs font-mono px-3 py-1.5 rounded-lg transition-all ${
+                      added
+                        ? "bg-success-emerald text-white"
+                        : "bg-primary text-white hover:opacity-90"
+                    }`}
+                  >
+                    {added ? (
+                      <>
+                        <Check className="w-3 h-3" />
+                        Toegevoegd
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3 h-3" />
+                        Aan build
+                      </>
+                    )}
+                  </button>
+
+                  {pickerOpen && (
+                    <div className="absolute bottom-full left-0 mb-1.5 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg z-20 py-2 min-w-[180px]">
+                      <p className="text-[10px] font-mono text-on-surface-variant uppercase tracking-wide px-3 pb-1.5 border-b border-outline-variant mb-1">
+                        Toevoegen als
+                      </p>
+                      {COMPONENT_TYPES.map((slot) => (
+                        <button
+                          key={slot}
+                          onClick={() => handleAdd(slot)}
+                          className="w-full text-left text-xs px-3 py-2 hover:bg-surface-container-low text-on-surface transition-colors"
+                        >
+                          {COMPONENT_META[slot].label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
-    </a>
+    </div>
   );
 }
 
-export function PriceList({
-  results,
-}: {
+export interface PriceListProps {
   results: SearchResults;
-}) {
+  categorySlot?: ComponentType;
+  onAddToBuild?: (item: PriceResult, slot: ComponentType) => void;
+}
+
+export function PriceList({ results, categorySlot, onAddToBuild }: PriceListProps) {
   const { results: items, errors } = results;
-  const cheapestPrice = items[0]?.priceEur;
+  const cheapestInStock = items.find((i) => i.inStock)?.priceEur;
+  const cheapestPrice = cheapestInStock ?? items[0]?.priceEur;
 
   return (
     <div className="space-y-4">
-      {errors.length > 0 && (
-        <p className="text-xs text-on-surface-variant">
-          {errors.map((e) => RETAILER_LABEL[e.retailer] ?? e.retailer).join(", ")} niet beschikbaar
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-sm text-on-surface-variant">
+          {items.length} resultaten voor{" "}
+          <span className="font-medium text-on-surface">&ldquo;{results.query}&rdquo;</span>
         </p>
-      )}
+        {errors.length > 0 && (
+          <p className="text-xs text-on-surface-variant">
+            {errors.map((e) => RETAILER_LABEL[e.retailer] ?? e.retailer).join(", ")} niet
+            beschikbaar
+          </p>
+        )}
+      </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-on-surface font-heading font-semibold text-lg">
-            Geen resultaten gevonden
-          </p>
-          <p className="text-on-surface-variant text-sm mt-2">
-            Probeer een andere zoekterm of pas de filters aan.
-          </p>
-        </div>
+        <p className="text-center text-on-surface-variant py-12 text-sm">
+          Geen resultaten gevonden. Probeer een andere zoekterm.
+        </p>
       ) : (
         <div className="space-y-3">
           {items.map((item, i) => (
-            <ResultCard
+            <ResultRow
               key={`${item.retailer}-${i}`}
               item={item}
               isCheapest={item.priceEur === cheapestPrice}
+              categorySlot={categorySlot}
+              onAddToBuild={onAddToBuild}
             />
           ))}
         </div>

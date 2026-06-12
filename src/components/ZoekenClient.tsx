@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { PriceList } from "./PriceList";
-import type { SearchResults, Retailer } from "@/lib/types";
+import { useBuildStore } from "@/lib/store/build";
+import type { SearchResults, Retailer, ComponentType } from "@/lib/types";
 
 const ALL_RETAILERS: Retailer[] = ["amazon", "bol", "megekko", "azerty", "alternate"];
 
@@ -26,6 +27,7 @@ const RETAILER_COLOR: Record<Retailer, string> = {
 export function ZoekenClient() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") ?? "";
+  const { setComponent } = useBuildStore();
 
   const [results, setResults] = useState<SearchResults | null>(null);
   const [loading, setLoading] = useState(false);
@@ -232,7 +234,10 @@ export function ZoekenClient() {
           )}
 
           {!loading && filteredResults && (
-            <PriceList results={filteredResults} />
+            <PriceList
+              results={filteredResults}
+              onAddToBuild={(item, slot: ComponentType) => setComponent(slot, item)}
+            />
           )}
 
           {!loading && !filteredResults && !query && (

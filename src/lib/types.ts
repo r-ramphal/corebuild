@@ -1,5 +1,15 @@
 export type Retailer = "amazon" | "bol" | "megekko" | "azerty" | "alternate";
 
+export type ComponentType =
+  | "cpu"
+  | "gpu"
+  | "motherboard"
+  | "ram"
+  | "storage"
+  | "psu"
+  | "case"
+  | "cooling";
+
 export interface PriceResult {
   retailer: Retailer;
   name: string;

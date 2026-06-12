@@ -109,12 +109,13 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
   pure mock-rijen blokkeren live scrapen nooit
 - Migraties in `drizzle/`; scripts: `db:generate`, `db:push`, `db:studio`, `db:seed`
 
-#### Productie-setup (eenmalig, ~5 min)
-1. Vercel dashboard → Storage → Create Database → **Neon (Postgres)** → koppel aan project
-   (injecteert `DATABASE_URL` automatisch in alle environments)
-2. Kopieer de `DATABASE_URL` ook naar lokale `.env.local`
-3. `npm run db:push` (maakt de tabel aan) en optioneel `npm run db:seed`
-4. Redeploy — de zoekroute schakelt automatisch over op database-first
+#### Productie-setup — ✅ GEDAAN (juni 2026)
+- Neon-database gekoppeld via Vercel (regio eu-central-1)
+- Let op: de integratie injecteert env vars met **`STORAGE_`-prefix**
+  (`STORAGE_DATABASE_URL` etc.) — `getDb()` accepteert alle gangbare namen
+- Schema gepusht + 192 demo-rijen geseed; pooled `DATABASE_URL` staat in lokale `.env.local`
+- Geverifieerd in productie: 1e query `x-corebuild-source: live`, 2e query `database`
+- Debug-headers op `/api/search`: `x-corebuild-db: on|off`, `x-corebuild-source: database|live`
 
 #### Lokaal ontwikkelen
 - Docker-container `corebuild-pg` bestaat al: `docker start corebuild-pg`

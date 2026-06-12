@@ -108,6 +108,16 @@
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains);
 
+  /* Stitch typography font families */
+  --font-display-lg: var(--font-hanken);
+  --font-headline-lg: var(--font-hanken);
+  --font-headline-lg-mobile: var(--font-hanken);
+  --font-title-md: var(--font-hanken);
+  --font-body-lg: var(--font-inter);
+  --font-body-sm: var(--font-inter);
+  --font-label-price: var(--font-inter);
+  --font-label-technical: var(--font-jetbrains);
+
   /* Shadcn compat */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -225,5 +235,48 @@ a {
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  .text-display-lg {
+    font-size: 3rem;
+    line-height: 3.5rem;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  .text-headline-lg {
+    font-size: 2rem;
+    line-height: 2.5rem;
+    font-weight: 600;
+  }
+  .text-headline-lg-mobile {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+  }
+  .text-title-md {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+  }
+  .text-body-lg {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  .text-body-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .text-label-price {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+    font-weight: 700;
+  }
+  .text-label-technical {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    letter-spacing: 0.02em;
+    font-weight: 500;
   }
 }

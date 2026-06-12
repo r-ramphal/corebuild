@@ -73,7 +73,7 @@ export function ZoekenClient() {
   return (
     <div className="max-w-[1280px] mx-auto px-8">
       {/* Breadcrumb */}
-      <div className="py-4 text-sm text-on-surface-variant">
+      <div className="py-4 font-body-sm text-body-sm text-on-surface-variant">
         <span>Zoeken</span>
         {query && (
           <>
@@ -88,7 +88,7 @@ export function ZoekenClient() {
         <aside className="w-[280px] flex-shrink-0">
           <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 sticky top-20">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading font-semibold text-on-surface">Filters</h2>
+              <h2 className="font-title-md text-title-md text-on-surface">Filters</h2>
               <button
                 onClick={() => {
                   setSelectedRetailers(ALL_RETAILERS);
@@ -96,7 +96,7 @@ export function ZoekenClient() {
                   setMaxPrice(2000);
                   setSortBy("asc");
                 }}
-                className="text-xs text-primary hover:underline font-mono"
+                className="font-label-technical text-label-technical text-primary hover:underline"
               >
                 Reset
               </button>
@@ -104,7 +104,7 @@ export function ZoekenClient() {
 
             {/* Price range */}
             <div className="mb-6">
-              <label className="text-xs font-mono text-on-surface-variant uppercase tracking-wide block mb-2">
+              <label className="font-label-technical text-label-technical text-on-surface-variant uppercase tracking-wide block mb-2">
                 Max. prijs: €{maxPrice === 2000 ? "2000+" : maxPrice}
               </label>
               <input
@@ -116,7 +116,7 @@ export function ZoekenClient() {
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
                 className="w-full accent-primary"
               />
-              <div className="flex justify-between text-xs text-on-surface-variant mt-1">
+              <div className="flex justify-between font-label-technical text-label-technical text-on-surface-variant mt-1">
                 <span>€0</span>
                 <span>€2000+</span>
               </div>
@@ -124,7 +124,7 @@ export function ZoekenClient() {
 
             {/* Retailers */}
             <div className="mb-6">
-              <p className="text-xs font-mono text-on-surface-variant uppercase tracking-wide mb-2">
+              <p className="font-label-technical text-label-technical text-on-surface-variant uppercase tracking-wide mb-2">
                 Retailers
               </p>
               <div className="flex flex-col gap-2">
@@ -148,7 +148,7 @@ export function ZoekenClient() {
                         borderColor: RETAILER_COLOR[retailer],
                       }}
                     />
-                    <span className="text-sm text-on-surface">
+                    <span className="font-body-sm text-body-sm text-on-surface">
                       {RETAILER_LABEL[retailer]}
                     </span>
                   </label>
@@ -171,7 +171,7 @@ export function ZoekenClient() {
                     }`}
                   />
                 </div>
-                <span className="text-sm text-on-surface">Alleen op voorraad</span>
+                <span className="font-body-sm text-body-sm text-on-surface">Alleen op voorraad</span>
               </label>
             </div>
           </div>
@@ -179,17 +179,15 @@ export function ZoekenClient() {
 
         {/* Results */}
         <div className="flex-1 min-w-0">
-          {/* Header row */}
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-on-surface-variant">
+          {/* Sort bar — Stitch segmented control design */}
+          <div className="flex items-center justify-between mb-6 bg-surface-container-low p-4 rounded-xl border border-outline-variant">
+            <p className="font-body-sm text-body-sm text-on-surface-variant">
               {loading ? (
                 "Zoeken..."
               ) : filteredResults ? (
                 <>
-                  <span className="font-medium text-on-surface">
-                    {filteredResults.results.length}
-                  </span>{" "}
-                  resultaten voor &ldquo;{query}&rdquo;
+                  {filteredResults.results.length} resultaten voor{" "}
+                  <span className="font-bold text-on-surface">&ldquo;{query}&rdquo;</span>
                 </>
               ) : query ? (
                 "Typ om te zoeken"
@@ -197,28 +195,30 @@ export function ZoekenClient() {
                 "Voer een zoekopdracht in"
               )}
             </p>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-on-surface-variant font-mono">Sorteren:</span>
-              <button
-                onClick={() => setSortBy("asc")}
-                className={`text-xs font-mono px-3 py-1 rounded-lg border transition-colors ${
-                  sortBy === "asc"
-                    ? "bg-primary text-white border-primary"
-                    : "text-on-surface-variant border-outline-variant hover:border-primary"
-                }`}
-              >
-                Prijs ↑
-              </button>
-              <button
-                onClick={() => setSortBy("desc")}
-                className={`text-xs font-mono px-3 py-1 rounded-lg border transition-colors ${
-                  sortBy === "desc"
-                    ? "bg-primary text-white border-primary"
-                    : "text-on-surface-variant border-outline-variant hover:border-primary"
-                }`}
-              >
-                Prijs ↓
-              </button>
+            <div className="flex gap-4 items-center">
+              <span className="font-label-technical text-label-technical text-on-surface-variant">Sorteer op:</span>
+              <div className="flex bg-surface-container-high p-1 rounded-lg">
+                <button
+                  onClick={() => setSortBy("asc")}
+                  className={`px-4 py-1 rounded font-label-technical text-label-technical transition-colors ${
+                    sortBy === "asc"
+                      ? "bg-surface-container-lowest shadow-sm text-primary"
+                      : "text-on-surface-variant hover:text-on-surface"
+                  }`}
+                >
+                  Laagste prijs
+                </button>
+                <button
+                  onClick={() => setSortBy("desc")}
+                  className={`px-4 py-1 rounded font-label-technical text-label-technical transition-colors ${
+                    sortBy === "desc"
+                      ? "bg-surface-container-lowest shadow-sm text-primary"
+                      : "text-on-surface-variant hover:text-on-surface"
+                  }`}
+                >
+                  Hoogste prijs
+                </button>
+              </div>
             </div>
           </div>
 
@@ -227,7 +227,7 @@ export function ZoekenClient() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-32 rounded-xl bg-surface-container animate-pulse"
+                  className="h-48 rounded-xl bg-surface-container animate-pulse"
                 />
               ))}
             </div>
@@ -242,10 +242,10 @@ export function ZoekenClient() {
 
           {!loading && !filteredResults && !query && (
             <div className="text-center py-20 text-on-surface-variant">
-              <p className="text-lg font-heading font-semibold text-on-surface">
+              <p className="font-title-md text-title-md text-on-surface">
                 Wat zoek je?
               </p>
-              <p className="text-sm mt-2">
+              <p className="font-body-sm text-body-sm mt-2">
                 Gebruik de zoekbalk bovenaan om componenten te zoeken.
               </p>
             </div>

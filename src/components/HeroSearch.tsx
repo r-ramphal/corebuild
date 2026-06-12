@@ -35,12 +35,12 @@ export function HeroSearch() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Zoek een component — bijv. RTX 4070, Ryzen 7 9800X3D"
-        className="w-full h-16 pl-14 pr-36 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+        className="w-full h-16 pl-14 pr-36 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant font-body-lg text-body-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
       />
       <button
         type="submit"
         disabled={!query.trim()}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white px-6 py-2.5 rounded-lg font-mono text-xs font-medium tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white px-6 py-2.5 rounded-lg font-label-technical text-label-technical hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Zoeken
       </button>

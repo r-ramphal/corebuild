@@ -42,10 +42,10 @@ export default function Home() {
             "radial-gradient(circle at 50% -20%, #eaedff 0%, #faf8ff 70%)",
         }}
       >
-        <h1 className="font-heading font-bold text-[48px] leading-[56px] tracking-tight text-on-surface max-w-3xl">
+        <h1 className="font-display-lg text-display-lg text-on-surface max-w-3xl">
           Optimaliseer je build, verfijn je budget.
         </h1>
-        <p className="mt-4 text-base text-on-surface-variant max-w-xl leading-6">
+        <p className="mt-4 font-body-lg text-body-lg text-on-surface-variant max-w-xl">
           Vergelijk real-time prijzen van de grootste tech-retailers en bouw de
           ultieme setup met volledige compatibiliteitscontrole.
         </p>
@@ -55,7 +55,9 @@ export default function Home() {
         </div>
 
         <div className="mt-8 flex items-center gap-3 flex-wrap justify-center">
-          <span className="text-sm text-on-surface-variant">Vergelijk prijzen van:</span>
+          <span className="font-label-technical text-label-technical text-on-surface-variant uppercase tracking-wider">
+            Vergelijk prijzen van:
+          </span>
           {RETAILERS.map((r) => (
             <span key={r.name} className={`font-bold text-sm ${r.className}`}>
               {r.name}
@@ -67,10 +69,10 @@ export default function Home() {
       {/* Categories Section */}
       <section className="max-w-[1280px] mx-auto px-8 py-16">
         <div className="mb-8">
-          <h2 className="font-heading font-semibold text-[32px] leading-10 text-on-surface">
+          <h2 className="font-headline-lg text-headline-lg text-on-surface">
             Snelkoppelingen
           </h2>
-          <p className="mt-2 text-base text-on-surface-variant">
+          <p className="mt-2 font-body-sm text-body-sm text-on-surface-variant">
             Blader door de nieuwste hardware per categorie.
           </p>
         </div>
@@ -85,7 +87,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant group-hover:bg-primary group-hover:text-white transition-colors text-on-surface-variant">
                 <Icon className="w-5 h-5" />
               </div>
-              <span className="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">
+              <span className="font-title-md text-title-md text-on-surface group-hover:text-primary transition-colors">
                 {label}
               </span>
             </Link>
@@ -97,19 +99,19 @@ export default function Home() {
       <section className="bg-surface-container-low">
         <div className="max-w-[1280px] mx-auto px-8 py-20 grid md:grid-cols-2 gap-16 items-center">
           <div className="rounded-xl bg-surface-container h-80 flex items-center justify-center text-on-surface-variant border border-outline-variant">
-            <span className="text-sm">Afbeelding binnenkort</span>
+            <span className="font-body-sm text-body-sm">Afbeelding binnenkort</span>
           </div>
 
           <div className="flex flex-col gap-6">
-            <span className="inline-flex self-start items-center px-3 py-1 rounded-full text-xs font-mono font-medium tracking-wider bg-primary/10 text-primary uppercase">
+            <span className="inline-flex self-start items-center font-label-technical text-label-technical text-primary bg-primary/10 px-3 py-1 rounded uppercase">
               Compatibiliteits check
             </span>
 
-            <h2 className="font-heading font-bold text-[32px] leading-10 text-on-surface">
+            <h2 className="font-headline-lg text-headline-lg text-on-surface">
               Bouw zonder verrassingen.
             </h2>
 
-            <p className="text-base text-on-surface-variant leading-6">
+            <p className="font-body-lg text-body-lg text-on-surface-variant">
               Ons systeem controleert automatisch of alle componenten van jouw
               build compatibel zijn — van socket-type tot stroomverbruik. Zo
               weet je zeker dat alles samenwerkt voordat je koopt.
@@ -118,13 +120,13 @@ export default function Home() {
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-success-emerald flex-shrink-0" />
-                <span className="text-sm text-on-surface">
+                <span className="font-title-md text-title-md text-on-surface">
                   Automatische socket- en chipset-compatibiliteit
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-success-emerald flex-shrink-0" />
-                <span className="text-sm text-on-surface">
+                <span className="font-title-md text-title-md text-on-surface">
                   Stroomverbruik en PSU-advies inbegrepen
                 </span>
               </div>
@@ -132,7 +134,7 @@ export default function Home() {
 
             <Link
               href="/builder"
-              className="self-start bg-primary text-white px-8 py-3 rounded-lg font-mono text-xs font-medium tracking-wide hover:opacity-90 transition-opacity"
+              className="self-start mt-10 px-8 py-4 bg-primary text-on-primary rounded-lg font-title-md hover:shadow-lg transition-all hover:opacity-90"
             >
               Start je Build
             </Link>

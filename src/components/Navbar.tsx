@@ -18,7 +18,7 @@ export function Navbar() {
       <div className="max-w-[1280px] mx-auto px-8 h-16 flex items-center justify-between">
         <Link
           href="/"
-          className="text-primary font-heading font-bold text-2xl"
+          className="font-headline-lg text-headline-lg font-bold text-primary"
         >
           CoreBuild
         </Link>
@@ -31,7 +31,7 @@ export function Navbar() {
                 key={href}
                 href={href}
                 className={cn(
-                  "font-mono text-xs tracking-wide transition-colors pb-0.5",
+                  "font-label-technical text-label-technical transition-colors pb-0.5",
                   isActive
                     ? "text-primary border-b-2 border-primary"
                     : "text-on-surface-variant hover:text-primary",
@@ -45,7 +45,7 @@ export function Navbar() {
 
         <Link
           href="/inloggen"
-          className="bg-primary text-white px-6 py-2 rounded-lg font-mono text-xs transition-opacity hover:opacity-90"
+          className="bg-primary text-white px-6 py-2 rounded-lg font-label-technical text-label-technical transition-opacity hover:opacity-90"
         >
           Inloggen
         </Link>

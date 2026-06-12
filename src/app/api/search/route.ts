@@ -5,16 +5,21 @@ import { searchMegekko } from "@/lib/scrapers/megekko";
 import { searchAzerty } from "@/lib/scrapers/azerty";
 import { searchAlternate } from "@/lib/scrapers/alternate";
 import { searchMock } from "@/lib/mock/catalog";
+import { getDb, normalizeQuery } from "@/lib/db";
+import { getFreshListings, saveListings } from "@/lib/db/listings";
 import type { PriceResult, Retailer, SearchResults } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 /**
- * Bol en Amazon blokkeren scrapers vanaf datacenter-IP's. Tot de officiële
- * API's beschikbaar zijn (KvK / 3 verkopen) proberen we live en vallen we
- * terug op demo-data uit de mock-catalogus.
+ * Database-first zoekflow:
+ * 1. Verse rijen in de database (< 30 min)? → direct teruggeven.
+ * 2. Anders: live scrapen (Bol/Amazon met mock-fallback), resultaat
+ *    teruggeven én opslaan in de database (write-through cache).
+ * Zonder DATABASE_URL werkt alles zoals voorheen, puur live.
  */
+
 async function withMockFallback(
   retailer: Retailer,
   live: Promise<PriceResult[]>,
@@ -36,6 +41,26 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Zoekterm te kort" }, { status: 400 });
   }
 
+  const db = getDb();
+  const nq = normalizeQuery(query);
+
+  // 1. Database-cache — alleen serveren als er échte data tussen zit;
+  //    puur mock-rijen (bijv. uit de seed) mogen live scrapen niet blokkeren
+  if (db) {
+    try {
+      const cached = await getFreshListings(db, nq);
+      if (cached.length > 0 && cached.some((r) => !r.mock)) {
+        const body: SearchResults = { query, results: cached, errors: [] };
+        return NextResponse.json(body, {
+          headers: { "x-corebuild-source": "database" },
+        });
+      }
+    } catch (err) {
+      console.error("DB-lookup mislukt, val terug op live scrape:", err);
+    }
+  }
+
+  // 2. Live scrapen
   const [amazon, bol, megekko, azerty, alternate] = await Promise.allSettled([
     withMockFallback("amazon", searchAmazon(query), query),
     withMockFallback("bol", searchBol(query), query),
@@ -66,6 +91,17 @@ export async function GET(req: NextRequest) {
       message: String((s.outcome as PromiseRejectedResult).reason),
     }));
 
+  // 3. Write-through naar de database (best-effort, blokkeert het antwoord niet lang)
+  if (db && results.length > 0) {
+    try {
+      await saveListings(db, nq, results);
+    } catch (err) {
+      console.error("DB-opslag mislukt:", err);
+    }
+  }
+
   const body: SearchResults = { query, results, errors };
-  return NextResponse.json(body);
+  return NextResponse.json(body, {
+    headers: { "x-corebuild-source": "live" },
+  });
 }

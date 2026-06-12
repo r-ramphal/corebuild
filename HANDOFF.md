@@ -19,8 +19,8 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 |---|---|
 | Framework | Next.js 16.2.9 + React 19 |
 | Styling | Tailwind v4 + shadcn/ui (Radix Nova preset) |
-| Database | Convex |
-| Auth | better-auth 1.6.14 via `@convex-dev/better-auth@0.12.2` |
+| Database | **Postgres (Neon) + Drizzle ORM** — Convex slapend, kan vervallen |
+| Auth | better-auth 1.6.14 (te koppelen aan dezelfde Postgres i.p.v. Convex) |
 | State | Zustand + SWR |
 | Forms | react-hook-form + zod |
 | CI | GitHub Actions (Node 22) |
@@ -96,8 +96,40 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - Prijsvergelijkingstabel: alle aanbiedingen gesorteerd op prijs, beste prijs gemarkeerd (emerald), voorraad-dot per rij
 - Bereikbaar via "Vergelijken" (categoriepagina) en de producttitel (zoekresultaten)
 
+### Database-laag (Postgres + Drizzle) — gebouwd, getest met lokale Docker-Postgres
+- **Schema** (`src/lib/db/schema.ts`): tabel `listings` — één rij per aanbieding per zoekterm
+  (query genormaliseerd, retailer, naam, `price_cents`, url, afbeelding, voorraad, `mock`, `source`, `scraped_at`)
+- **Client** (`src/lib/db/index.ts`): `getDb()` is lazy en geeft `null` zonder `DATABASE_URL` —
+  de app werkt dan puur live (huidige productie-gedrag)
+- **Repository** (`src/lib/db/listings.ts`): `getFreshListings` (TTL 30 min) + `saveListings`
+  (vervangt per query+retailer in een transactie)
+- **Zoekflow** (`/api/search`): 1) verse DB-rijen met échte data → direct serveren,
+  2) anders live scrapen + write-through naar DB. Response-header `x-corebuild-source: database|live`
+- **Seed** (`npm run db:seed`): mock-catalogus → DB voor alle categorie-zoektermen + populaire tags;
+  pure mock-rijen blokkeren live scrapen nooit
+- Migraties in `drizzle/`; scripts: `db:generate`, `db:push`, `db:studio`, `db:seed`
+
+#### Productie-setup (eenmalig, ~5 min)
+1. Vercel dashboard → Storage → Create Database → **Neon (Postgres)** → koppel aan project
+   (injecteert `DATABASE_URL` automatisch in alle environments)
+2. Kopieer de `DATABASE_URL` ook naar lokale `.env.local`
+3. `npm run db:push` (maakt de tabel aan) en optioneel `npm run db:seed`
+4. Redeploy — de zoekroute schakelt automatisch over op database-first
+
+#### Lokaal ontwikkelen
+- Docker-container `corebuild-pg` bestaat al: `docker start corebuild-pg`
+- `.env.local`: `DATABASE_URL=postgres://postgres:test@localhost:54329/corebuild`
+
+#### Python-scrapers (volgende stap van het plan)
+- Verbind met dezelfde `DATABASE_URL` (psycopg/SQLAlchemy)
+- Schrijf in `listings`: query lowercase + enkele spaties, prijs in centen,
+  vervang per (query, retailer), `source = 'python'`
+- De site serveert nieuwe rijen direct (TTL 30 min per query)
+
 ### Nog te bouwen
-- [ ] **Auth + opgeslagen builds** — Convex provisioning (`npx convex dev`), better-auth, opslaan/laden/delen builds
+- [ ] **Auth + opgeslagen builds** — better-auth op dezelfde Postgres (Drizzle-adapter); Convex-bestanden kunnen daarna weg
+- [ ] **Python-scrapers** die populaire zoektermen periodiek in `listings` verversen
+- [ ] **Prijshistorie** — aparte tabel of `listings` niet meer verwijderen maar versieneren
 
 ---
 

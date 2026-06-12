@@ -32,9 +32,10 @@ _RULES: dict[str, tuple[list[re.Pattern], re.Pattern]] = {
             re.compile(r"\b(pentium|celeron|xeon)\b", re.I),
         ],
         re.compile(
-            r"koeler|cooler|cooling|waterkoel|ventilator|\bfan\b|moederbord|motherboard"
+            r"(?<!zonder )\bkoeler\b|\bcooler\b(?!.*(zonder|without))|cooling|waterkoel|ventilator|\bfan\b"
+            r"|moederbord|motherboard"
             r"|mainboard|laptop|notebook|mini.?pc|desktop|game.?pc|gaming\s?pc|barebone"
-            r"|all.?in.?one|geheugen|\bssd\b|grafische|videokaart|contact\s?frame"
+            r"|all.?in.?one|combokit|bundel|geheugen|\bssd\b|grafische|videokaart|contact\s?frame"
             r"|bracket|socket\s?kit",
             re.I,
         ),
@@ -118,7 +119,7 @@ _RULES: dict[str, tuple[list[re.Pattern], re.Pattern]] = {
             r"screen module|lcd-?(display|scherm)\b.*module|backplate|eisblock|waterblock"
             r"|ek-quantum|bracket|houder|koelpasta|thermal\s?(paste|pad)|fan\s?hub"
             r"|controller\s?module|laptop|notebook|gpu|behuizing|midi tower|mid.?tower"
-            r"|full tower|chassis",
+            r"|full tower|chassis|zonder koeler|\btray\b|combokit",
             re.I,
         ),
     ),

@@ -13,6 +13,7 @@ from pathlib import Path
 import psycopg
 from dotenv import load_dotenv
 
+from .clean_name import clean_name
 from .relevance import infer_category
 
 # Lees DATABASE_URL uit de .env.local van het Next.js-project
@@ -61,7 +62,7 @@ def save_listings(
                     (
                         nq,
                         item["retailer"],
-                        item["name"],
+                        clean_name(item["name"]),
                         round(item["price_eur"] * 100),
                         item["url"],
                         item.get("image_url"),

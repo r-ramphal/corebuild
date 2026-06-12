@@ -8,6 +8,7 @@ import { searchMock } from "@/lib/mock/catalog";
 import { getDb, normalizeQuery } from "@/lib/db";
 import { getFreshListings, getCatalogListings, saveListings } from "@/lib/db/listings";
 import { isJunk, matchesCategory, isComponentType } from "@/lib/relevance";
+import { cleanName } from "@/lib/clean-name";
 import { COMPONENT_META } from "@/lib/categories";
 import type { ComponentType, PriceResult, Retailer, SearchResults } from "@/lib/types";
 
@@ -55,11 +56,13 @@ function hasSafeUrl(item: PriceResult): boolean {
 }
 
 function applyRelevance(results: PriceResult[], cat: ComponentType | null): PriceResult[] {
-  return results.filter((r) => {
-    if (!hasSafeUrl(r)) return false;
-    if (cat) return r.mock ? true : matchesCategory(r.name, cat);
-    return !isJunk(r.name);
-  });
+  return results
+    .map((r) => (r.mock ? r : { ...r, name: cleanName(r.name) }))
+    .filter((r) => {
+      if (!hasSafeUrl(r)) return false;
+      if (cat) return r.mock ? true : matchesCategory(r.name, cat);
+      return !isJunk(r.name);
+    });
 }
 
 async function withMockFallback(

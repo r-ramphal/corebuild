@@ -39,7 +39,7 @@ const RULES: Record<ComponentType, CategoryRule> = {
       /\b(pentium|celeron|xeon)\b/i,
     ],
     exclude:
-      /koeler|cooler|cooling|waterkoel|ventilator|\bfan\b|moederbord|motherboard|mainboard|laptop|notebook|mini.?pc|desktop|game.?pc|gaming\s?pc|barebone|all.?in.?one|geheugen|\bssd\b|grafische|videokaart|contact\s?frame|bracket|socket\s?kit/i,
+      /(?<!zonder )\bkoeler\b|\bcooler\b(?!.*(zonder|without))|cooling|waterkoel|ventilator|\bfan\b|moederbord|motherboard|mainboard|laptop|notebook|mini.?pc|desktop|game.?pc|gaming\s?pc|barebone|all.?in.?one|combokit|bundel|geheugen|\bssd\b|grafische|videokaart|contact\s?frame|bracket|socket\s?kit/i,
   },
   gpu: {
     require: [
@@ -90,7 +90,7 @@ const RULES: Record<ComponentType, CategoryRule> = {
       /\bcase\s?fan|ventilator\b/i,
     ],
     exclude:
-      /screen module|lcd-?(display|scherm)\b.*module|backplate|eisblock|waterblock|ek-quantum|bracket|houder|koelpasta|thermal\s?(paste|pad)|fan\s?hub|controller\s?module|laptop|notebook|gpu|behuizing|midi tower|mid.?tower|full tower|chassis/i,
+      /screen module|lcd-?(display|scherm)\b.*module|backplate|eisblock|waterblock|ek-quantum|bracket|houder|koelpasta|thermal\s?(paste|pad)|fan\s?hub|controller\s?module|laptop|notebook|gpu|behuizing|midi tower|mid.?tower|full tower|chassis|zonder koeler|\btray\b|combokit/i,
   },
 };
 

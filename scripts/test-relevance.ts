@@ -3,6 +3,7 @@
  * listings-tabel. Gebruik: npx tsx scripts/test-relevance.ts
  */
 import { matchesCategory, isJunk, inferCategory } from "../src/lib/relevance";
+import { cleanName } from "../src/lib/clean-name";
 import type { ComponentType } from "../src/lib/types";
 
 const CASES: { name: string; cat: ComponentType; expect: boolean }[] = [
@@ -52,6 +53,32 @@ const CASES: { name: string; cat: ComponentType; expect: boolean }[] = [
   { name: "be quiet! Dark Rock Pro 5 CPU-koeler", cat: "cooling", expect: true },
   { name: "DeepCool LT520 waterkoeler", cat: "cooling", expect: true },
   { name: "Corsair iCUE LINK AIO LCD Screen Module White - LCD-display", cat: "cooling", expect: false },
+  // CPU's die als "koeling" of andersom binnenkwamen
+  { name: "AMD Ryzen 7 9800X3D Tray - Processor - 4.7 GHz - AM5 Socket - zonder koeler - OEM verpakking", cat: "cooling", expect: false },
+  { name: "AMD Ryzen 7 9800X3D Tray - Processor - 4.7 GHz - AM5 Socket - zonder koeler - OEM verpakking", cat: "cpu", expect: true },
+  { name: "Azerty Combokit ASUS 9800X3D - Combokit - AMD Ryzen 7 9800X3D - ASUS TUF Gaming B650-Plus WiFi", cat: "cpu", expect: false },
+];
+
+const NAME_CASES: { raw: string; want: string }[] = [
+  {
+    raw: "Amd Ryzen 5 8500G 3,50/5,00 Ghz Behuizing Voor S-Am5 Computer, Hoge Prestaties.",
+    want: "AMD Ryzen 5 8500G 3,50/5,00 GHz",
+  },
+  {
+    raw: "Wees Stil! Dark Rock Slim Bk024 120Mm Cpu-Koeler Voor Am4-Moederbord",
+    want: "be quiet! Dark Rock Slim Bk024 120mm CPU-Koeler Voor AM4-Moederbord",
+  },
+  { raw: "ATX Semi-tower Box Fractal North Black", want: "Fractal North Black" },
+  { raw: "Box Ventilator Noctua NH-D15 chromax.black", want: "Noctua NH-D15 chromax.black" },
+  { raw: "ATX Box Hyte Y60 Black/White White", want: "Hyte Y60 Black/White White" },
+  {
+    raw: "Processor AMD Ryzen 7 7800X3D AMD Ryzen 7 7800X3D AMD AM5",
+    want: "AMD Ryzen 7 7800X3D AMD AM5",
+  },
+  { raw: "Motherboard Asus PRIME Z790-A WIFI", want: "ASUS PRIME Z790-A WiFi" },
+  // Nette namen moeten ongemoeid blijven
+  { raw: "Intel Core i7-14700K", want: "Intel Core i7-14700K" },
+  { raw: "Kingston FURY Beast Black - RAM-geheugen - DDR5 - 32GB", want: "Kingston FURY Beast Black - RAM-geheugen - DDR5 - 32GB" },
 ];
 
 let failed = 0;
@@ -63,7 +90,15 @@ for (const { name, cat, expect } of CASES) {
   }
 }
 
-console.log(`\n${CASES.length - failed}/${CASES.length} cases OK`);
+for (const { raw, want } of NAME_CASES) {
+  const got = cleanName(raw);
+  if (got !== want) {
+    failed++;
+    console.log(`FAIL cleanName\n  raw:  ${raw}\n  want: ${want}\n  got:  ${got}`);
+  }
+}
+
+console.log(`\n${CASES.length + NAME_CASES.length - failed}/${CASES.length + NAME_CASES.length} cases OK`);
 console.log("isJunk('Schleich Harry Potter speelfiguur'):", isJunk("Schleich Harry Potter speelfiguur"));
 console.log("inferCategory('AMD Ryzen 7 9800X3D Processor'):", inferCategory("AMD Ryzen 7 9800X3D Processor"));
 console.log("inferCategory('ASUS Dual GeForce RTX 5060 grafische kaart'):", inferCategory("ASUS Dual GeForce RTX 5060 grafische kaart"));

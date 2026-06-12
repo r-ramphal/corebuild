@@ -1,9 +1,10 @@
 /**
- * Eenmalige opschoning van de listings-tabel:
+ * Opschoning van de listings-tabel (idempotent, mag vaker draaien):
  *  1. verwijder junk-rijen (Harry Potter-figuren e.d.) — altijd
  *  2. verwijder rijen die niet in de categorie van hun zoekterm passen
  *     (accessoires zoals waterblocks bij GPU's, behuizingen bij SSD's)
- *  3. backfill de nieuwe `category`-kolom voor de overgebleven rijen
+ *  3. normaliseer titels (machinevertaalde Bol-titels, "Wees Stil!" → be quiet!)
+ *  4. backfill de `category`-kolom voor de overgebleven rijen
  *
  * Vereist dat de category-kolom bestaat (`npm run db:push` eerst).
  * Gebruik: npx tsx scripts/clean-listings.ts
@@ -12,6 +13,7 @@ import { config } from "dotenv";
 import { Pool } from "pg";
 import { COMPONENT_META, COMPONENT_TYPES } from "../src/lib/categories";
 import { isJunk, matchesCategory, inferCategory } from "../src/lib/relevance";
+import { cleanName } from "../src/lib/clean-name";
 import type { ComponentType } from "../src/lib/types";
 
 config({ path: ".env.local" });
@@ -46,22 +48,29 @@ async function main() {
   const catMap = queryCategoryMap();
   const toDelete: number[] = [];
   const toCategorize: { id: number; category: string }[] = [];
+  const toRename: { id: number; name: string }[] = [];
 
   for (const row of rows) {
-    if (isJunk(row.name)) {
+    const cleaned = cleanName(row.name);
+    if (isJunk(cleaned)) {
       toDelete.push(row.id);
       continue;
     }
+    if (cleaned !== row.name) toRename.push({ id: row.id, name: cleaned });
+
     const queryCat = catMap.get(row.query);
     if (queryCat) {
-      if (!matchesCategory(row.name, queryCat)) {
+      if (!matchesCategory(cleaned, queryCat)) {
         toDelete.push(row.id);
       } else if (row.category !== queryCat) {
         toCategorize.push({ id: row.id, category: queryCat });
       }
     } else if (!row.category) {
-      const inferred = inferCategory(row.name);
+      const inferred = inferCategory(cleaned);
       if (inferred) toCategorize.push({ id: row.id, category: inferred });
+    } else if (!matchesCategory(cleaned, row.category as ComponentType)) {
+      // Eerder gecategoriseerd, maar valt door aangescherpte regels af
+      toDelete.push(row.id);
     }
   }
 
@@ -74,12 +83,18 @@ async function main() {
   console.log(`${rows.length} rijen gescand`);
   console.log(`${toDelete.length} irrelevante/junk-rijen verwijderen`);
   console.log(`${toCategorize.length} rijen voorzien van categorie`);
+  console.log(`${toRename.length} titels genormaliseerd`);
 
   if (toDelete.length > 0) {
     await pool.query("delete from listings where id = any($1)", [toDelete]);
   }
   for (const { id, category } of toCategorize) {
     await pool.query("update listings set category = $1 where id = $2", [category, id]);
+  }
+  const deleted = new Set(toDelete);
+  for (const { id, name } of toRename) {
+    if (deleted.has(id)) continue;
+    await pool.query("update listings set name = $1 where id = $2", [name, id]);
   }
 
   const { rows: summary } = await pool.query(

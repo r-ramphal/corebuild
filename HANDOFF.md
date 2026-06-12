@@ -88,8 +88,14 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - `listings.category`-kolom (migratie `0002`) — gevuld door Python-scrapers
   (CATEGORY_QUERIES kent de categorie) of `inferCategory()` bij write-through
 - `refresh.py` filtert vóór opslaan en logt "(N irrelevant overgeslagen)"
-- Tests: `npx tsx scripts/test-relevance.ts` (38 cases op echte junk-namen uit de DB)
-- Eenmalige opschoning: `npx tsx scripts/clean-listings.ts` (na `db:push`)
+- **Titel-normalisatie**: `src/lib/clean-name.ts` + `clean_name.py` (spiegels!) —
+  machinevertaalde Bol-titels ("Wees Stil!" → be quiet!, "Behuizing Voor S-Am5" weg),
+  categorie-prefixen ("ATX Semi-tower Box …", "Motherboard …"), kapotte casing
+  (Ghz/Cpu/Am5) en gedupliceerde frasen. Toegepast in `/api/search` (serve-time)
+  én in `db.py` (Python-opslag)
+- Tests: `npx tsx scripts/test-relevance.ts` (50 cases op echte junk-namen/titels uit de DB)
+- Opschoning (idempotent): `npx tsx scripts/clean-listings.ts` (na `db:push`) —
+  verwijdert junk, hercheckt categorieën, normaliseert titels
 
 ### UI (Stitch design geïmplementeerd)
 - Homepage (`/`) — hero met gradient bg + zoekbalk, 8 categorie-cards, features-sectie

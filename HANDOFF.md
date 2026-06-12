@@ -7,8 +7,9 @@
 Dutch-market PC-parts builder (helemaal opnieuw gebouwd, schone start t.o.v. CompuNL).
 Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en delen ze.
 
-- **Repo:** nog niet aangemaakt op GitHub
-- **Convex deployment:** nog niet aangemaakt — zie "Volgende stap" hieronder
+- **Repo:** https://github.com/r-ramphal/corebuild (branch `master`)
+- **Live:** https://corebuild-ashy.vercel.app (Vercel, auto-deploy van `master`)
+- **Convex deployment:** nog niet aangemaakt (optioneel — app werkt zonder)
 
 ---
 
@@ -32,24 +33,25 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 
 ### Foundation
 - Next.js 16 + Tailwind v4 + shadcn/ui (Radix, Nova preset)
-- Convex schema (`components`, `prices`, `priceHistory`, `userBuilds`, `priceAlerts`)
-- better-auth via `@convex-dev/better-auth` (zelfde bewezen setup als CompuNL)
-- `ConvexClientProvider` + `authClient` klaar
+- Convex schema klaar maar **niet actief** — app draait zonder database
+- better-auth setup klaar voor later
 - Root layout met ThemeProvider (dark mode ready)
-- GitHub Actions CI workflow
+- GitHub Actions CI + Vercel deployment
 
-### Nog te bouwen (in volgorde)
-- [ ] **Convex provisioning** — `npx convex dev` (zie volgende stap)
-- [ ] Navbar + Footer
-- [ ] Componentenoverzicht + details
-- [ ] Prijzen per retailer
-- [ ] Builder (zustand buildStore)
-- [ ] Compatibiliteitscheck
-- [ ] Auth UI (signin/signup)
-- [ ] Opgeslagen builds + dashboard
-- [ ] Publieke builds / delen
-- [ ] Dark mode toggle
-- [ ] Prijshistorie grafiek
+### Prijsvergelijking (live)
+- `src/lib/amazon.ts` — Amazon PA API 5.0 (AWS4-signing, `amazon.nl`)
+- `src/lib/scrapers/megekko.ts` / `azerty.ts` / `alternate.ts` — HTML-scrapers
+- `/api/search?q=` — parallel fanout naar alle 4 bronnen, sorteert op prijs
+- `SearchForm` + `PriceList` UI — zoekbalk + resultatenlijst met "Goedkoopst" badge
+- **Amazon keys nog niet ingesteld** — aanvraag loopt (site: corebuild-ashy.vercel.app)
+
+### Nog te bouwen
+- [ ] Amazon API keys instellen op Vercel (na goedkeuring Associates)
+- [ ] Scrapers testen + selectors bijstellen per retailer
+- [ ] Navbar + dark mode toggle
+- [ ] Productdetailpagina
+- [ ] Builder (component selectie + prijstotaal)
+- [ ] Auth + opgeslagen builds (Convex)
 
 ---
 
@@ -91,9 +93,16 @@ npx convex dev
 
 ---
 
-## Deployment (na provisioning)
+## Deployment
 
 | Omgeving | URL | Platform |
 |---|---|---|
-| Productie | TBD | Vercel (auto-deploy `main`) |
-| Convex dev | TBD | Convex |
+| Productie | https://corebuild-ashy.vercel.app | Vercel (auto-deploy `master`) |
+| Convex dev | nog niet aangemaakt | — |
+
+**Vercel env vars instellen** (na Amazon Associates goedkeuring):
+1. Ga naar https://vercel.com/r-ramphals-projects/corebuild/settings/environment-variables
+2. Voeg toe voor **Production**:
+   - `AMAZON_ACCESS_KEY`
+   - `AMAZON_SECRET_KEY`
+   - `AMAZON_ASSOCIATE_TAG`

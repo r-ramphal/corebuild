@@ -29,8 +29,3 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          # Public Convex URLs — safe to expose, not secrets.
-          # Update these once a new Convex deployment is provisioned.
-          NEXT_PUBLIC_CONVEX_URL: https://placeholder.convex.cloud
-          NEXT_PUBLIC_CONVEX_SITE_URL: https://placeholder.convex.site

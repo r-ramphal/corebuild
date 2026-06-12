@@ -8,6 +8,13 @@
       "when": 1781281663231,
       "tag": "0000_careful_shiver_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781301645642,
+      "tag": "0001_big_red_ghost",
+      "breakpoints": true
     }
   ]
 }

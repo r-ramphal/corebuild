@@ -6,7 +6,11 @@ import {
   boolean,
   timestamp,
   index,
+  jsonb,
 } from "drizzle-orm/pg-core";
+import { user } from "./auth-schema";
+
+export * from "./auth-schema";
 
 /**
  * Centrale datalaag (database-first): alle prijsdata komt hier samen.
@@ -45,3 +49,26 @@ export const listings = pgTable(
 
 export type ListingRow = typeof listings.$inferSelect;
 export type NewListing = typeof listings.$inferInsert;
+
+/**
+ * Opgeslagen PC-builds. `components` is een JSON-snapshot van het
+ * Zustand-buildstore-formaat: Partial<Record<ComponentType, PriceResult>>.
+ * `publicId` is de deelbare identifier voor /build/[publicId].
+ */
+export const builds = pgTable(
+  "builds",
+  {
+    id: serial("id").primaryKey(),
+    publicId: text("public_id").notNull().unique(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    components: jsonb("components").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("builds_user_id_idx").on(table.userId)]
+);
+
+export type BuildRow = typeof builds.$inferSelect;

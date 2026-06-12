@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   Cpu, Monitor, Layers, Database, HardDrive, Zap, Server, Wind,
-  Plus, Trash2, TriangleAlert, Share, Save,
+  Plus, Trash2, TriangleAlert, Share, Save, Check,
 } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
+import { useSession } from "@/lib/auth-client";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { formatEur } from "@/lib/format";
 import type { ComponentType } from "@/lib/types";
@@ -36,6 +38,34 @@ function psuCapacity(name: string | undefined): number {
 
 export function BuilderClient() {
   const { components, removeComponent, clearBuild } = useBuildStore();
+  const { data: session } = useSession();
+
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [buildName, setBuildName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  async function handleSave() {
+    if (!buildName.trim()) return;
+    setSaving(true);
+    setSaveError(null);
+    const res = await fetch("/api/builds", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: buildName.trim(), components }),
+    });
+    setSaving(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      setSaveError(data?.error ?? "Opslaan mislukt");
+      return;
+    }
+    setSaved(true);
+    setSaveOpen(false);
+    setBuildName("");
+    setTimeout(() => setSaved(false), 4000);
+  }
 
   const filledCount = Object.keys(components).length;
   const totalPrice = Object.values(components).reduce(
@@ -198,12 +228,70 @@ export function BuilderClient() {
               <button className="w-full py-4 bg-primary text-on-primary font-bold font-label-technical text-label-technical rounded hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
                 <Share className="w-4 h-4" /> Exporteer build
               </button>
-              <button
-                disabled
-                className="w-full py-4 bg-surface-container text-outline font-bold font-label-technical text-label-technical rounded cursor-not-allowed flex items-center justify-center gap-2 border border-outline-variant/30"
-              >
-                <Save className="w-4 h-4" /> Bewaar build
-              </button>
+              {session ? (
+                saveOpen ? (
+                  <div className="flex flex-col gap-2 p-3 bg-surface-container-low rounded border border-outline-variant/50">
+                    <input
+                      autoFocus
+                      value={buildName}
+                      onChange={(e) => setBuildName(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSave()}
+                      placeholder="Naam van je build…"
+                      maxLength={80}
+                      className="w-full h-10 px-3 bg-white border border-outline-variant rounded font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                    />
+                    {saveError && (
+                      <p className="font-label-technical text-label-technical text-error-crimson">
+                        {saveError}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSave}
+                        disabled={saving || !buildName.trim()}
+                        className="flex-1 py-2 bg-primary text-on-primary font-label-technical text-label-technical rounded hover:opacity-90 disabled:opacity-50"
+                      >
+                        {saving ? "Opslaan..." : "Opslaan"}
+                      </button>
+                      <button
+                        onClick={() => setSaveOpen(false)}
+                        className="px-4 py-2 border border-outline-variant font-label-technical text-label-technical rounded text-on-surface-variant hover:border-primary hover:text-primary"
+                      >
+                        Annuleer
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setSaveOpen(true)}
+                    disabled={filledCount === 0}
+                    className={`w-full py-4 font-bold font-label-technical text-label-technical rounded flex items-center justify-center gap-2 transition-all ${
+                      saved
+                        ? "bg-success-emerald text-white"
+                        : filledCount === 0
+                          ? "bg-surface-container text-outline cursor-not-allowed border border-outline-variant/30"
+                          : "bg-surface-container-lowest text-primary border border-primary hover:bg-primary hover:text-white"
+                    }`}
+                  >
+                    {saved ? (
+                      <>
+                        <Check className="w-4 h-4" /> Opgeslagen — zie Mijn builds
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" /> Bewaar build
+                      </>
+                    )}
+                  </button>
+                )
+              ) : (
+                <Link
+                  href="/inloggen"
+                  className="w-full py-4 bg-surface-container text-on-surface-variant font-bold font-label-technical text-label-technical rounded flex items-center justify-center gap-2 border border-outline-variant/30 hover:border-primary hover:text-primary transition-colors"
+                >
+                  <Save className="w-4 h-4" /> Log in om te bewaren
+                </Link>
+              )}
             </div>
 
             {/* Power consumption */}

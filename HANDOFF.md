@@ -9,7 +9,7 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 
 - **Repo:** https://github.com/r-ramphal/corebuild (branch `master`)
 - **Live:** https://corebuildnl.com (Vercel, auto-deploy van `master`; oude URL corebuild-ashy.vercel.app redirect)
-- **Convex deployment:** nog niet aangemaakt (optioneel — app werkt zonder)
+- **Database:** Neon Postgres (eu-central-1) via Vercel — listings, auth-tabellen en builds
 
 ---
 
@@ -19,8 +19,8 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 |---|---|
 | Framework | Next.js 16.2.9 + React 19 |
 | Styling | Tailwind v4 + shadcn/ui (Radix Nova preset) |
-| Database | **Postgres (Neon) + Drizzle ORM** — Convex slapend, kan vervallen |
-| Auth | better-auth 1.6.14 (te koppelen aan dezelfde Postgres i.p.v. Convex) |
+| Database | **Postgres (Neon) + Drizzle ORM** |
+| Auth | better-auth 1.6.14 op dezelfde Postgres (Drizzle-adapter) |
 | State | Zustand + SWR |
 | Forms | react-hook-form + zod |
 | CI | GitHub Actions (Node 22) |
@@ -33,8 +33,7 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 
 ### Foundation
 - Next.js 16 + Tailwind v4 + shadcn/ui (Radix, Nova preset)
-- Convex schema klaar maar **niet actief** — app draait zonder database
-- better-auth setup klaar voor later
+- Neon Postgres + Drizzle (listings, auth, builds) — Convex is volledig verwijderd
 - GitHub Actions CI + Vercel deployment
 - **Geen dark mode** (verwijderd per design beslissing)
 
@@ -138,8 +137,8 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - Lokaal: `cd scrapers && .\.venv\Scripts\python refresh.py --all`
 
 ### Nog te bouwen
-- [ ] **Auth + opgeslagen builds** — better-auth op dezelfde Postgres (Drizzle-adapter); Convex-bestanden kunnen daarna weg
 - [ ] **Prijshistorie** — aparte tabel of `listings` niet meer verwijderen maar versieneren
+- [ ] **Wachtwoord vergeten** — better-auth reset-flow vereist een e-mailprovider (bijv. Resend)
 
 ---
 
@@ -163,42 +162,34 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 
 ---
 
-## Auth-architectuur (zelfde als CompuNL)
+## Auth-architectuur (better-auth op Neon Postgres — Convex volledig verwijderd)
 
-- Auth-instance: `convex/auth.ts` (`createAuth` met `betterAuth` from `better-auth/minimal`)
-- HTTP-routes: `convex/http.ts` via `registerRoutes` — **geen** Next.js API-route
-- Client: `src/lib/auth-client.ts` (convexClient + crossDomainClient plugins)
-- Provider: `src/app/ConvexClientProvider.tsx` (`ConvexBetterAuthProvider`)
-- Cross-domain fixes vereist (app op Vercel, auth op `.convex.site`):
-  1. **CORS:** `registerRoutes(..., { cors: { allowedOrigins: trustedOrigins } })`
-  2. **Cross-domain sessie:** `crossDomain({ siteUrl })` + `crossDomainClient()` (localStorage)
-- Na deployment: voeg Vercel-URL toe aan `trustedOrigins` in `convex/auth.ts`
+- **Server**: `src/lib/auth.ts` — `betterAuth` met `drizzleAdapter` op dezelfde Neon-database;
+  e-mail + wachtwoord (min. 8 tekens), trustedOrigins voor www/apex/localhost
+- **Tabellen**: `src/lib/db/auth-schema.ts` (user/session/account/verification, standaard better-auth)
+- **API-route**: `src/app/api/auth/[...all]/route.ts` via `toNextJsHandler` — zelfde origin, geen CORS-gedoe
+- **Client**: `src/lib/auth-client.ts` — `createAuthClient()` zonder plugins; exports `signIn/signUp/signOut/useSession`
+- **Secret**: `BETTER_AUTH_SECRET` staat in `.env.local` én in Vercel (production/preview/development)
+
+### Opgeslagen builds
+- Tabel `builds`: `publicId` (deelbaar, base64url), `userId` (cascade), `name`, `components` (jsonb-snapshot
+  van het Zustand-formaat), timestamps
+- API: `GET/POST /api/builds` (eigen lijst / opslaan), `GET /api/builds/[publicId]` (publiek, zonder userId),
+  `DELETE /api/builds/[publicId]` (alleen eigenaar)
+- UI: `/inloggen` (login+registreren), navbar met sessie-dropdown (Mijn builds / Uitloggen),
+  "Bewaar build" in de builder (naam-invoer), `/builds` (laden/delen/verwijderen), `/build/[publicId]` (share-pagina)
+- Buildstore heeft `loadComponents()` om een opgeslagen build in de builder te laden
+- E2E getest: registreren → opslaan → lijst → publieke lookup (zonder cookie, zonder userId-lek) → verwijderen → 404
 
 ---
 
 ## Bekende gotchas
 
 - **Geen ongelayerde CSS in `globals.css`** — regels buiten `@layer` winnen van álle Tailwind-utilities (een `* { margin: 0; padding: 0 }` reset sloeg ooit alle `px-*`/`mx-auto`/linkkleuren plat). Custom base-styles altijd in `@layer base` zetten.
-- `kysely` gepinned op `0.28.17` via `overrides` in `package.json` (niet als directe dep)
+- `kysely` gepinned op `0.28.17` via `overrides` in `package.json` (better-auth gebruikt kysely intern)
 - `lucide-react` v1 — nieuwe icoon-namen: `TriangleAlert` / `CircleAlert` / `CircleCheck`
-- tsconfig path alias `@convex/*` → `./convex/*` voor `@convex/_generated/api` imports
-- `npx convex login` hangt non-interactief — gebruik `npx convex login --device-name <naam>`
-- Dev deploy key kan Convex env vars niet lezen/schrijven (403) — stel in via dashboard
-- TypeScript-errors op `_generated/*` zijn normaal tot `npx convex dev` gerund is
-
----
-
-## Volgende stap: Convex provisioning
-
-```bash
-# In de projectmap:
-npx convex dev
-# Kies: nieuw project aanmaken, naam "corebuild"
-# Kopieer de gegenereerde URLs naar .env.local:
-#   NEXT_PUBLIC_CONVEX_URL=https://...convex.cloud
-#   NEXT_PUBLIC_CONVEX_SITE_URL=https://...convex.site
-# Stel BETTER_AUTH_SECRET in via het Convex dashboard (Environment Variables)
-```
+- **Dubbele env-var namen in `.env.local`** — dotenv pakt de éérste, een lege regel erboven wint dus van een gevulde eronder
+- Vercel CLI is ingelogd (`r-ramphal`); project gelinkt — `npx vercel env ls` werkt
 
 ---
 
@@ -207,11 +198,7 @@ npx convex dev
 | Omgeving | URL | Platform |
 |---|---|---|
 | Productie | https://corebuildnl.com | Vercel (auto-deploy `master`) |
-| Convex dev | nog niet aangemaakt | — |
+| Database | Neon Postgres eu-central-1 | via Vercel Storage (`STORAGE_`-prefix env vars) |
 
-**Vercel env vars instellen** (na Amazon Associates goedkeuring):
-1. Ga naar https://vercel.com/r-ramphals-projects/corebuild/settings/environment-variables
-2. Voeg toe voor **Production**:
-   - `AMAZON_ACCESS_KEY`
-   - `AMAZON_SECRET_KEY`
-   - `AMAZON_ASSOCIATE_TAG`
+**Env vars** (Vercel): `STORAGE_DATABASE_URL` (Neon-integratie, automatisch), `BETTER_AUTH_SECRET` (gezet).
+Na Amazon Associates-goedkeuring: `AMAZON_ASSOCIATE_TAG` toevoegen.

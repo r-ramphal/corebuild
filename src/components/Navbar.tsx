@@ -2,43 +2,53 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Cpu } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/", label: "Zoeken" },
+  { href: "/zoeken", label: "Zoeken" },
+  { href: "/builder", label: "Builder" },
+  { href: "/categorie", label: "Categorieën" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-sm">
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg shrink-0">
-          <Cpu className="w-5 h-5" />
+    <header className="fixed top-0 left-0 right-0 z-50 bg-surface border-b border-outline-variant">
+      <div className="max-w-[1280px] mx-auto px-8 h-16 flex items-center justify-between">
+        <Link
+          href="/"
+          className="text-primary font-heading font-bold text-2xl"
+        >
           CoreBuild
         </Link>
 
-        <nav className="flex items-center gap-1">
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "px-3 py-1.5 rounded-md text-sm transition-colors",
-                pathname === href
-                  ? "bg-accent text-accent-foreground font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
-              )}
-            >
-              {label}
-            </Link>
-          ))}
+        <nav className="flex items-center gap-6">
+          {NAV_LINKS.map(({ href, label }) => {
+            const isActive = pathname === href || pathname.startsWith(href + "/");
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "font-mono text-xs tracking-wide transition-colors pb-0.5",
+                  isActive
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-on-surface-variant hover:text-primary",
+                )}
+              >
+                {label}
+              </Link>
+            );
+          })}
         </nav>
 
-        <ThemeToggle />
+        <Link
+          href="/inloggen"
+          className="bg-primary text-white px-6 py-2 rounded-lg font-mono text-xs transition-opacity hover:opacity-90"
+        >
+          Inloggen
+        </Link>
       </div>
     </header>
   );

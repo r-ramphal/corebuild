@@ -1,25 +1,34 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "next-themes";
-import { ConvexClientProvider } from "./ConvexClientProvider";
+import { Hanken_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const hanken = Hanken_Grotesk({
+  variable: "--font-hanken",
   subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["500"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "CoreBuild — Bouw je eigen PC",
+  title: "CoreBuild — Optimaliseer je build, verfijn je budget",
   description:
-    "Vergelijk componenten en prijzen, stel je ideale PC samen en deel je build.",
+    "Vergelijk real-time prijzen van de grootste tech-retailers en bouw de ultieme setup met volledige compatibiliteitscontrole.",
 };
 
 export default function RootLayout({
@@ -30,17 +39,12 @@ export default function RootLayout({
   return (
     <html
       lang="nl"
-      className={`${geistSans.variable} ${geistMono.variable}`}
-      suppressHydrationWarning
+      className={`${hanken.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ConvexClientProvider>
-            <Navbar />
-            {children}
-            <Footer />
-          </ConvexClientProvider>
-        </ThemeProvider>
+        <Navbar />
+        {children}
+        <Footer />
       </body>
     </html>
   );

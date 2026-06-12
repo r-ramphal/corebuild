@@ -127,9 +127,19 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
   vervang per (query, retailer), `source = 'python'`
 - De site serveert nieuwe rijen direct (TTL 30 min per query)
 
+### Python-scrapers (`scrapers/`) — gebouwd & getest tegen Neon
+- 5 retailer-modules (zelfde selectors als de TS-scrapers), `refresh.py` CLI, zie `scrapers/README.md`
+- **curl_cffi met Chrome-impersonatie** — de standaard requests-library wordt door
+  Amazon geblokkeerd op TLS-fingerprint (503)
+- Vanaf residentieel IP (thuis) werken **alle 5** retailers, inclusief Bol en Amazon —
+  zo komt er échte Bol/Amazon-data in de database terwijl Vercel ze niet kan scrapen
+- GitHub Actions (`.github/workflows/scrape.yml`): elke 6 uur megekko/azerty/alternate;
+  **vereist repo-secret `DATABASE_URL`** (nog toe te voegen door Ravi)
+- Lokaal: `cd scrapers && .\.venv\Scripts\python refresh.py --all`
+
 ### Nog te bouwen
+- [ ] **GitHub-secret `DATABASE_URL`** toevoegen zodat de scrape-workflow draait
 - [ ] **Auth + opgeslagen builds** — better-auth op dezelfde Postgres (Drizzle-adapter); Convex-bestanden kunnen daarna weg
-- [ ] **Python-scrapers** die populaire zoektermen periodiek in `listings` verversen
 - [ ] **Prijshistorie** — aparte tabel of `listings` niet meer verwijderen maar versieneren
 
 ---

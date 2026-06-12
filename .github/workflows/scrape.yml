@@ -1,0 +1,30 @@
+name: Prijzen verversen
+
+on:
+  schedule:
+    # Elke 6 uur — GitHub Actions draait op datacenter-IP's, dus alleen de
+    # retailers die dat toelaten (Bol/Amazon vereisen een residentieel IP)
+    - cron: "0 5,11,17,23 * * *"
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scrapers/requirements.txt
+
+      - name: Installeer dependencies
+        run: pip install -r scrapers/requirements.txt
+
+      - name: Ververs prijzen (megekko, azerty, alternate)
+        working-directory: scrapers
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python refresh.py --all --retailers megekko,azerty,alternate --delay 2

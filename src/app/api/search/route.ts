@@ -102,6 +102,9 @@ export async function GET(req: NextRequest) {
 
   const body: SearchResults = { query, results, errors };
   return NextResponse.json(body, {
-    headers: { "x-corebuild-source": "live" },
+    headers: {
+      "x-corebuild-source": "live",
+      "x-corebuild-db": db ? "on" : "off",
+    },
   });
 }

@@ -2,14 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  Cpu, Monitor, Layers, Database, HardDrive, Zap, Server, Wind,
-  MonitorPlay, Keyboard, Mouse, Headphones,
-  Plus, Trash2, Share, Save, Check, Pencil,
-} from "lucide-react";
+import { Plus, Trash2, Share, Save, Check, Pencil } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { useSession } from "@/lib/auth-client";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
+import { CATEGORY_ICONS as ICONS } from "@/lib/category-icons";
 import { formatEur } from "@/lib/format";
 import { BuildPreview2D } from "@/components/builder/BuildPreview2D";
 import { BuildSummary } from "@/components/builder/BuildSummary";
@@ -18,21 +15,6 @@ import {
   detectPsuWatts, detectFormFactor,
 } from "@/lib/specs/detect";
 import type { ComponentType } from "@/lib/types";
-
-const ICONS: Record<ComponentType, React.ComponentType<{ className?: string }>> = {
-  cpu: Cpu,
-  gpu: Monitor,
-  motherboard: Layers,
-  ram: Database,
-  storage: HardDrive,
-  psu: Zap,
-  case: Server,
-  cooling: Wind,
-  monitor: MonitorPlay,
-  keyboard: Keyboard,
-  mouse: Mouse,
-  headset: Headphones,
-};
 
 /** Korte spec-chips per slot, afgeleid uit de productnaam. */
 function slotChips(type: ComponentType, name: string): string[] {

@@ -3,29 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import {
-  Cpu, Monitor, Layers, Database, HardDrive, Zap, Server, Wind, Upload,
-  MonitorPlay, Keyboard, Mouse, Headphones,
-} from "lucide-react";
+import { Upload } from "lucide-react";
 import { useBuildStore, type BuildComponents } from "@/lib/store/build";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
+import { CATEGORY_ICONS as ICONS } from "@/lib/category-icons";
 import { formatEur } from "@/lib/format";
-import type { ComponentType } from "@/lib/types";
-
-const ICONS: Record<ComponentType, React.ComponentType<{ className?: string }>> = {
-  cpu: Cpu,
-  gpu: Monitor,
-  motherboard: Layers,
-  ram: Database,
-  storage: HardDrive,
-  psu: Zap,
-  case: Server,
-  cooling: Wind,
-  monitor: MonitorPlay,
-  keyboard: Keyboard,
-  mouse: Mouse,
-  headset: Headphones,
-};
 
 interface SharedBuild {
   publicId: string;

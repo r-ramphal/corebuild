@@ -4,13 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import {
-  Cpu, Monitor, Layers, Database, HardDrive, Zap, Server, Wind,
-  MonitorPlay, Keyboard, Mouse, Headphones,
-  TrendingUp, Check, ExternalLink,
-} from "lucide-react";
+import { HardDrive, TrendingUp, Check, ExternalLink } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META } from "@/lib/categories";
+import { CATEGORY_ICONS } from "@/lib/category-icons";
 import { formatEur } from "@/lib/format";
 import { productUrl } from "@/lib/product-url";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
@@ -18,21 +15,6 @@ import { RetailerLogo } from "@/components/RetailerLogo";
 import { bestValueIndex, hasValueMetric } from "@/lib/specs/value";
 import { useSearch } from "@/lib/use-search";
 import type { ComponentType, PriceResult } from "@/lib/types";
-
-const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  cpu: Cpu,
-  gpu: Monitor,
-  motherboard: Layers,
-  ram: Database,
-  storage: HardDrive,
-  psu: Zap,
-  case: Server,
-  cooling: Wind,
-  monitor: MonitorPlay,
-  keyboard: Keyboard,
-  mouse: Mouse,
-  headset: Headphones,
-};
 
 const RETAILER_LABEL: Record<string, string> = {
   amazon: "Amazon",

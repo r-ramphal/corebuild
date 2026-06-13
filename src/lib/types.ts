@@ -1,6 +1,7 @@
 export type Retailer = "amazon" | "bol" | "megekko" | "azerty" | "alternate";
 
 export type ComponentType =
+  // Kerncomponenten — verschijnen als build-slot
   | "cpu"
   | "gpu"
   | "motherboard"
@@ -13,7 +14,18 @@ export type ComponentType =
   | "monitor"
   | "keyboard"
   | "mouse"
-  | "headset";
+  | "headset"
+  | "microphone"
+  | "webcam"
+  | "speaker"
+  // Accessoires & extra's — browsbaar/vergelijkbaar, geen build-slot
+  | "casefan"
+  | "thermalpaste"
+  | "soundcard"
+  | "networkcard"
+  | "capturecard"
+  | "os"
+  | "accessory";
 
 export interface PriceResult {
   retailer: Retailer;

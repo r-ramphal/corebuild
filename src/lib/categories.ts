@@ -18,10 +18,28 @@ export const PERIPHERAL_TYPES: ComponentType[] = [
   "keyboard",
   "mouse",
   "headset",
+  "microphone",
+  "webcam",
+  "speaker",
 ];
 
-/** Alle browsbare categorieën (kerncomponenten + randapparatuur). */
-export const CATALOG_TYPES: ComponentType[] = [...COMPONENT_TYPES, ...PERIPHERAL_TYPES];
+/** Accessoires & interne extra's — browsbaar/vergelijkbaar, geen build-slot. */
+export const ACCESSORY_TYPES: ComponentType[] = [
+  "casefan",
+  "thermalpaste",
+  "soundcard",
+  "networkcard",
+  "capturecard",
+  "os",
+  "accessory",
+];
+
+/** Alle browsbare categorieën (kerncomponenten + randapparatuur + accessoires). */
+export const CATALOG_TYPES: ComponentType[] = [
+  ...COMPONENT_TYPES,
+  ...PERIPHERAL_TYPES,
+  ...ACCESSORY_TYPES,
+];
 
 export const COMPONENT_META: Record<
   ComponentType,
@@ -34,7 +52,11 @@ export const COMPONENT_META: Record<
     searchTerm: string;
     popularTags: string[];
     wattage: number;
-    /** Randapparaat: verschijnt niet als build-slot en telt niet mee in wattage. */
+    /**
+     * Geen build-slot (randapparaat of los accessoire): verschijnt niet in de
+     * builder en telt niet mee in de wattage-schatting. Toont "Bekijk" i.p.v.
+     * "Toevoegen aan Build" op de categoriekaart.
+     */
     peripheral?: boolean;
   }
 > = {
@@ -171,6 +193,126 @@ export const COMPONENT_META: Record<
     emptyText: "Kies een headset",
     searchTerm: "gaming headset",
     popularTags: ["draadloze headset", "gaming headset", "7.1 surround", "Bluetooth koptelefoon"],
+    wattage: 0,
+    peripheral: true,
+  },
+  microphone: {
+    label: "Microfoon",
+    shortLabel: "Microfoon",
+    pageTitle: "Microfoons",
+    description:
+      "Van USB-streamingmicrofoons tot studiocondensators: vergelijk microfoons op geluidskwaliteit en prijs bij alle grote retailers.",
+    emptyText: "Kies een microfoon",
+    searchTerm: "USB microfoon streaming",
+    popularTags: ["Blue Yeti", "HyperX QuadCast", "Rode NT-USB", "streaming microfoon"],
+    wattage: 0,
+    peripheral: true,
+  },
+  webcam: {
+    label: "Webcam",
+    shortLabel: "Webcam",
+    pageTitle: "Webcams",
+    description:
+      "Vergelijk webcams voor videobellen en streamen op resolutie, beeldkwaliteit en prijs bij alle grote retailers.",
+    emptyText: "Kies een webcam",
+    searchTerm: "webcam 1080p",
+    popularTags: ["Logitech C920", "1080p webcam", "4K webcam", "streaming webcam"],
+    wattage: 0,
+    peripheral: true,
+  },
+  speaker: {
+    label: "Speakers",
+    shortLabel: "Speakers",
+    pageTitle: "Pc-speakers",
+    description:
+      "Vergelijk pc-speakers en speakersets op geluidskwaliteit, vermogen en prijs bij alle grote retailers.",
+    emptyText: "Kies speakers",
+    searchTerm: "pc speakers",
+    popularTags: ["2.0 speakers", "2.1 speakerset", "Logitech speakers", "gaming speakers"],
+    wattage: 0,
+    peripheral: true,
+  },
+  casefan: {
+    label: "Behuizingsventilator",
+    shortLabel: "Case fan",
+    pageTitle: "Behuizingsventilatoren (case fans)",
+    description:
+      "Vergelijk 120mm- en 140mm-ventilatoren voor je behuizing op luchtstroom, geluidsniveau en prijs bij alle grote retailers.",
+    emptyText: "Kies een ventilator",
+    searchTerm: "case fan 120mm",
+    popularTags: ["120mm fan", "140mm fan", "RGB fan", "PWM ventilator", "Noctua fan"],
+    wattage: 0,
+    peripheral: true,
+  },
+  thermalpaste: {
+    label: "Koelpasta",
+    shortLabel: "Koelpasta",
+    pageTitle: "Koelpasta (thermal paste)",
+    description:
+      "Vergelijk koelpasta voor processor en videokaart op warmtegeleiding en prijs bij alle grote retailers.",
+    emptyText: "Kies koelpasta",
+    searchTerm: "koelpasta thermal paste",
+    popularTags: ["Thermal Grizzly Kryonaut", "Arctic MX-6", "Noctua NT-H2", "Arctic MX-4"],
+    wattage: 0,
+    peripheral: true,
+  },
+  soundcard: {
+    label: "Geluidskaart",
+    shortLabel: "Geluidskaart",
+    pageTitle: "Geluidskaarten",
+    description:
+      "Vergelijk interne en externe geluidskaarten en DAC's op functies, geluidskwaliteit en prijs bij alle grote retailers.",
+    emptyText: "Kies een geluidskaart",
+    searchTerm: "geluidskaart sound card",
+    popularTags: ["Sound Blaster", "externe DAC", "USB geluidskaart", "PCIe geluidskaart"],
+    wattage: 0,
+    peripheral: true,
+  },
+  networkcard: {
+    label: "Netwerkkaart",
+    shortLabel: "Netwerk",
+    pageTitle: "Netwerkkaarten (wifi & ethernet)",
+    description:
+      "Vergelijk wifi- en ethernet-netwerkkaarten op snelheid, standaard en prijs bij alle grote retailers.",
+    emptyText: "Kies een netwerkkaart",
+    searchTerm: "netwerkkaart wifi PCIe",
+    popularTags: ["wifi 6 PCIe", "2.5GbE kaart", "10GbE kaart", "ethernet kaart"],
+    wattage: 0,
+    peripheral: true,
+  },
+  capturecard: {
+    label: "Capture card",
+    shortLabel: "Capture",
+    pageTitle: "Capture cards",
+    description:
+      "Vergelijk capture cards voor streamen en opnemen op resolutie, latency en prijs bij alle grote retailers.",
+    emptyText: "Kies een capture card",
+    searchTerm: "capture card",
+    popularTags: ["Elgato HD60", "Elgato 4K", "interne capture card", "USB capture card"],
+    wattage: 0,
+    peripheral: true,
+  },
+  os: {
+    label: "Besturingssysteem",
+    shortLabel: "OS",
+    pageTitle: "Besturingssystemen",
+    description:
+      "Vergelijk Windows-licenties en besturingssystemen op editie en prijs bij alle grote retailers.",
+    emptyText: "Kies een besturingssysteem",
+    searchTerm: "Windows 11 licentie",
+    popularTags: ["Windows 11 Home", "Windows 11 Pro", "Windows 10 Pro"],
+    wattage: 0,
+    peripheral: true,
+  },
+  accessory: {
+    label: "Accessoires",
+    shortLabel: "Accessoires",
+    pageTitle: "Pc-accessoires",
+    description:
+      "Vergelijk pc-accessoires zoals kabels, hubs, risers en kabelmanagement op prijs bij alle grote retailers.",
+    emptyText: "Kies een accessoire",
+    searchTerm: "pc accessoires",
+    popularTags: ["RGB strip", "PCIe riser", "kabelset", "USB hub", "stoffilter"],
     wattage: 0,
     peripheral: true,
   },

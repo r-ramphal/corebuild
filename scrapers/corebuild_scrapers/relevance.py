@@ -152,6 +152,113 @@ _RULES: dict[str, tuple[list[re.Pattern], re.Pattern]] = {
         [re.compile(r"\b(headset|koptelefoon|hoofdtelefoon|headphones?)\b", re.I)],
         re.compile(r"\b(standaard|hanger|stand|kabel|case|adapter|oordopjes|earbuds)\b", re.I),
     ),
+    "microphone": (
+        [
+            re.compile(r"\b(microfoon|microphone|\bmic\b)\b", re.I),
+            re.compile(r"\b(blue\s?yeti|quadcast|nt-?usb|wave\s?[13]|condensator(microfoon)?)\b", re.I),
+        ],
+        re.compile(
+            r"headset|koptelefoon|micro(foon)?.?arm|mic.?arm|popfilter|plopkap|windkap"
+            r"|spuitkap|standaard|statief|kabel|adapter|ontvanger|\bin-?ear\b|oordopjes|earbuds",
+            re.I,
+        ),
+    ),
+    "webcam": (
+        [re.compile(r"\b(webcam|web\s?camera|streamcam|facecam|brio)\b", re.I)],
+        re.compile(
+            r"beveiligingscamera|ip-?camera|babyfoon|dashcam|actiecamera|bodycam|\bgopro\b"
+            r"|\bcover\b|afdek|privacy.?(cover|schuif)|statief|tripod|laptop|telefoon|deurbel|\bring\b",
+            re.I,
+        ),
+    ),
+    "speaker": (
+        [re.compile(r"\b(speaker|speakers|speakerset|luidspreker|soundbar)\b", re.I)],
+        re.compile(
+            r"koptelefoon|hoofdtelefoon|headset|oordopjes|earbuds|kabel|standaard|beugel"
+            r"|muurbeugel|\barm\b|partybox|party\s?speaker|\bsonos\b|google\s?nest|amazon\s?echo"
+            r"|\balexa\b|smart\s?speaker|draagbare?\s?speaker|portable|bluetooth\s?box",
+            re.I,
+        ),
+    ),
+    "casefan": (
+        [
+            re.compile(r"\bcase\s?fans?\b", re.I),
+            re.compile(r"behuizingsventilator", re.I),
+            re.compile(r"\b(120|140|92|80)\s?mm\b.*\b(fan|ventilator|pwm|rgb|argb)\b", re.I),
+            re.compile(r"\b(fan|ventilator)\b.*\b(120|140|92|80)\s?mm\b", re.I),
+        ],
+        re.compile(
+            r"cpu.?koeler|cpu.?cooler|\baio\b|waterkoel|liquid|heatsink|tower\s?cooler"
+            r"|nh-[dlup]\d|dark\s?rock|peerless|assassin|gpu|grafische|videokaart|moederbord"
+            r"|laptop|notebook|fan\s?hub|fan\s?controller|\bfilter\b|stofkap|föhn|haardroge"
+            r"|staande\s?ventilator|tafelventilator|plafond|airco|\bbracket\b",
+            re.I,
+        ),
+    ),
+    "thermalpaste": (
+        [
+            re.compile(r"koelpasta|warmtegeleidingspasta", re.I),
+            re.compile(r"thermal\s?(paste|grizzly|compound)", re.I),
+            re.compile(r"\b(kryonaut|hydronaut|nt-h[12]|mx-?[2-6])\b", re.I),
+        ],
+        re.compile(r"thermal\s?pad|laptop|notebook|\bfan\b|koeler|cooler|reiniger|cleaner|verwijder", re.I),
+    ),
+    "soundcard": (
+        [
+            re.compile(r"\b(geluidskaart|sound\s?card|sound\s?blaster)\b", re.I),
+            re.compile(r"\b(externe?|usb|pcie?)\s?(dac|geluidskaart|audio\s?interface)\b", re.I),
+        ],
+        re.compile(
+            r"speaker|luidspreker|koptelefoon|hoofdtelefoon|headset|oordopjes|microfoon"
+            r"|\bkabel\b|soundbar|behuizing|moederbord",
+            re.I,
+        ),
+    ),
+    "networkcard": (
+        [
+            re.compile(r"\b(netwerkkaart|network\s?card|nic)\b", re.I),
+            re.compile(r"\b(wifi|wi-fi|ethernet|lan|2\.5\s?gbe|5\s?gbe|10\s?gbe)\b.*\b(kaart|adapter|pcie?|card)\b", re.I),
+            re.compile(r"\b(kaart|adapter|pcie?|card)\b.*\b(wifi|wi-fi|ethernet|lan)\b", re.I),
+            re.compile(r"\b(2\.5|5|10)\s?gbe\b", re.I),
+        ],
+        re.compile(
+            r"\brouter\b|\bswitch\b|\bmodem\b|access\s?point|repeater|powerline|\bmesh\b"
+            r"|\bkabel\b|patch|laptop|notebook|\busb-?stick\b|moederbord|motherboard|mainboard",
+            re.I,
+        ),
+    ),
+    "capturecard": (
+        [
+            re.compile(r"\b(capture\s?card|capturekaart|video\s?capture|game\s?capture|hdmi\s?capture|cam\s?link)\b", re.I),
+            re.compile(r"\belgato\b.*\b(hd60|4k|capture)\b", re.I),
+        ],
+        re.compile(r"\bkabel\b|splitter|verloop|stream\s?deck|toetsenbord|microfoon|\bswitch\b", re.I),
+    ),
+    "os": (
+        [
+            re.compile(r"windows\s?1[01]\s?(home|pro|professional|education|enterprise|n\b)?", re.I),
+            re.compile(r"\b(microsoft\s?windows|besturingssysteem|operating\s?system)\b", re.I),
+            re.compile(r"\bos\b\s?(licentie|license|key)", re.I),
+        ],
+        re.compile(
+            r"laptop|notebook|desktop|game.?pc|gaming\s?pc|mini.?pc|all.?in.?one|sticker"
+            r"|\bboek\b|cursus|\bkabel\b|toetsenbord|\bmuis\b|tablet|telefoon|\boffice\b"
+            r"|antivirus|server\s?20",
+            re.I,
+        ),
+    ),
+    "accessory": (
+        [
+            re.compile(r"\b(kabel|cable|usb[\s-]?hub|hub|riser|verlengkabel|kabelmanagement|kabelset|kabelgoot|kabelbinder)\b", re.I),
+            re.compile(r"\b(rgb|led|argb).?strip\b", re.I),
+            re.compile(r"\b(stoffilter|stofkap|standoff|fan\s?hub|fan\s?controller|sleeve)\b", re.I),
+        ],
+        re.compile(
+            r"processor|videokaart|grafische|moederbord|geheugen|\bssd\b|\bhdd\b|\bnvme\b"
+            r"|voeding|behuizing|monitor|toetsenbord|\bmuis\b|headset|\bcpu\b|\bgpu\b|laptop|notebook",
+            re.I,
+        ),
+    ),
 }
 
 CATEGORIES = list(_RULES)
@@ -180,8 +287,14 @@ def infer_category(name: str) -> str | None:
     if is_junk(name):
         return None
     for category in (
-        "motherboard", "gpu", "cpu", "psu", "cooling", "storage", "ram", "case",
-        "monitor", "keyboard", "mouse", "headset",
+        "motherboard", "gpu", "cpu", "psu",
+        # casefan vóór cooling: een losse behuizingsventilator hoort in casefan,
+        # een CPU-koeler valt via de casefan-exclude alsnog door naar cooling.
+        "casefan", "cooling", "thermalpaste", "storage", "ram", "case",
+        "soundcard", "networkcard", "capturecard", "os",
+        "monitor", "keyboard", "mouse", "headset", "microphone", "webcam", "speaker",
+        # accessory is het meest generiek (kabel/hub/strip) -> altijd als laatste.
+        "accessory",
     ):
         if matches_category(name, category):
             return category

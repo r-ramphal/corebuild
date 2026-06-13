@@ -256,6 +256,16 @@ function generic(category: ComponentType): ProductDescription {
     keyboard: "Het toetsenbord is waar je het meeste mee werkt en speelt. Mechanische schakelaars geven een duidelijke aanslag en gaan lang mee.",
     mouse: "Een goede muis ligt prettig in de hand en reageert nauwkeurig. Voor gaming tellen gewicht en sensor; voor werk vooral comfort.",
     headset: "Een headset combineert geluid en microfoon in één. Handig voor games, calls en muziek zonder je omgeving te storen.",
+    microphone: "Een losse microfoon levert duidelijk veel beter geluid dan een headsetmicrofoon. Ideaal voor streamen, opnemen en calls.",
+    webcam: "Een webcam voegt beeld toe aan videobellen en streams. Let op resolutie (1080p of 4K) en hoe goed hij met weinig licht omgaat.",
+    speaker: "Pc-speakers geven je geluid zonder koptelefoon. Een 2.0-set is compact; een 2.1-set met subwoofer voegt meer bas toe.",
+    casefan: "Behuizingsventilatoren zorgen voor luchtstroom door je kast, zodat je onderdelen koeler en daarmee sneller en stiller blijven.",
+    thermalpaste: "Koelpasta vult de microscopische oneffenheden tussen je processor en koeler, zodat de warmte beter wordt afgevoerd.",
+    soundcard: "Een geluidskaart of externe DAC verbetert je audio ten opzichte van de onboard-chip van het moederbord, handig voor goede koptelefoons.",
+    networkcard: "Een netwerkkaart voegt (snellere) wifi of bekabeld internet toe als je moederbord het niet of te traag aan boord heeft.",
+    capturecard: "Een capture card neemt het beeld van een console of tweede pc op, onmisbaar voor streamen en opnemen in hoge kwaliteit.",
+    os: "Het besturingssysteem (zoals Windows) is de software waarop je pc draait. Een geldige licentie is nodig voor updates en activatie.",
+    accessory: "Accessoires zoals kabels, hubs, risers en kabelmanagement maken je build compleet en netjes.",
   };
   return { detailed: false, summary: text[category], specs: [], goodFor: [], learn: [] };
 }

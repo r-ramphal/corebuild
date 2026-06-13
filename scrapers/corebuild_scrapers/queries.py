@@ -88,6 +88,67 @@ CATEGORY_QUERIES: dict[str, list[str]] = {
         "draadloze headset",
         "Bluetooth koptelefoon",
     ],
+    "microphone": [
+        "USB microfoon streaming",
+        "Blue Yeti",
+        "HyperX QuadCast",
+        "Rode NT-USB",
+    ],
+    "webcam": [
+        "webcam 1080p",
+        "Logitech C920",
+        "4K webcam",
+        "streaming webcam",
+    ],
+    "speaker": [
+        "pc speakers",
+        "2.1 speakerset",
+        "Logitech speakers",
+        "gaming speakers",
+    ],
+    "casefan": [
+        "case fan 120mm",
+        "140mm fan",
+        "RGB fan",
+        "PWM ventilator",
+        "Noctua fan",
+    ],
+    "thermalpaste": [
+        "koelpasta thermal paste",
+        "Thermal Grizzly Kryonaut",
+        "Arctic MX-6",
+        "Noctua NT-H2",
+    ],
+    "soundcard": [
+        "geluidskaart sound card",
+        "Sound Blaster",
+        "externe DAC",
+        "PCIe geluidskaart",
+    ],
+    "networkcard": [
+        "netwerkkaart wifi PCIe",
+        "wifi 6 PCIe kaart",
+        "2.5GbE kaart",
+        "ethernet kaart PCIe",
+    ],
+    "capturecard": [
+        "capture card",
+        "Elgato HD60",
+        "Elgato 4K capture",
+        "USB capture card",
+    ],
+    "os": [
+        "Windows 11 licentie",
+        "Windows 11 Home",
+        "Windows 11 Pro",
+        "Windows 10 Pro",
+    ],
+    "accessory": [
+        "RGB strip pc",
+        "PCIe riser kabel",
+        "USB hub",
+        "stoffilter pc kast",
+    ],
 }
 
 

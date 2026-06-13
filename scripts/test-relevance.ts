@@ -57,6 +57,35 @@ const CASES: { name: string; cat: ComponentType; expect: boolean }[] = [
   { name: "AMD Ryzen 7 9800X3D Tray - Processor - 4.7 GHz - AM5 Socket - zonder koeler - OEM verpakking", cat: "cooling", expect: false },
   { name: "AMD Ryzen 7 9800X3D Tray - Processor - 4.7 GHz - AM5 Socket - zonder koeler - OEM verpakking", cat: "cpu", expect: true },
   { name: "Azerty Combokit ASUS 9800X3D - Combokit - AMD Ryzen 7 9800X3D - ASUS TUF Gaming B650-Plus WiFi", cat: "cpu", expect: false },
+  // — microphone —
+  { name: "HyperX QuadCast S RGB USB-microfoon", cat: "microphone", expect: true },
+  { name: "Logitech G PRO X Gaming Headset", cat: "microphone", expect: false },
+  // — webcam —
+  { name: "Logitech C920 HD Pro Webcam 1080p", cat: "webcam", expect: true },
+  { name: "Webcam privacy cover schuifje 3-pack", cat: "webcam", expect: false },
+  // — speaker —
+  { name: "Logitech Z313 2.1 Speakerset met subwoofer", cat: "speaker", expect: true },
+  { name: "Sony WH-1000XM5 draadloze koptelefoon", cat: "speaker", expect: false },
+  // — casefan —
+  { name: "ARCTIC P12 PWM PST 120mm case fan", cat: "casefan", expect: true },
+  { name: "be quiet! Dark Rock Pro 5 CPU-koeler", cat: "casefan", expect: false },
+  // — thermalpaste —
+  { name: "Thermal Grizzly Kryonaut 1g koelpasta", cat: "thermalpaste", expect: true },
+  { name: "ARCTIC Thermal Pad 120x20mm 1.5mm", cat: "thermalpaste", expect: false },
+  // — soundcard —
+  { name: "Creative Sound Blaster Z SE interne geluidskaart", cat: "soundcard", expect: true },
+  // — networkcard —
+  { name: "TP-Link Archer TX55E Wifi 6 PCIe kaart", cat: "networkcard", expect: true },
+  { name: "TP-Link Archer AX73 AX5400 router", cat: "networkcard", expect: false },
+  // — capturecard —
+  { name: "Elgato Game Capture HD60 X", cat: "capturecard", expect: true },
+  { name: "Elgato Stream Deck MK.2", cat: "capturecard", expect: false },
+  // — os —
+  { name: "Microsoft Windows 11 Home NL licentie", cat: "os", expect: true },
+  { name: "Microsoft Office 2021 Home & Student", cat: "os", expect: false },
+  // — accessory —
+  { name: "EZDIY-FAB PCIe 4.0 riser kabel verticaal", cat: "accessory", expect: true },
+  { name: "Samsung 990 Pro 2TB NVMe M.2 SSD", cat: "accessory", expect: false },
 ];
 
 const NAME_CASES: { raw: string; want: string }[] = [

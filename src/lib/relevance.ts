@@ -110,6 +110,85 @@ const RULES: Record<ComponentType, CategoryRule> = {
     require: [/\b(headset|koptelefoon|hoofdtelefoon|headphones?)\b/i],
     exclude: /\b(standaard|hanger|\bstand\b|kabel|case|adapter|oordopjes|earbuds)\b/i,
   },
+  microphone: {
+    require: [
+      /\b(microfoon|microphone|\bmic\b)\b/i,
+      /\b(blue\s?yeti|quadcast|nt-?usb|wave\s?[13]|condensator(microfoon)?)\b/i,
+    ],
+    exclude:
+      /headset|koptelefoon|micro(foon)?.?arm|mic.?arm|popfilter|plopkap|windkap|spuitkap|standaard|statief|kabel|adapter|ontvanger|\bin-?ear\b|oordopjes|earbuds/i,
+  },
+  webcam: {
+    require: [/\b(webcam|web\s?camera|streamcam|facecam|brio)\b/i],
+    exclude:
+      /beveiligingscamera|ip-?camera|babyfoon|dashcam|actiecamera|bodycam|\bgopro\b|\bcover\b|afdek|privacy.?(cover|schuif)|statief|tripod|laptop|telefoon|deurbel|\bring\b/i,
+  },
+  speaker: {
+    require: [/\b(speaker|speakers|speakerset|luidspreker|soundbar)\b/i],
+    exclude:
+      /koptelefoon|hoofdtelefoon|headset|oordopjes|earbuds|kabel|standaard|beugel|muurbeugel|\barm\b|partybox|party\s?speaker|\bsonos\b|google\s?nest|amazon\s?echo|\balexa\b|smart\s?speaker|draagbare?\s?speaker|portable|bluetooth\s?box/i,
+  },
+  casefan: {
+    require: [
+      /\bcase\s?fans?\b/i,
+      /behuizingsventilator/i,
+      /\b(120|140|92|80)\s?mm\b.*\b(fan|ventilator|pwm|rgb|argb)\b/i,
+      /\b(fan|ventilator)\b.*\b(120|140|92|80)\s?mm\b/i,
+    ],
+    exclude:
+      /cpu.?koeler|cpu.?cooler|\baio\b|waterkoel|liquid|heatsink|tower\s?cooler|nh-[dlup]\d|dark\s?rock|peerless|assassin|gpu|grafische|videokaart|moederbord|laptop|notebook|fan\s?hub|fan\s?controller|\bfilter\b|stofkap|föhn|haardroge|staande\s?ventilator|tafelventilator|plafond|airco|\bbracket\b/i,
+  },
+  thermalpaste: {
+    require: [
+      /koelpasta|warmtegeleidingspasta/i,
+      /thermal\s?(paste|grizzly|compound)/i,
+      /\b(kryonaut|hydronaut|nt-h[12]|mx-?[2-6])\b/i,
+    ],
+    exclude: /thermal\s?pad|laptop|notebook|\bfan\b|koeler|cooler|reiniger|cleaner|verwijder/i,
+  },
+  soundcard: {
+    require: [
+      /\b(geluidskaart|sound\s?card|sound\s?blaster)\b/i,
+      /\b(externe?|usb|pcie?)\s?(dac|geluidskaart|audio\s?interface)\b/i,
+    ],
+    exclude:
+      /speaker|luidspreker|koptelefoon|hoofdtelefoon|headset|oordopjes|microfoon|\bkabel\b|soundbar|behuizing|moederbord/i,
+  },
+  networkcard: {
+    require: [
+      /\b(netwerkkaart|network\s?card|nic)\b/i,
+      /\b(wifi|wi-fi|ethernet|lan|2\.5\s?gbe|5\s?gbe|10\s?gbe)\b.*\b(kaart|adapter|pcie?|card)\b/i,
+      /\b(kaart|adapter|pcie?|card)\b.*\b(wifi|wi-fi|ethernet|lan)\b/i,
+      /\b(2\.5|5|10)\s?gbe\b/i,
+    ],
+    exclude:
+      /\brouter\b|\bswitch\b|\bmodem\b|access\s?point|repeater|powerline|\bmesh\b|\bkabel\b|patch|laptop|notebook|\busb-?stick\b|moederbord|motherboard|mainboard/i,
+  },
+  capturecard: {
+    require: [
+      /\b(capture\s?card|capturekaart|video\s?capture|game\s?capture|hdmi\s?capture|cam\s?link)\b/i,
+      /\belgato\b.*\b(hd60|4k|capture)\b/i,
+    ],
+    exclude: /\bkabel\b|splitter|verloop|stream\s?deck|toetsenbord|microfoon|\bswitch\b/i,
+  },
+  os: {
+    require: [
+      /windows\s?1[01]\s?(home|pro|professional|education|enterprise|n\b)?/i,
+      /\b(microsoft\s?windows|besturingssysteem|operating\s?system)\b/i,
+      /\bos\b\s?(licentie|license|key)/i,
+    ],
+    exclude:
+      /laptop|notebook|desktop|game.?pc|gaming\s?pc|mini.?pc|all.?in.?one|sticker|\bboek\b|cursus|\bkabel\b|toetsenbord|\bmuis\b|tablet|telefoon|\boffice\b|antivirus|server\s?20/i,
+  },
+  accessory: {
+    require: [
+      /\b(kabel|cable|usb[\s-]?hub|hub|riser|verlengkabel|kabelmanagement|kabelset|kabelgoot|kabelbinder)\b/i,
+      /\b(rgb|led|argb).?strip\b/i,
+      /\b(stoffilter|stofkap|standoff|fan\s?hub|fan\s?controller|sleeve)\b/i,
+    ],
+    exclude:
+      /processor|videokaart|grafische|moederbord|geheugen|\bssd\b|\bhdd\b|\bnvme\b|voeding|behuizing|monitor|toetsenbord|\bmuis\b|headset|\bcpu\b|\bgpu\b|laptop|notebook/i,
+  },
 };
 
 /** True als de productnaam overduidelijk geen PC-component is. */
@@ -132,8 +211,14 @@ export function inferCategory(name: string): ComponentType | null {
   // Volgorde is belangrijk: specifieke signalen eerst (een moederbordnaam
   // noemt vaak DDR5, een koelernaam vaak de CPU-socket).
   const order: ComponentType[] = [
-    "motherboard", "gpu", "cpu", "psu", "cooling", "storage", "ram", "case",
-    "monitor", "keyboard", "mouse", "headset",
+    "motherboard", "gpu", "cpu", "psu",
+    // casefan vóór cooling: een losse behuizingsventilator hoort in casefan,
+    // een CPU-koeler valt via casefan.exclude alsnog door naar cooling.
+    "casefan", "cooling", "thermalpaste", "storage", "ram", "case",
+    "soundcard", "networkcard", "capturecard", "os",
+    "monitor", "keyboard", "mouse", "headset", "microphone", "webcam", "speaker",
+    // accessory is het meest generiek (kabel/hub/strip) → altijd als laatste.
+    "accessory",
   ];
   for (const cat of order) {
     if (matchesCategory(name, cat)) return cat;
@@ -142,8 +227,7 @@ export function inferCategory(name: string): ComponentType | null {
 }
 
 export function isComponentType(value: string | null): value is ComponentType {
-  return (
-    value !== null &&
-    ["cpu", "gpu", "motherboard", "ram", "storage", "psu", "case", "cooling", "monitor", "keyboard", "mouse", "headset"].includes(value)
-  );
+  // RULES bevat één entry per ComponentType (afgedwongen door het Record-type),
+  // dus dit blijft vanzelf in sync wanneer er een categorie bijkomt.
+  return value !== null && Object.prototype.hasOwnProperty.call(RULES, value);
 }

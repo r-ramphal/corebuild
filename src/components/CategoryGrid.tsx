@@ -1,25 +1,6 @@
 import Link from "next/link";
-import {
-  Cpu, Monitor, Layers, Database, HardDrive, Zap, Server, Wind,
-  MonitorPlay, Keyboard, Mouse, Headphones,
-} from "lucide-react";
 import { CATALOG_TYPES, COMPONENT_META } from "@/lib/categories";
-import type { ComponentType } from "@/lib/types";
-
-const CATEGORY_ICONS: Record<ComponentType, React.ComponentType<{ className?: string }>> = {
-  cpu: Cpu,
-  gpu: Monitor,
-  motherboard: Layers,
-  ram: Database,
-  storage: HardDrive,
-  psu: Zap,
-  case: Server,
-  cooling: Wind,
-  monitor: MonitorPlay,
-  keyboard: Keyboard,
-  mouse: Mouse,
-  headset: Headphones,
-};
+import { CATEGORY_ICONS } from "@/lib/category-icons";
 
 export function CategoryGrid() {
   return (

@@ -8,6 +8,7 @@ import { ExternalLink, Package, Plus, Check, Zap } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { formatEur } from "@/lib/format";
+import { ComponentSpecs } from "@/components/ComponentSpecs";
 import type { ComponentType, PriceResult, SearchResults } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
@@ -147,7 +148,9 @@ export function ProductClient() {
                 {meta.label}
               </span>
             )}
-            <h1 className="font-headline-lg text-headline-lg text-on-surface mb-4">{name}</h1>
+            <h1 className="font-headline-lg text-headline-lg text-on-surface mb-3">{name}</h1>
+
+            <ComponentSpecs name={name} category={cat ?? undefined} className="mb-4" />
 
             {loading ? (
               <div className="space-y-3 mt-6">

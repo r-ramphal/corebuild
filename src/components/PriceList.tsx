@@ -7,6 +7,7 @@ import { ExternalLink, Package, Plus, Check, CircleCheck, CircleAlert } from "lu
 import { formatEur } from "@/lib/format";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { productUrl } from "@/lib/product-url";
+import { ComponentSpecs } from "@/components/ComponentSpecs";
 import type { PriceResult, SearchResults, ComponentType } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
@@ -137,6 +138,8 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
               {item.name}
             </Link>
           </h3>
+
+          <ComponentSpecs name={item.name} category={categorySlot} className="mt-1" />
         </div>
 
         {/* Bottom: price + buttons */}

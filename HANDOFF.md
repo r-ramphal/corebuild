@@ -22,9 +22,23 @@ auth (better-auth) + opgeslagen/deelbare builds. GitHub Actions ververst prijzen
   op /api/search, better-auth rate limit aan
 - Productie geverifieerd: `?cat=cpu` → 96+ échte CPU's (bron `catalog`), `?cat=gpu` idem
 
+**Nieuw (14 juni 2026) — build-intelligentie + visuele upgrade:**
+- **Performance-engine** (`src/lib/specs/`): herkent CPU/GPU-modellen uit productnamen
+  en berekent FPS-schattingen, bottleneck-analyse, monitor-Hz-advies, build-score
+  en compatibiliteitschecks (socket/DDR/PSU/formfactor). Transparant model,
+  overal gelabeld als *indicatie*. Tests: `npx tsx scripts/test-performance.ts`
+- **Interactief BuildIntelligence-paneel** in de builder (resolutie/preset-selector,
+  geanimeerde FPS-bars per game-type, CPU↔GPU-balansmeter, score-gauge, power-bar,
+  compatibiliteitschecklist) + spec-chips op gevulde slots
+- **Spec-chips** (`ComponentSpecs`) op categorie-, zoek- en productpagina's (VRAM/cores
+  + relatieve prestatie-index)
+- **Visuele polish**: hero met mesh-gradient + waardeproposities, feature-sectie met
+  zwevend voorbeeldkaartje, mooiere categoriegrid, CSS-animatie-utilities (fade-in-up,
+  gauge, bars) met reduced-motion-respect
+- Compatibiliteitscheck (socket/DDR/PSU) is hiermee grotendeels gebouwd
+
 **Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
-fase 3 van de roadmap (officiële API's na KvK-inschrijving), en de nieuwe
-suggesties onderaan "Nog te bouwen" (compatibiliteitscheck, prijsalerts).
+fase 3 van de roadmap (officiële API's na KvK-inschrijving), prijsalerts.
 
 ## Overzicht
 
@@ -202,11 +216,30 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
   drizzle-kit-in-better-auth, postcss via next) — geen runtime-risico, "fix"
   zou breaking downgrades doen; periodiek herchecken
 
+### Build-intelligentie (`src/lib/specs/`) — juni 2026
+- **`gpu-data.ts` / `cpu-data.ts`** — ~35 GPU's en ~35 CPU's met relatieve gaming-index
+  (0–100), VRAM/cores/threads/TDP/socket/DDR. Indexen zijn *indicaties* op basis van
+  publieke benchmark-gemiddelden, niet exact. Uitbreiden = gewoon een rij toevoegen
+  (met `aliases` voor de detectie).
+- **`detect.ts`** — herkent model + socket/DDR/wattage/formfactor uit een productnaam.
+  Alias-regex met word-boundaries, **specifiek alias eerst** (zodat "RTX 5060 Ti" niet
+  als "RTX 5060" matcht). Hergebruikt dezelfde filosofie als `relevance.ts`.
+- **`performance.ts`** — puur rekenmodel: `estimateFps` = `min(gpuFps, cpuFps)` per
+  resolutie/preset/game-profiel; `analyzeBottleneck` (CPU↔GPU-balans per resolutie);
+  `recommendHz`; `buildScore` (tier + gauge). Welke term de min is, bepaalt de bottleneck —
+  FPS en bottleneck zijn dus consistent.
+- **`build-analysis.ts`** — bindt detectie + model samen tot één `analyzeBuild(components)`
+  object (specs, score, power, checks) dat de UI consumeert.
+- **UI**: `components/builder/BuildIntelligence.tsx` (paneel), `components/ComponentSpecs.tsx`
+  (spec-chips + prestatie-bar, herbruikbaar op kaarten).
+- **Belangrijk**: het model is bewust een *indicatie*. Bij twijfel over getallen: pas de
+  indexen/coëfficiënten in `gpu-data`/`cpu-data`/`performance.ts` aan en draai de tests.
+
 ### Nog te bouwen
 - [ ] **Prijshistorie** — aparte tabel of `listings` niet meer verwijderen maar versieneren
 - [ ] **Wachtwoord vergeten** — better-auth reset-flow vereist een e-mailprovider (bijv. Resend)
-- [ ] **Compatibiliteitscheck** (socket CPU↔moederbord, DDR4/5, GPU-lengte) — de
-  homepage beloofde dit al; data zit deels in productnamen (AM5/LGA1700/DDR5)
+- [ ] **Compatibiliteitscheck** — socket/DDR/PSU/formfactor ✅ gebouwd (build-intelligentie).
+  Nog open: GPU-lengte vs behuizing en koeler-hoogte (staat zelden in productnamen)
 - [ ] **Prijsalerts** — "Stel Alert In"-knop op categoriepagina's is nog disabled/dood
 
 ---

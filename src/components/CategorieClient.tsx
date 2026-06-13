@@ -12,6 +12,7 @@ import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META } from "@/lib/categories";
 import { formatEur } from "@/lib/format";
 import { productUrl } from "@/lib/product-url";
+import { ComponentSpecs } from "@/components/ComponentSpecs";
 import type { ComponentType, SearchResults, PriceResult } from "@/lib/types";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -107,6 +108,7 @@ function CategoryResultCard({ item, isBestDeal, componentType, onAddToBuild }: C
               <h3 className="font-title-md text-title-md text-on-surface mb-1">
                 {item.name}
               </h3>
+              <ComponentSpecs name={item.name} category={componentType} className="mt-2" />
             </div>
             <div className="text-right ml-4 flex-shrink-0">
               <span

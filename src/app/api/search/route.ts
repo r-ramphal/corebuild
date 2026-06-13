@@ -102,7 +102,9 @@ export async function GET(req: NextRequest) {
   if (!rawQuery && cat) {
     if (db) {
       try {
-        const catalog = await getCatalogListings(db, cat);
+        // applyRelevance als extra vangnet: ook al staat de category-kolom goed,
+        // we weren hier alsnog producten die niet (meer) bij de categorie passen.
+        const catalog = applyRelevance(await getCatalogListings(db, cat), cat);
         if (catalog.length > 0) {
           const body: SearchResults = { query: "", results: catalog, errors: [] };
           return NextResponse.json(body, {

@@ -126,7 +126,8 @@ _RULES: dict[str, tuple[list[re.Pattern], re.Pattern]] = {
     "monitor": (
         [re.compile(r"\b(monitor|beeldscherm)\b", re.I), re.compile(r"\bultrawide\b", re.I)],
         re.compile(
-            r"\b(arm|standaard|stand|muurbeugel|beugel|houder|kabel|adapter|reiniger|sleeve|hoes)\b"
+            r"monitor.?arm|\barm\b|vesa|gasveer|muursteun|bureausteun"
+            r"|\b(standaard|stand|muurbeugel|beugel|houder|kabel|adapter|reiniger|sleeve|hoes)\b"
             r"|laptop|all.?in.?one|\btv\b",
             re.I,
         ),
@@ -134,13 +135,18 @@ _RULES: dict[str, tuple[list[re.Pattern], re.Pattern]] = {
     "keyboard": (
         [re.compile(r"\b(toetsenbord|keyboard)\b", re.I)],
         re.compile(
-            r"laptop|\bcover\b|\bhoes\b|sticker|keycaps?|polssteun|switch(es)?\b|stabilizers?",
+            r"laptop|\bcover\b|\bhoes\b|sticker|keycaps?|polssteun|switch(es)?\b|stabilizers?"
+            r"|ontvanger|receiver|unifying|dongle",
             re.I,
         ),
     ),
     "mouse": (
         [re.compile(r"\b(muis|mouse)\b", re.I)],
-        re.compile(r"muismat|mousepad|bungee|laptop|toetsenbord|skates|grip\s?tape", re.I),
+        re.compile(
+            r"muismat|mousepad|bungee|laptop|toetsenbord|skates|grip\s?tape"
+            r"|ontvanger|receiver|unifying|dongle",
+            re.I,
+        ),
     ),
     "headset": (
         [re.compile(r"\b(headset|koptelefoon|hoofdtelefoon|headphones?)\b", re.I)],

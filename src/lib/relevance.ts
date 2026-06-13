@@ -95,16 +95,16 @@ const RULES: Record<ComponentType, CategoryRule> = {
   monitor: {
     require: [/\b(monitor|beeldscherm)\b/i, /\bultrawide\b/i],
     exclude:
-      /\b(arm|standaard|stand|muurbeugel|beugel|houder|kabel|adapter|reiniger|sleeve|hoes)\b|laptop|all.?in.?one|\btv\b/i,
+      /monitor.?arm|\barm\b|vesa|gasveer|muursteun|bureausteun|\b(standaard|stand|muurbeugel|beugel|houder|kabel|adapter|reiniger|sleeve|hoes)\b|laptop|all.?in.?one|\btv\b/i,
   },
   keyboard: {
     require: [/\b(toetsenbord|keyboard)\b/i],
     exclude:
-      /laptop|\bcover\b|\bhoes\b|sticker|keycaps?|polssteun|switch(es)?\b|stabilizers?|\bsticker/i,
+      /laptop|\bcover\b|\bhoes\b|sticker|keycaps?|polssteun|switch(es)?\b|stabilizers?|ontvanger|receiver|unifying|dongle/i,
   },
   mouse: {
     require: [/\b(muis|mouse)\b/i],
-    exclude: /muismat|mousepad|bungee|laptop|toetsenbord|skates|grip\s?tape/i,
+    exclude: /muismat|mousepad|bungee|laptop|toetsenbord|skates|grip\s?tape|ontvanger|receiver|unifying|dongle/i,
   },
   headset: {
     require: [/\b(headset|koptelefoon|hoofdtelefoon|headphones?)\b/i],

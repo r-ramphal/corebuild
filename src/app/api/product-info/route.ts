@@ -29,7 +29,14 @@ const HOST_LABEL: Record<string, string> = {
 };
 
 function cleanText(text: string): string {
-  return text.replace(/\s+/g, " ").trim();
+  return text
+    .replace(/<[^>]*>/g, " ") // losse HTML-tags (bv. <br/>) uit de meta-tekst strippen
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export async function GET(req: NextRequest) {

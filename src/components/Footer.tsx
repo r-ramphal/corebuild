@@ -12,6 +12,9 @@ export function Footer() {
         </div>
 
         <nav aria-label="Footer" className="flex flex-wrap justify-center items-center gap-6">
+          <Link href="/galerij" className="font-label-technical text-label-technical text-on-surface-variant hover:text-primary transition-colors">
+            Buildgalerij
+          </Link>
           <Link href="/over" className="font-label-technical text-label-technical text-on-surface-variant hover:text-primary transition-colors">
             Over CoreBuild
           </Link>

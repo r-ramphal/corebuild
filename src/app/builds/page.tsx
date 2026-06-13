@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FolderOpen, Trash2, Link as LinkIcon, Check, Upload } from "lucide-react";
+import { FolderOpen, Trash2, Link as LinkIcon, Check, Upload, Globe } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { useBuildStore, type BuildComponents } from "@/lib/store/build";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
@@ -14,6 +14,7 @@ interface SavedBuild {
   publicId: string;
   name: string;
   components: BuildComponents;
+  published: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -53,6 +54,19 @@ export default function BuildsPage() {
   async function handleDelete(build: SavedBuild) {
     setBuilds((prev) => prev?.filter((b) => b.id !== build.id) ?? null);
     await fetch(`/api/builds/${build.publicId}`, { method: "DELETE" });
+  }
+
+  async function handlePublish(build: SavedBuild) {
+    const next = !build.published;
+    setBuilds((prev) => prev?.map((b) => (b.id === build.id ? { ...b, published: next } : b)) ?? null);
+    await fetch(`/api/builds/${build.publicId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ published: next }),
+    }).catch(() => {
+      // terugdraaien bij fout
+      setBuilds((prev) => prev?.map((b) => (b.id === build.id ? { ...b, published: !next } : b)) ?? null);
+    });
   }
 
   async function handleCopyLink(build: SavedBuild) {
@@ -158,6 +172,18 @@ export default function BuildsPage() {
                   >
                     <FolderOpen className="w-3.5 h-3.5" /> Bekijk
                   </Link>
+                  <button
+                    onClick={() => handlePublish(build)}
+                    aria-pressed={build.published}
+                    title={build.published ? "Verbergen uit de galerij" : "Publiceren in de galerij"}
+                    className={`px-4 py-2 rounded-lg font-label-technical text-label-technical flex items-center gap-2 transition-colors ${
+                      build.published
+                        ? "bg-success-emerald/10 text-success-emerald border border-success-emerald/30"
+                        : "border border-outline-variant text-on-surface hover:border-primary hover:text-primary"
+                    }`}
+                  >
+                    <Globe className="w-3.5 h-3.5" /> {build.published ? "In galerij" : "Publiceer"}
+                  </button>
                   <button
                     onClick={() => handleDelete(build)}
                     aria-label={`Verwijder ${build.name}`}

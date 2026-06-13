@@ -168,17 +168,36 @@ basis van een gebruiksprofiel + budget (geen persoonlijke data).
   Intel DDR4/DDR5-borden kunnen met RAM mismatchen (deel-6 compat-check flagt dat). Ruimte voor
   een 2e pass die restbudget naar GPU/CPU rolt.
 
+**Nieuw (14 juni 2026, deel 8) — community: galerij + vergelijken (roadmap stap 4 ✅, code):**
+Opt-in publieke buildgalerij + twee builds naast elkaar vergelijken. Privacy-first: alleen
+gepubliceerde builds, geen userId/persoonsgegevens in de publieke responses.
+- **Schema**: kolom `builds.published` (boolean, default false) + index `builds_published_idx`.
+  Migratie `drizzle/0003_tough_mercury.sql` gegenereerd. **⚠️ LET OP: de live ALTER op Neon is
+  NOG NIET uitgevoerd** (classifier blokkeerde de prod-DB-migratie zonder expliciet akkoord).
+  Tot die tijd geeft `/api/builds/gallery` netjes 503 en blijft de galerij leeg. Toepassen:
+  `npm run db:push` of de SQL uit 0003 (additief/veilig, `ADD COLUMN IF NOT EXISTS`).
+- **API**: `GET /api/builds/gallery` (publieke lijst gepubliceerde builds, geen userId) +
+  `PATCH /api/builds/[publicId]` (eigenaar zet `published`). Publieke GET geeft nu ook `published`.
+- **UI**: `/galerij` (`GalleryClient`) grid + selecteer max 2 → vergelijk-balk → `/vergelijk`.
+  `/vergelijk?a=&b=` (`CompareClient`) toont beide builds per slot (onderdeel+prijs), totalen,
+  goedkoopste gemarkeerd, compat-badge per build via `analyzeBuild`. Publish-toggle ("Publiceer"/
+  "In galerij") in `/builds`. Navbar + footer + sitemap kregen een Galerij-link.
+- **Verificatie**: `tsc` + `eslint` schoon; dev-server rendert `/galerij`, `/vergelijk`, `/builds`
+  (HTTP 200) en `/api/builds/gallery` → 503 zolang de kolom ontbreekt (graceful). Volledige
+  e2e (publiceren→galerij→vergelijken) kan pas ná de live-migratie.
+
 **BuildCores-roadmap (volgende sessies, "deel voor deel"):**
 1. ✅ Componentcategorieën uitbreiden naar BuildCores-set (case fan, thermal paste, OS, sound/
    network/capture card, microfoon, webcam, speaker, accessoire). — gedaan, deel 5.
 2. ✅ Open-db importeren → echte per-product dimensies (GPU-lengte, koeler-hoogte, case-maten)
    voor volledige compat-checks; matchen op gescrapete NL-producten. — gedaan, deel 6.
 3. ✅ Build-templates + "smart generate"-achtige vragenlijst (geen persoonlijke data). — gedaan, deel 7.
-4. Community: voltooide builds-galerij, builds vergelijken.
+4. ✅ Community: builds-galerij + builds vergelijken. — gedaan, deel 8 (code; live-migratie nog uitvoeren).
 5. Blog. (Geen sponsors/reclame, geen persoonlijke info — bewust weggelaten.)
 6. Eventueel echt 3D later; nu 2.5D per gebruikerskeuze.
 
-**Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
+**Open punten:** **galerij-migratie nog uitvoeren** (`builds.published`, zie deel 8),
+prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
 fase 3 roadmap (officiële API's na KvK), prijsalerts.
 
 ## Overzicht

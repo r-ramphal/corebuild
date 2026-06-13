@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { href: "/zoeken", label: "Zoeken" },
   { href: "/builder", label: "Builder" },
   { href: "/categorie", label: "Categorieën" },
+  { href: "/galerij", label: "Galerij" },
 ];
 
 export function Navbar() {

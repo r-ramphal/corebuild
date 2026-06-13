@@ -68,10 +68,15 @@ export const builds = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     components: jsonb("components").notNull(),
+    /** Opt-in: zichtbaar in de publieke buildgalerij (/galerij). */
+    published: boolean("published").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index("builds_user_id_idx").on(table.userId)]
+  (table) => [
+    index("builds_user_id_idx").on(table.userId),
+    index("builds_published_idx").on(table.published),
+  ]
 );
 
 export type BuildRow = typeof builds.$inferSelect;

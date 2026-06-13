@@ -91,7 +91,7 @@ const LEGEND: { type: keyof typeof COLOR; label: string }[] = [
 
 export function BuildPreview3D({ components }: { components: BuildComponents }) {
   const sceneRef = useRef<HTMLDivElement>(null);
-  const rot = useRef({ x: -16, y: -28 });
+  const rot = useRef({ x: -19, y: -33 });
   const drag = useRef<{ active: boolean; lastX: number; lastY: number }>({ active: false, lastX: 0, lastY: 0 });
 
   const has = (t: ComponentType) => Boolean(components[t]);
@@ -156,22 +156,22 @@ export function BuildPreview3D({ components }: { components: BuildComponents }) 
         style={{ perspective: "900px" }}
       >
         <div ref={sceneRef} style={{ position: "relative", transformStyle: "preserve-3d", width: 0, height: 0 }}>
-          {/* Behuizing-frame (open voorzijde zodat je naar binnen kijkt) */}
+          {/* Behuizing-frame als wireframe (open voorzijde zodat je naar binnen kijkt) */}
           <Box x={0} y={0} z={0} w={202} h={262} d={202} color={COLOR.case} on={has("case")}
-            faces={["back", "left", "right", "top", "bottom"]} fillPct={6} />
+            faces={["back", "left", "right", "top", "bottom"]} fillPct={0} />
           {/* Moederbord tegen de achterwand */}
           <Box x={22} y={-22} z={-92} w={150} h={196} d={7} color={COLOR.motherboard} on={has("motherboard")} fillPct={22} />
           {/* CPU op het bord */}
-          <Box x={38} y={-74} z={-82} w={20} h={20} d={10} color={COLOR.cpu} on={has("cpu")} fillPct={28} />
-          {/* CPU-koeler ervoor */}
-          <Box x={38} y={-30} z={-58} w={46} h={60} d={46} color={COLOR.cooling} on={has("cooling")} fillPct={14} />
+          <Box x={38} y={-64} z={-82} w={20} h={20} d={10} color={COLOR.cpu} on={has("cpu")} fillPct={30} />
+          {/* CPU-koeler eroverheen (toren op de socket) */}
+          <Box x={38} y={-42} z={-62} w={46} h={66} d={46} color={COLOR.cooling} on={has("cooling")} fillPct={15} />
           {/* RAM-reepjes naast de socket */}
           <Box x={78} y={-52} z={-84} w={8} h={78} d={9} color={COLOR.ram} on={has("ram")} fillPct={26} />
           <Box x={92} y={-52} z={-84} w={8} h={78} d={9} color={COLOR.ram} on={has("ram")} fillPct={26} />
           {/* Videokaart horizontaal in het PCIe-slot */}
           <Box x={-2} y={34} z={-58} w={186} h={22} d={48} color={COLOR.gpu} on={has("gpu")} fillPct={22} />
-          {/* Opslag links */}
-          <Box x={-78} y={-40} z={-40} w={50} h={16} d={42} color={COLOR.storage} on={has("storage")} fillPct={22} />
+          {/* Opslag op de voedingsshroud (niet zwevend) */}
+          <Box x={-46} y={72} z={-44} w={56} h={14} d={46} color={COLOR.storage} on={has("storage")} fillPct={24} />
           {/* Voeding onderin (shroud) */}
           <Box x={-44} y={104} z={-52} w={104} h={42} d={66} color={COLOR.psu} on={has("psu")} fillPct={20} />
         </div>

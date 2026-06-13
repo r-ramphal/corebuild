@@ -79,8 +79,34 @@ nieuwe zoektermen automatisch mee. Let op: randapparatuur-relevantieregels waren
 na een paar lekken (monitorarm, USB-ontvangers); de catalogusmodus van `/api/search` past nu
 óók `applyRelevance` toe als extra vangnet.
 
+**Nieuw (14 juni 2026, deel 4) — BuildCores-pivot (fase 1):**
+Doel: de Nederlandse BuildCores (nl.buildcores.com) worden, met behoud van het eigen
+moderne design. Hun open-db (github.com/buildcores/buildcores-open-db, ODC-By, 29 categorieën,
+rijke compat-specs) is de referentie voor componentdata.
+- **Performance uit de builder** (op verzoek — het "vibe-coded" gevoel): `BuildIntelligence`,
+  `performance.ts` en `test-performance.ts` zijn **verwijderd** (geen FPS/bottleneck/build-score/
+  monitor-Hz/€-per-fps meer). `build-analysis.ts` levert nu `compatible` + `ddr` + checks.
+- **Builder = BuildCores-stijl**: `components/builder/BuildSummary.tsx` (Compatibel-badge +
+  totaal wattage + DDR-badge + compatibiliteitschecklist; prijzen blijven in de partslijst) +
+  `components/builder/BuildPreview2D.tsx` (lichte 2.5D SVG-weergave die zich vult bij toevoegen).
+- Compatibiliteit is bewust beperkt tot wat betrouwbaar uit de naam/specs volgt: socket,
+  DDR-type, case-formfactor vs moederbord, PSU-wattage. **GPU-lengte/koeler-hoogte bewust nog
+  niet** (hangt af van het exacte product, niet de chipset — zou gokwerk zijn).
+- Homepage geherpositioneerd: van FPS/bottleneck naar compatibiliteit + visuele build +
+  prijsvergelijking (Hero-pijlers, CompatCheck, metadata).
+
+**BuildCores-roadmap (volgende sessies, "deel voor deel"):**
+1. Componentcategorieën uitbreiden naar BuildCores-set (case fan, thermal paste, OS, sound/
+   network/capture card, microfoon, webcam, speaker, accessoire).
+2. **Open-db importeren** → echte per-product dimensies (GPU-lengte, koeler-hoogte, radiator,
+   case-maten) voor volledige compat-checks zoals BuildCores; matchen op gescrapete NL-producten.
+3. Build-templates + "smart generate"-achtige vragenlijst (geen persoonlijke data).
+4. Community: voltooide builds-galerij, builds vergelijken.
+5. Blog. (Geen sponsors/reclame, geen persoonlijke info — bewust weggelaten.)
+6. Eventueel echt 3D later; nu 2.5D per gebruikerskeuze.
+
 **Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
-fase 3 van de roadmap (officiële API's na KvK-inschrijving), prijsalerts, blog (gepland).
+fase 3 roadmap (officiële API's na KvK), prijsalerts.
 
 ## Overzicht
 

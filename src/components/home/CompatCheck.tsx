@@ -1,22 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Gamepad2, Activity, MonitorPlay, ArrowRight } from "lucide-react";
+import { ShieldCheck, Boxes, Tag, ArrowRight } from "lucide-react";
 
 const FEATURES = [
   {
-    icon: Gamepad2,
-    title: "FPS per game & resolutie",
-    description: "Van competitief op 1080p tot zwaar AAA op 4K: zie wat je haalt.",
+    icon: ShieldCheck,
+    title: "Automatische compatibiliteitscheck",
+    description: "Socket, geheugentype, voeding en behuizing: we controleren of alles bij elkaar past.",
   },
   {
-    icon: Activity,
-    title: "Bottleneck-analyse",
-    description: "Een balansmeter laat zien of CPU en videokaart elkaar afremmen.",
+    icon: Boxes,
+    title: "Visuele build",
+    description: "Je onderdelen komen samen in een overzichtelijke weergave van je pc.",
   },
   {
-    icon: MonitorPlay,
-    title: "Monitor- & voedingsadvies",
-    description: "De juiste Hz en wattage bij jouw onderdelen, automatisch berekend.",
+    icon: Tag,
+    title: "Live prijsvergelijking",
+    description: "Per onderdeel de laagste prijs van de grote Nederlandse retailers.",
   },
 ];
 
@@ -34,36 +34,34 @@ export function CompatCheck() {
             className="rounded-xl border border-outline-variant shadow-2xl relative z-10 w-full h-auto"
           />
 
-          {/* Zwevend voorbeeld-kaartje: build-intelligentie in actie */}
-          <div className="absolute z-20 -bottom-5 -right-3 sm:right-4 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-xl p-4 w-52 animate-float">
-            <p className="font-label-technical text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">
-              RTX 4070 + Ryzen 7
-            </p>
-            <div className="flex items-baseline gap-1.5 mb-2">
-              <span className="font-display-lg text-[28px] leading-none text-on-surface">132</span>
-              <span className="font-label-technical text-[11px] text-on-surface-variant">fps · 1440p</span>
+          {/* Zwevend voorbeeld-kaartje: compatibiliteit in actie */}
+          <div className="absolute z-20 -bottom-5 -right-3 sm:right-4 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-xl p-4 w-56 animate-float">
+            <div className="flex items-center gap-1.5 mb-2.5">
+              <ShieldCheck className="w-4 h-4 text-success-emerald" />
+              <span className="font-label-technical text-[11px] text-success-emerald uppercase tracking-wider">
+                Compatibel
+              </span>
             </div>
-            <div className="h-1.5 w-full bg-surface-container rounded-full overflow-hidden mb-1.5">
-              <div className="h-full bg-success-emerald rounded-full" style={{ width: "82%" }} />
+            <div className="space-y-1.5 font-label-technical text-[11px] text-on-surface-variant">
+              <div className="flex justify-between"><span>Socket</span><span className="text-on-surface">AM5 ✓</span></div>
+              <div className="flex justify-between"><span>Geheugen</span><span className="text-on-surface">DDR5 ✓</span></div>
+              <div className="flex justify-between"><span>Voeding</span><span className="text-on-surface">~650W</span></div>
             </div>
-            <p className="font-label-technical text-[10px] text-success-emerald uppercase tracking-wider">
-              Mooi uitgebalanceerd
-            </p>
           </div>
         </div>
 
         <div>
           <span className="font-label-technical text-label-technical text-primary bg-primary/10 px-3 py-1 rounded mb-6 inline-block">
-            BUILD-INTELLIGENTIE
+            SLIM SAMENSTELLEN
           </span>
 
           <h2 className="font-headline-lg text-headline-lg mb-6 text-on-surface">
-            Zie wat je build écht presteert.
+            Stel zorgeloos je pc samen.
           </h2>
 
           <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-            CoreBuild herkent je gekozen onderdelen en rekent live uit hoeveel frames per seconde
-            je haalt, of er een bottleneck is en welke monitor en voeding erbij passen.
+            CoreBuild herkent je gekozen onderdelen en controleert automatisch of ze bij elkaar
+            passen, terwijl je build voor je ogen vorm krijgt en de prijzen live worden vergeleken.
           </p>
 
           <div className="space-y-5">

@@ -1,7 +1,7 @@
 /**
- * Bindt detectie + rekenmodel samen tot één analyse-object dat de UI direct
- * kan tonen: gedetecteerde specs, build-score, stroomverbruik en
- * compatibiliteitschecks.
+ * Bindt detectie samen tot één analyse-object dat de builder direct kan tonen:
+ * gedetecteerde specs, stroomverbruik en compatibiliteitschecks. Bewust géén
+ * FPS/bottleneck-schattingen — alleen wat betrouwbaar uit de specs volgt.
  */
 import type { BuildComponents } from "@/lib/store/build";
 import type { CpuSpec } from "./cpu-data";
@@ -16,8 +16,16 @@ import {
   detectRamGb,
   type FormFactor,
 } from "./detect";
-import { buildScore, type BuildScore, type CompatCheck } from "./performance";
 import type { DdrGen, Socket } from "./cpu-data";
+
+export type CheckStatus = "ok" | "warn" | "bad" | "info";
+
+export interface CompatCheck {
+  id: string;
+  status: CheckStatus;
+  title: string;
+  detail: string;
+}
 
 /** Geschat basisverbruik buiten CPU/GPU om (moederbord, RAM, fans, opslag). */
 const BASE_WATTS = 80;
@@ -39,7 +47,10 @@ export interface BuildAnalysis {
     recommendedPsu: number;
     headroomPct: number | null;
   };
-  score: BuildScore | null;
+  /** Het geheugentype waarop de build draait (voor de DDR-badge). */
+  ddr: DdrGen | null;
+  /** False als er minstens één blokkerende ('bad') check is. */
+  compatible: boolean;
   checks: CompatCheck[];
 }
 
@@ -75,8 +86,6 @@ export function analyzeBuild(components: BuildComponents): BuildAnalysis {
       ? Math.round(((psuWatts - drawWatts) / psuWatts) * 100)
       : null;
 
-  const score = buildScore(gpu, cpu, ramGb, hasStorage);
-
   const checks = buildChecks({
     components,
     cpu,
@@ -94,6 +103,9 @@ export function analyzeBuild(components: BuildComponents): BuildAnalysis {
     hasCooling,
   });
 
+  const compatible = !checks.some((c) => c.status === "bad");
+  const ddr = ramDdr ?? moboDdr ?? cpu?.ddr ?? null;
+
   return {
     cpu,
     gpu,
@@ -107,7 +119,8 @@ export function analyzeBuild(components: BuildComponents): BuildAnalysis {
     hasStorage,
     hasCooling,
     power: { drawWatts, recommendedPsu, headroomPct },
-    score,
+    ddr,
+    compatible,
     checks,
   };
 }

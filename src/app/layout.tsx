@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s | CoreBuild",
   },
   description:
-    "Vergelijk real-time prijzen van de grootste tech-retailers en zie meteen wat je build presteert: FPS, bottlenecks, monitor-advies en de beste prijs-prestatie.",
+    "Stel je pc samen met een automatische compatibiliteitscheck en een visuele build, en vergelijk live de prijzen van de grootste Nederlandse retailers per onderdeel.",
   keywords: [
     "pc onderdelen vergelijken",
     "pc bouwen",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     siteName: "CoreBuild",
     title: "CoreBuild: optimaliseer je build, verfijn je budget",
     description:
-      "Vergelijk real-time prijzen van de grootste tech-retailers en zie meteen wat je build presteert: FPS, bottlenecks, monitor-advies en de beste prijs-prestatie.",
+      "Stel je pc samen met een automatische compatibiliteitscheck en een visuele build, en vergelijk live de prijzen van de grootste Nederlandse retailers per onderdeel.",
     images: [
       {
         url: "/images/feature-pc.png",

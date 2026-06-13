@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gamepad2, Activity, MonitorPlay, ArrowRight } from "lucide-react";
+import { ShieldCheck, Boxes, Tag, ArrowRight } from "lucide-react";
 import { HeroSearch } from "@/components/HeroSearch";
 
 const RETAILERS = [
@@ -12,19 +12,19 @@ const RETAILERS = [
 
 const PILLARS = [
   {
-    icon: Gamepad2,
-    title: "FPS-schatting",
-    desc: "Zie per game en resolutie hoeveel frames je build haalt.",
+    icon: ShieldCheck,
+    title: "Compatibiliteitscheck",
+    desc: "Direct zien of je onderdelen bij elkaar passen: socket, geheugen, voeding en behuizing.",
   },
   {
-    icon: Activity,
-    title: "Bottleneck-analyse",
-    desc: "Ontdek of je CPU en videokaart bij elkaar passen.",
+    icon: Boxes,
+    title: "Visuele build",
+    desc: "Zie je samenstelling groeien in een overzichtelijke weergave van je pc.",
   },
   {
-    icon: MonitorPlay,
-    title: "Monitor-advies",
-    desc: "Welke Hz jouw FPS het beste benut, zonder een euro te verspillen.",
+    icon: Tag,
+    title: "Beste prijs",
+    desc: "Vergelijk live prijzen van de grootste retailers, per onderdeel.",
   },
 ];
 
@@ -34,14 +34,14 @@ export function Hero() {
       <div className="max-w-3xl w-full animate-fade-in-up">
         <span className="inline-flex items-center gap-2 font-label-technical text-label-technical text-primary bg-primary/10 px-3 py-1 rounded-full mb-6">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-          Prijzen + prestaties in één builder
+          Prijzen + compatibiliteit in één builder
         </span>
         <h1 className="font-display-lg text-display-lg mb-6 tracking-tight text-on-surface">
           Bouw slimmer. Betaal minder.
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-2xl mx-auto">
-          Vergelijk real-time prijzen van de grootste tech-retailers én zie meteen wat je build
-          presteert: FPS, bottlenecks en het juiste scherm.
+          Stel je pc samen met een automatische compatibiliteitscheck en een visuele build,
+          en vergelijk live de prijzen van de grootste retailers.
         </p>
 
         <HeroSearch />
@@ -60,7 +60,7 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Waardeproposities — de nieuwe build-intelligentie */}
+      {/* Waardeproposities */}
       <div className="mt-14 grid sm:grid-cols-3 gap-4 max-w-4xl w-full">
         {PILLARS.map((p, i) => {
           const Icon = p.icon;

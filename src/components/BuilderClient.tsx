@@ -11,7 +11,8 @@ import { useBuildStore } from "@/lib/store/build";
 import { useSession } from "@/lib/auth-client";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { formatEur } from "@/lib/format";
-import { BuildIntelligence } from "@/components/builder/BuildIntelligence";
+import { BuildPreview2D } from "@/components/builder/BuildPreview2D";
+import { BuildSummary } from "@/components/builder/BuildSummary";
 import {
   detectCpu, detectGpu, detectRamGb, detectDdr, detectSocket,
   detectPsuWatts, detectFormFactor,
@@ -225,7 +226,8 @@ export function BuilderClient() {
             })}
           </div>
 
-          <BuildIntelligence components={components} />
+          <BuildPreview2D components={components} />
+          <BuildSummary components={components} />
         </div>
 
         {/* Right: build-overzicht (sticky) */}

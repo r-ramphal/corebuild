@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { href: "/builder", label: "Builder" },
   { href: "/categorie", label: "Categorieën" },
   { href: "/galerij", label: "Galerij" },
+  { href: "/blog", label: "Blog" },
 ];
 
 export function Navbar() {

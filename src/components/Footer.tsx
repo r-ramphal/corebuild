@@ -15,6 +15,9 @@ export function Footer() {
           <Link href="/galerij" className="font-label-technical text-label-technical text-on-surface-variant hover:text-primary transition-colors">
             Buildgalerij
           </Link>
+          <Link href="/blog" className="font-label-technical text-label-technical text-on-surface-variant hover:text-primary transition-colors">
+            Blog
+          </Link>
           <Link href="/over" className="font-label-technical text-label-technical text-on-surface-variant hover:text-primary transition-colors">
             Over CoreBuild
           </Link>

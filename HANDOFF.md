@@ -184,15 +184,29 @@ gepubliceerde builds, geen userId/persoonsgegevens in de publieke responses.
   (HTTP 200) en `/api/builds/gallery` → 200 (lege lijst) na de live-migratie. Volledige e2e met
   echte gepubliceerde builds vereist een ingelogde sessie (handmatig te testen).
 
+**Nieuw (14 juni 2026, deel 9) — blog (roadmap stap 5 ✅):**
+Educatieve blog met koopgidsen, geen reclame/sponsors/persoonsdata. Dependency-vrij opgezet
+(geen MDX/markdown-lib): posts zijn type-safe TS/JSX-modules.
+- **Infra**: `src/lib/blog-types.ts` (BlogMeta), `src/lib/blog.ts` (registry + `getPost` +
+  `formatBlogDate`), `src/components/blog/prose.tsx` (gedeelde Lead/H2/P/UL/Callout/A/CTA in de
+  huisstijl). Nieuwe post = module in `src/content/blog/` + import in de registry.
+- **Posts** (3): "Hoeveel watt voeding heb ik nodig?", "1080p, 1440p of 4K: welke videokaart past
+  daarbij?", "Past je videokaart en koeler wel in je behuizing?" (showcaset de compat-checks).
+  Elk linkt door naar de relevante categorie + builder/smart generate.
+- **Pagina's**: `/blog` (index) + `/blog/[slug]` (generateStaticParams + per-post metadata/OG,
+  404 op onbekende slug). Blog-link in navbar + footer; posts in de sitemap.
+- **Verificatie**: `tsc` + `eslint` schoon; dev-server rendert index + alle 3 posts (HTTP 200),
+  onbekende slug → 404, CTA/cross-links/sitemap-posts aanwezig.
+
 **BuildCores-roadmap (volgende sessies, "deel voor deel"):**
 1. ✅ Componentcategorieën uitbreiden naar BuildCores-set (case fan, thermal paste, OS, sound/
    network/capture card, microfoon, webcam, speaker, accessoire). — gedaan, deel 5.
 2. ✅ Open-db importeren → echte per-product dimensies (GPU-lengte, koeler-hoogte, case-maten)
    voor volledige compat-checks; matchen op gescrapete NL-producten. — gedaan, deel 6.
 3. ✅ Build-templates + "smart generate"-achtige vragenlijst (geen persoonlijke data). — gedaan, deel 7.
-4. ✅ Community: builds-galerij + builds vergelijken. — gedaan, deel 8 (code; live-migratie nog uitvoeren).
-5. Blog. (Geen sponsors/reclame, geen persoonlijke info — bewust weggelaten.)
-6. Eventueel echt 3D later; nu 2.5D per gebruikerskeuze.
+4. ✅ Community: builds-galerij + builds vergelijken. — gedaan, deel 8 (published-kolom toegepast op Neon).
+5. ✅ Blog (educatief, geen sponsors/reclame/persoonsdata). — gedaan, deel 9.
+6. Eventueel echt 3D later; nu 2.5D per gebruikerskeuze. (Optioneel; roadmap-kern 1–5 is af.)
 
 **Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
 fase 3 roadmap (officiële API's na KvK), prijsalerts.

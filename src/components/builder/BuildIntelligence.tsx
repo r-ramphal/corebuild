@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Gauge, Activity, Gamepad2, Zap, Info, Check, TriangleAlert,
-  CircleAlert, CircleCheck, MonitorPlay, Sparkles,
+  CircleAlert, CircleCheck, MonitorPlay, Sparkles, TrendingUp,
 } from "lucide-react";
 import type { BuildComponents } from "@/lib/store/build";
 import { analyzeBuild } from "@/lib/specs/build-analysis";
@@ -148,6 +148,10 @@ export function BuildIntelligence({ components }: { components: BuildComponents 
   const balancedFps = games.find((g) => g.profile === "balanced")?.estimate.fps ?? 0;
   const hz = balancedFps > 0 ? recommendHz(balancedFps) : null;
 
+  // USP: prijs-prestatie — fps per €100 van de totale build
+  const totalPrice = Object.values(components).reduce((s, c) => s + (c?.priceEur ?? 0), 0);
+  const fpsPer100 = balancedFps > 0 && totalPrice > 0 ? (balancedFps / totalPrice) * 100 : null;
+
   const hasGpuSlot = Boolean(components.gpu);
   const hasCpuSlot = Boolean(components.cpu);
 
@@ -251,6 +255,15 @@ export function BuildIntelligence({ components }: { components: BuildComponents 
                   <FpsRow key={g.profile} game={g} maxFps={maxFps} />
                 ))}
               </div>
+              {fpsPer100 !== null && (
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-secondary/[0.07] border border-secondary/20">
+                  <TrendingUp className="w-4 h-4 text-secondary flex-shrink-0" />
+                  <p className="font-body-sm text-[12px] text-on-surface">
+                    Prijs-prestatie: <span className="font-bold text-secondary">~{fpsPer100.toFixed(1)} fps per €100</span>
+                    <span className="text-on-surface-variant"> besteed ({RESOLUTIONS.find((r) => r.id === res)?.short}, populaire games)</span>
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

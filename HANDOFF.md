@@ -37,8 +37,24 @@ auth (better-auth) + opgeslagen/deelbare builds. GitHub Actions ververst prijzen
   gauge, bars) met reduced-motion-respect
 - Compatibiliteitscheck (socket/DDR/PSU) is hiermee grotendeels gebouwd
 
+**Nieuw (14 juni 2026, deel 2) — huisstijl, omschrijvingen, USP, contact:**
+- **Huisstijl naar 2 lettertypes**: JetBrains Mono verwijderd; `label-technical` + `mono`
+  nu Inter. Hanken (koppen) + Inter (al het andere). Scheelt ook een font-download.
+- **Favicon**: `src/app/icon.svg` (CPU-chip merk, primair blauw); default `favicon.ico`
+  verwijderd. Next linkt `icon.svg` automatisch (route `/icon.svg`).
+- **Productomschrijvingen**: `src/lib/specs/describe.ts` genereert per product een
+  omschrijving + speclijst + "goed voor" + educatieve uitleg uit de gedetecteerde specs;
+  getoond via `components/ProductDescription.tsx` op `/product/[slug]` (categorie uit URL
+  of `inferCategory`).
+- **USP — prijs-prestatie**: `src/lib/specs/value.ts` (prestatie per €100). Op CPU/GPU-
+  categoriepagina's krijgt het item met de beste bang-for-buck een **"PRIJS-PRESTATIE"**-
+  badge (los van "BESTE DEAL" = goedkoopste) + uitleg. In de builder een
+  "~X fps per €100"-metric in BuildIntelligence.
+- **Contact**: `/contact`-pagina met mailto `corebuildnl@proton.me` + footer-link;
+  toegevoegd aan sitemap. Site-metadata/omschrijving bijgewerkt (FPS/prijs-prestatie).
+
 **Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
-fase 3 van de roadmap (officiële API's na KvK-inschrijving), prijsalerts.
+fase 3 van de roadmap (officiële API's na KvK-inschrijving), prijsalerts, blog (gepland).
 
 ## Overzicht
 

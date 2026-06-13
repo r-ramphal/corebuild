@@ -13,6 +13,7 @@ import { COMPONENT_META } from "@/lib/categories";
 import { formatEur } from "@/lib/format";
 import { productUrl } from "@/lib/product-url";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
+import { bestValueIndex, hasValueMetric } from "@/lib/specs/value";
 import type { ComponentType, SearchResults, PriceResult } from "@/lib/types";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -45,11 +46,12 @@ const RETAILER_BG: Record<string, string> = {
 interface CategoryResultCardProps {
   item: PriceResult;
   isBestDeal: boolean;
+  isBestValue?: boolean;
   componentType: ComponentType;
   onAddToBuild: (item: PriceResult, slot: ComponentType) => void;
 }
 
-function CategoryResultCard({ item, isBestDeal, componentType, onAddToBuild }: CategoryResultCardProps) {
+function CategoryResultCard({ item, isBestDeal, isBestValue, componentType, onAddToBuild }: CategoryResultCardProps) {
   const [added, setAdded] = useState(false);
 
   function handleAdd() {
@@ -85,6 +87,14 @@ function CategoryResultCard({ item, isBestDeal, componentType, onAddToBuild }: C
         {isBestDeal && item.inStock && (
           <span className="absolute top-2 left-2 bg-success-emerald text-white text-[10px] px-2 py-0.5 rounded font-label-technical">
             BESTE DEAL
+          </span>
+        )}
+        {isBestValue && item.inStock && (
+          <span
+            className="absolute left-2 bg-secondary text-on-secondary text-[10px] px-2 py-0.5 rounded font-label-technical"
+            style={{ top: isBestDeal ? "1.85rem" : "0.5rem" }}
+          >
+            PRIJS-PRESTATIE
           </span>
         )}
         {!item.inStock && (
@@ -263,6 +273,9 @@ export function CategorieClient() {
   const cheapestPrice =
     filtered.find((i) => i.inStock)?.priceEur ?? filtered[0]?.priceEur;
 
+  // USP: het item met de beste prestatie-per-euro (alleen CPU/GPU)
+  const bestValueIdx = bestValueIndex(filtered, componentType);
+
   return (
     <main className="mt-16 max-w-[1280px] mx-auto px-4 sm:px-8 py-8 min-h-screen">
       {/* Category Header */}
@@ -432,12 +445,20 @@ export function CategorieClient() {
             </p>
           )}
 
+          {!loading && filtered.length > 0 && hasValueMetric(componentType) && bestValueIdx !== null && (
+            <p className="font-body-sm text-[13px] text-on-surface-variant -mt-1 mb-1">
+              <span className="font-medium text-secondary">Beste prijs-prestatie</span> = meeste prestatie per
+              euro — niet per se de goedkoopste.
+            </p>
+          )}
+
           {!loading &&
             filtered.map((item, i) => (
               <CategoryResultCard
                 key={`${item.retailer}-${i}`}
                 item={item}
                 isBestDeal={item.priceEur === cheapestPrice && item.inStock}
+                isBestValue={i === bestValueIdx}
                 componentType={componentType}
                 onAddToBuild={(item, slot) => setComponent(slot, item)}
               />

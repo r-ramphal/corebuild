@@ -9,6 +9,8 @@ import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { formatEur } from "@/lib/format";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
+import { ProductDescription } from "@/components/ProductDescription";
+import { inferCategory } from "@/lib/relevance";
 import type { ComponentType, PriceResult, SearchResults } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
@@ -42,6 +44,8 @@ export function ProductClient() {
   const name = searchParams.get("q") ?? slug.replace(/-/g, " ");
   const cat = searchParams.get("cat") as ComponentType | null;
   const meta = cat ? COMPONENT_META[cat] : undefined;
+  // Categorie voor de omschrijving: uit de URL, anders afgeleid uit de naam
+  const resolvedCat = cat ?? inferCategory(name);
 
   const { setComponent } = useBuildStore();
 
@@ -248,6 +252,9 @@ export function ProductClient() {
             )}
           </div>
         </div>
+
+        {/* Productomschrijving uit de specs */}
+        {resolvedCat && <ProductDescription name={name} category={resolvedCat} />}
 
         {/* Price comparison table */}
         {!loading && matches.length > 0 && (

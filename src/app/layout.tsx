@@ -1,27 +1,22 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Hanken_Grotesk, Inter } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
 
+// Twee lettertypes vormen de hele huisstijl: Hanken Grotesk voor koppen,
+// Inter voor alle tekst, labels en knoppen.
 const hanken = Hanken_Grotesk({
   variable: "--font-hanken",
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  display: "swap",
-});
-
-const jetbrains = JetBrains_Mono({
-  variable: "--font-jetbrains",
-  subsets: ["latin"],
-  weight: ["500"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -32,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s | CoreBuild",
   },
   description:
-    "Vergelijk real-time prijzen van de grootste tech-retailers en stel je PC samen met slimme wattage-checks.",
+    "Vergelijk real-time prijzen van de grootste tech-retailers en zie meteen wat je build presteert: FPS, bottlenecks, monitor-advies en de beste prijs-prestatie.",
   keywords: [
     "pc onderdelen vergelijken",
     "pc bouwen",
@@ -51,7 +46,7 @@ export const metadata: Metadata = {
     siteName: "CoreBuild",
     title: "CoreBuild — Optimaliseer je build, verfijn je budget",
     description:
-      "Vergelijk real-time prijzen van de grootste tech-retailers en stel je PC samen met slimme wattage-checks.",
+      "Vergelijk real-time prijzen van de grootste tech-retailers en zie meteen wat je build presteert: FPS, bottlenecks, monitor-advies en de beste prijs-prestatie.",
     images: [
       {
         url: "/images/feature-pc.png",
@@ -82,7 +77,7 @@ export default function RootLayout({
   return (
     <html
       lang="nl"
-      className={`${hanken.variable} ${inter.variable} ${jetbrains.variable}`}
+      className={`${hanken.variable} ${inter.variable}`}
     >
       <body>
         <a href="#main-content" className="skip-link">

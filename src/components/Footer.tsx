@@ -21,6 +21,9 @@ export function Footer() {
           <Link href="/over#affiliate" className="font-label-technical text-label-technical text-on-surface-variant hover:text-primary transition-colors">
             Affiliate disclaimer
           </Link>
+          <Link href="/contact" className="font-label-technical text-label-technical text-on-surface-variant hover:text-primary transition-colors">
+            Contact
+          </Link>
         </nav>
 
         <span className="font-label-technical text-label-technical text-on-surface-variant">© 2026 CoreBuild</span>

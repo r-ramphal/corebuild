@@ -103,10 +103,10 @@
 }
 
 @theme inline {
-  /* Font variables */
+  /* Font variables — huisstijl: Hanken (koppen) + Inter (al het andere) */
   --font-heading: var(--font-hanken);
   --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains);
+  --font-mono: var(--font-inter);
 
   /* Stitch typography font families */
   --font-display-lg: var(--font-hanken);
@@ -116,7 +116,7 @@
   --font-body-lg: var(--font-inter);
   --font-body-sm: var(--font-inter);
   --font-label-price: var(--font-inter);
-  --font-label-technical: var(--font-jetbrains);
+  --font-label-technical: var(--font-inter);
 
   /* Shadcn compat */
   --color-background: var(--background);

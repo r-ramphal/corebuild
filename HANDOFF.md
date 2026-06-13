@@ -198,15 +198,27 @@ Educatieve blog met koopgidsen, geen reclame/sponsors/persoonsdata. Dependency-v
 - **Verificatie**: `tsc` + `eslint` schoon; dev-server rendert index + alle 3 posts (HTTP 200),
   onbekende slug → 404, CTA/cross-links/sitemap-posts aanwezig.
 
-**BuildCores-roadmap (volgende sessies, "deel voor deel"):**
-1. ✅ Componentcategorieën uitbreiden naar BuildCores-set (case fan, thermal paste, OS, sound/
-   network/capture card, microfoon, webcam, speaker, accessoire). — gedaan, deel 5.
-2. ✅ Open-db importeren → echte per-product dimensies (GPU-lengte, koeler-hoogte, case-maten)
-   voor volledige compat-checks; matchen op gescrapete NL-producten. — gedaan, deel 6.
-3. ✅ Build-templates + "smart generate"-achtige vragenlijst (geen persoonlijke data). — gedaan, deel 7.
-4. ✅ Community: builds-galerij + builds vergelijken. — gedaan, deel 8 (published-kolom toegepast op Neon).
-5. ✅ Blog (educatief, geen sponsors/reclame/persoonsdata). — gedaan, deel 9.
-6. Eventueel echt 3D later; nu 2.5D per gebruikerskeuze. (Optioneel; roadmap-kern 1–5 is af.)
+**Nieuw (14 juni 2026, deel 10) — echt 3D-aanzicht (roadmap stap 6 ✅):**
+Naast de 2.5D-SVG nu een draaibaar **CSS-3D**-aanzicht van de build — dependency-vrij (geen
+three.js), in lijn met de rest van het project.
+- **`components/builder/BuildPreview3D.tsx`**: perspectief-scène met cuboids (case-frame met open
+  voorzijde + moederbord/cpu/koeler/ram/gpu/opslag/voeding) die oplichten zodra je ze kiest;
+  lege slots als ghost-outline. Sleep om te draaien (pointer + touch), idle auto-rotate via rAF
+  (imperatief, geen re-render per frame), respecteert `prefers-reduced-motion`. Legenda eronder.
+  Kleuren via de `--cb-*`-designtokens met `color-mix`.
+- **`components/builder/BuildPreview.tsx`**: wrapper met een **2.5D↔3D-toggle** (2.5D blijft de
+  standaard, zoals de roadmap koos). Voorkeur in localStorage via `useSyncExternalStore`
+  (hydration-veilig). BuilderClient rendert nu deze wrapper i.p.v. direct de 2.5D.
+- **Verificatie**: visueel via Chrome headless-screenshots (volledige + half gevulde build, en de
+  builder met toggle); `tsc` + `eslint` schoon.
+
+**BuildCores-roadmap — VOLLEDIG AF (1–6):**
+1. ✅ Componentcategorieën uitbreiden naar BuildCores-set. — deel 5.
+2. ✅ Open-db dimensies → echte compat-checks (GPU-lengte/koeler-hoogte/case-maten). — deel 6.
+3. ✅ Build-templates + "smart generate"-vragenlijst. — deel 7.
+4. ✅ Community: builds-galerij + builds vergelijken. — deel 8.
+5. ✅ Blog (educatief, geen sponsors/reclame/persoonsdata). — deel 9.
+6. ✅ Echt 3D-aanzicht (CSS-3D), 2.5D blijft default per gebruikerskeuze. — deel 10.
 
 **Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
 fase 3 roadmap (officiële API's na KvK), prijsalerts.

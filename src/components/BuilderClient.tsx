@@ -8,7 +8,7 @@ import { useSession } from "@/lib/auth-client";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { CATEGORY_ICONS as ICONS } from "@/lib/category-icons";
 import { formatEur } from "@/lib/format";
-import { BuildPreview2D } from "@/components/builder/BuildPreview2D";
+import { BuildPreview } from "@/components/builder/BuildPreview";
 import { BuildSummary } from "@/components/builder/BuildSummary";
 import { SmartGenerate } from "@/components/builder/SmartGenerate";
 import {
@@ -211,7 +211,7 @@ export function BuilderClient() {
             })}
           </div>
 
-          <BuildPreview2D components={components} />
+          <BuildPreview components={components} />
           <BuildSummary components={components} />
         </div>
 

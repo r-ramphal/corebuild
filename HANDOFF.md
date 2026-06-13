@@ -72,9 +72,12 @@ auth (better-auth) + opgeslagen/deelbare builds. GitHub Actions ververst prijzen
   de `category`-kolom in de DB bestond al, dus scrapers vullen ze automatisch.
 - **Copy**: em-dashes (—) uit alle zichtbare teksten gehaald, natuurlijker NL.
 
-**Belangrijk voor de scrapers**: draai lokaal `cd scrapers && .\.venv\Scripts\python refresh.py --all`
-(of wacht op de 6-uurs GitHub Action) om de nieuwe categorieën (monitor/keyboard/mouse/headset)
-in de database te vullen — tot die tijd zijn die categoriepagina's leeg of tonen ze de live-scrape.
+**Scrapers**: de nieuwe categorieën zijn gevuld (14-06): monitor 199, keyboard 149, mouse 142,
+headset 129 rijen. `refresh.py` heeft nu een `--category`-flag, bv.
+`python refresh.py --category monitor,keyboard,mouse,headset`. De 6-uurs GitHub Action pakt de
+nieuwe zoektermen automatisch mee. Let op: randapparatuur-relevantieregels waren aangescherpt
+na een paar lekken (monitorarm, USB-ontvangers); de catalogusmodus van `/api/search` past nu
+óók `applyRelevance` toe als extra vangnet.
 
 **Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
 fase 3 van de roadmap (officiële API's na KvK-inschrijving), prijsalerts, blog (gepland).

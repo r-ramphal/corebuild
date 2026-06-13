@@ -132,7 +132,7 @@ export function BuilderClient() {
       <div className="mb-6">
         <h1 className="font-headline-lg text-headline-lg text-on-surface">PC Builder</h1>
         <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-          Kies je onderdelen en zie meteen wat ze samen presteren: FPS, bottleneck en het juiste scherm.
+          Kies je onderdelen en zie meteen of alles bij elkaar past, met een visuele weergave van je pc.
         </p>
       </div>
 

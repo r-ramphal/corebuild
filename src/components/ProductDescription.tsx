@@ -8,9 +8,11 @@ import type { ComponentType } from "@/lib/types";
 export function ProductDescription({
   name,
   category,
+  retailerInfo,
 }: {
   name: string;
   category: ComponentType;
+  retailerInfo?: { description: string; source?: string } | null;
 }) {
   const [showLearn, setShowLearn] = useState(false);
   const desc = describeProduct(name, category);
@@ -19,6 +21,15 @@ export function ProductDescription({
     <section className="mb-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-5 sm:p-6">
       <h2 className="font-title-md text-title-md text-on-surface mb-3">Over dit product</h2>
       <p className="font-body-lg text-body-lg text-on-surface-variant mb-5">{desc.summary}</p>
+
+      {retailerInfo && (
+        <div className="mb-5 pl-4 border-l-2 border-primary/40">
+          <p className="font-label-technical text-label-technical uppercase tracking-wider text-on-surface-variant mb-1.5">
+            Productinformatie{retailerInfo.source ? ` via ${retailerInfo.source}` : ""}
+          </p>
+          <p className="font-body-sm text-body-sm text-on-surface-variant">{retailerInfo.description}</p>
+        </div>
+      )}
 
       {desc.specs.length > 0 && (
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5 mb-5">

@@ -6,7 +6,7 @@ const FEATURES = [
   {
     icon: Gamepad2,
     title: "FPS per game & resolutie",
-    description: "Van competitief op 1080p tot zwaar AAA op 4K — zie wat je haalt.",
+    description: "Van competitief op 1080p tot zwaar AAA op 4K: zie wat je haalt.",
   },
   {
     icon: Activity,

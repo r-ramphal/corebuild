@@ -64,6 +64,30 @@ CATEGORY_QUERIES: dict[str, list[str]] = {
         "Corsair H150i Elite",
         "Arctic Liquid Freezer III",
     ],
+    "monitor": [
+        "gaming monitor",
+        "1440p 144Hz monitor",
+        "27 inch monitor",
+        "4K monitor",
+        "ultrawide monitor",
+    ],
+    "keyboard": [
+        "mechanisch toetsenbord",
+        "draadloos toetsenbord",
+        "gaming toetsenbord",
+        "60% keyboard",
+    ],
+    "mouse": [
+        "gaming muis",
+        "draadloze muis",
+        "lichtgewicht gaming muis",
+        "Logitech muis",
+    ],
+    "headset": [
+        "gaming headset",
+        "draadloze headset",
+        "Bluetooth koptelefoon",
+    ],
 }
 
 

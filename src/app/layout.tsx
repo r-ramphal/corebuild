@@ -23,7 +23,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://corebuildnl.com"),
   title: {
-    default: "CoreBuild — Optimaliseer je build, verfijn je budget",
+    default: "CoreBuild: optimaliseer je build, verfijn je budget",
     template: "%s | CoreBuild",
   },
   description:
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     locale: "nl_NL",
     url: "https://corebuildnl.com",
     siteName: "CoreBuild",
-    title: "CoreBuild — Optimaliseer je build, verfijn je budget",
+    title: "CoreBuild: optimaliseer je build, verfijn je budget",
     description:
       "Vergelijk real-time prijzen van de grootste tech-retailers en zie meteen wat je build presteert: FPS, bottlenecks, monitor-advies en de beste prijs-prestatie.",
     images: [
@@ -52,13 +52,13 @@ export const metadata: Metadata = {
         url: "/images/feature-pc.png",
         width: 960,
         height: 640,
-        alt: "CoreBuild — PC componenten prijsvergelijker",
+        alt: "CoreBuild, de PC-componenten prijsvergelijker",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CoreBuild — Optimaliseer je build, verfijn je budget",
+    title: "CoreBuild: optimaliseer je build, verfijn je budget",
     description:
       "Vergelijk real-time prijzen van de grootste tech-retailers en bouw de ultieme setup.",
     images: ["/images/feature-pc.png"],

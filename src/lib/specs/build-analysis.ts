@@ -185,7 +185,7 @@ function buildChecks(i: CheckInput): CompatCheck[] {
     const ratio = i.psuWatts / i.drawWatts;
     let status: CompatCheck["status"] = "ok";
     let title = "Voeding ruim voldoende";
-    let detail = `Geschat verbruik ~${i.drawWatts}W, je voeding levert ${i.psuWatts}W — comfortabele marge.`;
+    let detail = `Geschat verbruik ~${i.drawWatts}W, je voeding levert ${i.psuWatts}W. Een comfortabele marge.`;
     if (ratio < 1.1) {
       status = "bad";
       title = "Voeding te krap";
@@ -254,7 +254,7 @@ function buildChecks(i: CheckInput): CompatCheck[] {
       id: "storage",
       status: "warn",
       title: "Nog geen opslag",
-      detail: "Een NVMe-SSD zorgt voor snelle laadtijden — voeg er minstens één toe.",
+      detail: "Een NVMe-SSD zorgt voor snelle laadtijden. Voeg er minstens één toe.",
     });
   }
 

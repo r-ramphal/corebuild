@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Cpu, Monitor, Layers, Database, HardDrive, Zap, Server, Wind,
+  MonitorPlay, Keyboard, Mouse, Headphones,
   Plus, Trash2, Share, Save, Check, Pencil,
 } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
@@ -26,6 +27,10 @@ const ICONS: Record<ComponentType, React.ComponentType<{ className?: string }>> 
   psu: Zap,
   case: Server,
   cooling: Wind,
+  monitor: MonitorPlay,
+  keyboard: Keyboard,
+  mouse: Mouse,
+  headset: Headphones,
 };
 
 /** Korte spec-chips per slot, afgeleid uit de productnaam. */
@@ -82,7 +87,7 @@ export function BuilderClient() {
   async function handleExport() {
     const lines = COMPONENT_TYPES.filter((t) => components[t]).map(
       (t) =>
-        `${COMPONENT_META[t].shortLabel}: ${components[t]!.name} — ${formatEur(components[t]!.priceEur)}`
+        `${COMPONENT_META[t].shortLabel}: ${components[t]!.name} - ${formatEur(components[t]!.priceEur)}`
     );
     const text = [
       "Mijn PC-build via CoreBuild (corebuildnl.com)",
@@ -126,7 +131,7 @@ export function BuilderClient() {
       <div className="mb-6">
         <h1 className="font-headline-lg text-headline-lg text-on-surface">PC Builder</h1>
         <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-          Kies je onderdelen en zie meteen wat ze samen presteren — FPS, bottleneck en het juiste scherm.
+          Kies je onderdelen en zie meteen wat ze samen presteren: FPS, bottleneck en het juiste scherm.
         </p>
       </div>
 
@@ -335,7 +340,7 @@ export function BuilderClient() {
                   >
                     {saved ? (
                       <>
-                        <Check className="w-4 h-4" /> Opgeslagen — zie Mijn builds
+                        <Check className="w-4 h-4" /> Opgeslagen, zie Mijn builds
                       </>
                     ) : (
                       <>

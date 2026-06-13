@@ -182,7 +182,7 @@ export function BuildIntelligence({ components }: { components: BuildComponents 
       {showMethod && (
         <p className="px-5 sm:px-6 py-3 bg-surface-container-low font-body-sm text-[12px] text-on-surface-variant border-b border-outline-variant">
           Schattingen op basis van relatieve benchmark-indexen per model. We rekenen met{" "}
-          <span className="font-medium text-on-surface">min(GPU-fps, CPU-fps)</span> per resolutie en game-zwaarte —
+          <span className="font-medium text-on-surface">min(GPU-fps, CPU-fps)</span> per resolutie en game-zwaarte;
           de zwakste schakel bepaalt het resultaat. Werkelijke prestaties verschillen per game, driver en instelling.
         </p>
       )}
@@ -230,7 +230,7 @@ export function BuildIntelligence({ components }: { components: BuildComponents 
               <p className="font-body-sm text-body-sm text-on-surface-variant">
                 {hasGpuSlot && !hasCpuSlot && "Voeg een CPU toe voor een volledige build-score en bottleneck-analyse."}
                 {!hasGpuSlot && hasCpuSlot && "Voeg een videokaart toe voor FPS-schattingen en een build-score."}
-                {hasGpuSlot && hasCpuSlot && !gpu && "We herkennen deze videokaart nog niet — FPS-schatting is beperkt."}
+                {hasGpuSlot && hasCpuSlot && !gpu && "We herkennen deze videokaart nog niet, dus de FPS-schatting is beperkt."}
               </p>
             </div>
           )}

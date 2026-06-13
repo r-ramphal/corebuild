@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { COMPONENT_TYPES } from "@/lib/categories";
+import { CATALOG_TYPES } from "@/lib/categories";
 
 const BASE_URL = "https://corebuildnl.com";
 
@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/contact`, changeFrequency: "monthly", priority: 0.4 },
   ];
 
-  const categoryPages: MetadataRoute.Sitemap = COMPONENT_TYPES.map((type) => ({
+  const categoryPages: MetadataRoute.Sitemap = CATALOG_TYPES.map((type) => ({
     url: `${BASE_URL}/categorie/${type}`,
     changeFrequency: "daily",
     priority: 0.8,

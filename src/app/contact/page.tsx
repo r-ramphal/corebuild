@@ -4,7 +4,7 @@ import { Mail, MessageSquare, Bug, Lightbulb } from "lucide-react";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Neem contact op met CoreBuild — vragen, feedback, een ontbrekend product of een foutmelding. We lezen alles.",
+    "Neem contact op met CoreBuild voor vragen, feedback, een ontbrekend product of een foutmelding. We lezen alles.",
   alternates: {
     canonical: "/contact",
   },
@@ -23,7 +23,7 @@ export default function ContactPage() {
     <main className="mt-16 max-w-3xl mx-auto px-4 sm:px-8 py-16 min-h-screen">
       <h1 className="font-headline-lg text-headline-lg text-on-surface mb-3">Contact</h1>
       <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-2xl">
-        Vragen, feedback of een product dat we missen? We horen graag van je. Mail ons direct —
+        Vragen, feedback of een product dat we missen? We horen graag van je. Mail ons gerust direct;
         we lezen alles en reageren meestal binnen een paar dagen.
       </p>
 
@@ -63,7 +63,7 @@ export default function ContactPage() {
 
       <p className="font-body-sm text-body-sm text-on-surface-variant mt-10">
         Tip: meld je een verkeerde prijs of een ontbrekend product, voeg dan de productnaam of een
-        link toe — dan kunnen we het sneller oplossen.
+        link toe, dan kunnen we het sneller oplossen.
       </p>
     </main>
   );

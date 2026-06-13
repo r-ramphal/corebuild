@@ -92,6 +92,24 @@ const RULES: Record<ComponentType, CategoryRule> = {
     exclude:
       /screen module|lcd-?(display|scherm)\b.*module|backplate|eisblock|waterblock|ek-quantum|bracket|houder|koelpasta|thermal\s?(paste|pad)|fan\s?hub|controller\s?module|laptop|notebook|gpu|behuizing|midi tower|mid.?tower|full tower|chassis|zonder koeler|\btray\b|combokit/i,
   },
+  monitor: {
+    require: [/\b(monitor|beeldscherm)\b/i, /\bultrawide\b/i],
+    exclude:
+      /\b(arm|standaard|stand|muurbeugel|beugel|houder|kabel|adapter|reiniger|sleeve|hoes)\b|laptop|all.?in.?one|\btv\b/i,
+  },
+  keyboard: {
+    require: [/\b(toetsenbord|keyboard)\b/i],
+    exclude:
+      /laptop|\bcover\b|\bhoes\b|sticker|keycaps?|polssteun|switch(es)?\b|stabilizers?|\bsticker/i,
+  },
+  mouse: {
+    require: [/\b(muis|mouse)\b/i],
+    exclude: /muismat|mousepad|bungee|laptop|toetsenbord|skates|grip\s?tape/i,
+  },
+  headset: {
+    require: [/\b(headset|koptelefoon|hoofdtelefoon|headphones?)\b/i],
+    exclude: /\b(standaard|hanger|\bstand\b|kabel|case|adapter|oordopjes|earbuds)\b/i,
+  },
 };
 
 /** True als de productnaam overduidelijk geen PC-component is. */
@@ -115,6 +133,7 @@ export function inferCategory(name: string): ComponentType | null {
   // noemt vaak DDR5, een koelernaam vaak de CPU-socket).
   const order: ComponentType[] = [
     "motherboard", "gpu", "cpu", "psu", "cooling", "storage", "ram", "case",
+    "monitor", "keyboard", "mouse", "headset",
   ];
   for (const cat of order) {
     if (matchesCategory(name, cat)) return cat;
@@ -125,6 +144,6 @@ export function inferCategory(name: string): ComponentType | null {
 export function isComponentType(value: string | null): value is ComponentType {
   return (
     value !== null &&
-    ["cpu", "gpu", "motherboard", "ram", "storage", "psu", "case", "cooling"].includes(value)
+    ["cpu", "gpu", "motherboard", "ram", "storage", "psu", "case", "cooling", "monitor", "keyboard", "mouse", "headset"].includes(value)
   );
 }

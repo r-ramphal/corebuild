@@ -1,8 +1,9 @@
 import Link from "next/link";
 import {
   Cpu, Monitor, Layers, Database, HardDrive, Zap, Server, Wind,
+  MonitorPlay, Keyboard, Mouse, Headphones,
 } from "lucide-react";
-import { COMPONENT_TYPES, COMPONENT_META } from "@/lib/categories";
+import { CATALOG_TYPES, COMPONENT_META } from "@/lib/categories";
 import type { ComponentType } from "@/lib/types";
 
 const CATEGORY_ICONS: Record<ComponentType, React.ComponentType<{ className?: string }>> = {
@@ -14,12 +15,16 @@ const CATEGORY_ICONS: Record<ComponentType, React.ComponentType<{ className?: st
   psu: Zap,
   case: Server,
   cooling: Wind,
+  monitor: MonitorPlay,
+  keyboard: Keyboard,
+  mouse: Mouse,
+  headset: Headphones,
 };
 
 export function CategoryGrid() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {COMPONENT_TYPES.map((type, i) => {
+      {CATALOG_TYPES.map((type, i) => {
         const Icon = CATEGORY_ICONS[type];
         return (
           <Link

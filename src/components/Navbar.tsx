@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, ChevronDown, Save, LogOut, Menu, X } from "lucide-react";
+import { ChevronDown, Save, LogOut, Menu, X } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
+import { SearchSuggest } from "@/components/SearchSuggest";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -16,7 +17,6 @@ const NAV_LINKS = [
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -39,13 +39,6 @@ export function Navbar() {
       document.removeEventListener("keydown", onEscape);
     };
   }, [menuOpen]);
-
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
-    setMobileOpen(false);
-    router.push(`/zoeken?q=${encodeURIComponent(query.trim())}`);
-  }
 
   async function handleSignOut() {
     setMenuOpen(false);
@@ -90,17 +83,9 @@ export function Navbar() {
 
         <div className="flex items-center gap-2 sm:gap-4">
           {pathname !== "/" && (
-            <form onSubmit={handleSearch} className="relative hidden sm:block" role="search">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant pointer-events-none" />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Zoek componenten..."
-                aria-label="Zoek componenten"
-                className="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm w-48 lg:w-64 focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </form>
+            <div className="hidden sm:block">
+              <SearchSuggest variant="navbar" />
+            </div>
           )}
 
           {session ? (
@@ -165,17 +150,9 @@ export function Navbar() {
           aria-label="Mobiele navigatie"
           className="md:hidden border-t border-outline-variant bg-surface px-4 pb-4 pt-2 space-y-1"
         >
-          <form onSubmit={handleSearch} className="relative py-2 sm:hidden" role="search">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant pointer-events-none" />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Zoek componenten..."
-              aria-label="Zoek componenten"
-              className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </form>
+          <div className="py-2 sm:hidden">
+            <SearchSuggest variant="page" onNavigate={() => setMobileOpen(false)} />
+          </div>
 
           {NAV_LINKS.map(({ href, label }) => {
             const isActive = pathname === href || pathname.startsWith(href + "/");

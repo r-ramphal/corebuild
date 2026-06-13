@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PriceList } from "./PriceList";
+import { SearchSuggest } from "@/components/SearchSuggest";
 import { useBuildStore } from "@/lib/store/build";
 import { useSearch } from "@/lib/use-search";
 import type { SearchResults, Retailer, ComponentType } from "@/lib/types";
@@ -205,11 +206,14 @@ export function ZoekenClient() {
         )}
 
         {!loading && !filteredResults && !query && (
-          <div className="text-center py-20 text-on-surface-variant">
+          <div className="text-center py-16 sm:py-20">
             <p className="font-title-md text-title-md text-on-surface">Wat zoek je?</p>
-            <p className="font-body-sm text-body-sm mt-2">
-              Gebruik de zoekbalk bovenaan om componenten te zoeken.
+            <p className="font-body-sm text-body-sm text-on-surface-variant mt-2 mb-6">
+              Typ een component of merk, dan tonen we suggesties terwijl je typt.
             </p>
+            <div className="max-w-md mx-auto text-left">
+              <SearchSuggest variant="page" autoFocus />
+            </div>
           </div>
         )}
       </section>

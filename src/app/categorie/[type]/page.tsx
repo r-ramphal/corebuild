@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CategorieClient } from "@/components/CategorieClient";
-import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
+import { COMPONENT_META, CATALOG_TYPES } from "@/lib/categories";
 import type { ComponentType } from "@/lib/types";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function generateStaticParams() {
-  return COMPONENT_TYPES.map((type) => ({ type }));
+  return CATALOG_TYPES.map((type) => ({ type }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

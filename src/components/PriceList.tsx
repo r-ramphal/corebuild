@@ -8,6 +8,7 @@ import { formatEur } from "@/lib/format";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { productUrl } from "@/lib/product-url";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
+import { RetailerLogo } from "@/components/RetailerLogo";
 import type { PriceResult, SearchResults, ComponentType } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
@@ -16,14 +17,6 @@ const RETAILER_LABEL: Record<string, string> = {
   megekko: "Megekko",
   azerty: "Azerty",
   alternate: "Alternate",
-};
-
-const RETAILER_BG: Record<string, string> = {
-  amazon: "#FF9900",
-  bol: "#0000FF",
-  megekko: "#00A651",
-  azerty: "#E30613",
-  alternate: "#00305F",
 };
 
 interface ResultRowProps {
@@ -102,13 +95,10 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
         <div>
           {/* Retailer badge + stock */}
           <div className="flex items-center gap-2 mb-2">
-            <span
-              className="font-label-technical text-[10px] uppercase tracking-tighter text-white px-2 py-0.5 rounded"
-              style={{ backgroundColor: RETAILER_BG[item.retailer] ?? "#737687" }}
-            >
-              {RETAILER_LABEL[item.retailer] ?? item.retailer}
-              {item.mock ? " · demo" : ""}
-            </span>
+            <RetailerLogo retailer={item.retailer} />
+            {item.mock && (
+              <span className="font-label-technical text-[10px] text-on-surface-variant">demo</span>
+            )}
             {item.inStock ? (
               <div className="flex items-center gap-1">
                 <CircleCheck className="w-4 h-4 fill-success-emerald text-white" />

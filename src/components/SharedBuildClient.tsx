@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   Cpu, Monitor, Layers, Database, HardDrive, Zap, Server, Wind, Upload,
+  MonitorPlay, Keyboard, Mouse, Headphones,
 } from "lucide-react";
 import { useBuildStore, type BuildComponents } from "@/lib/store/build";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
@@ -20,6 +21,10 @@ const ICONS: Record<ComponentType, React.ComponentType<{ className?: string }>> 
   psu: Zap,
   case: Server,
   cooling: Wind,
+  monitor: MonitorPlay,
+  keyboard: Keyboard,
+  mouse: Mouse,
+  headset: Headphones,
 };
 
 interface SharedBuild {

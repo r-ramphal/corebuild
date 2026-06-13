@@ -53,6 +53,29 @@ auth (better-auth) + opgeslagen/deelbare builds. GitHub Actions ververst prijzen
 - **Contact**: `/contact`-pagina met mailto `corebuildnl@proton.me` + footer-link;
   toegevoegd aan sitemap. Site-metadata/omschrijving bijgewerkt (FPS/prijs-prestatie).
 
+**Nieuw (14 juni 2026, deel 3) — zoeken, logo's, productinfo, randapparatuur:**
+- **Zoeksuggesties (typeahead)**: `components/SearchSuggest.tsx` + `lib/search-suggestions.ts`
+  (index uit CPU/GPU-labels + categorieën + populaire tags). Toetsenbordnavigatie. Gebruikt in
+  hero, navbar én als invoerveld op de lege `/zoeken`-staat (daar kon je eerst niets typen).
+  ⌘/Ctrl-hint nu platform-correct via `useSyncExternalStore` (geen hydration-mismatch).
+- **Retailer-logo's**: `components/RetailerLogo.tsx` (wordmark in merkkleur) in PriceList,
+  productpagina-vergelijkingstabel en categoriekaarten. Geen echte merk-logobestanden
+  (auteursrecht/betrouwbaarheid); wordmarks geven dezelfde officiële uitstraling.
+- **Retailer-productinfo**: `/api/product-info` haalt og/meta-description van de
+  retailer-productpagina (host-allowlist tegen SSRF!). `lib/use-product-info.ts` (SWR) +
+  getoond in "Over dit product" via de goedkoopste scrapebare aanbieding
+  (megekko/azerty/alternate; Bol/Amazon blokkeren datacenter-IP's). Fallback = gegenereerde tekst.
+- **Categorie-catalogus uitgebreid** met randapparatuur: monitor, toetsenbord, muis, headset.
+  `CATALOG_TYPES` (= `COMPONENT_TYPES` + `PERIPHERAL_TYPES`) en `peripheral`-flag in
+  `COMPONENT_META`. Randapparatuur is wél browsbaar/vergelijkbaar maar is **geen build-slot**
+  (geen "Toevoegen aan Build", wel "Bekijk"). relevance TS+PY + `queries.py` bijgewerkt;
+  de `category`-kolom in de DB bestond al, dus scrapers vullen ze automatisch.
+- **Copy**: em-dashes (—) uit alle zichtbare teksten gehaald, natuurlijker NL.
+
+**Belangrijk voor de scrapers**: draai lokaal `cd scrapers && .\.venv\Scripts\python refresh.py --all`
+(of wacht op de 6-uurs GitHub Action) om de nieuwe categorieën (monitor/keyboard/mouse/headset)
+in de database te vullen — tot die tijd zijn die categoriepagina's leeg of tonen ze de live-scrape.
+
 **Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
 fase 3 van de roadmap (officiële API's na KvK-inschrijving), prijsalerts, blog (gepland).
 

@@ -122,7 +122,7 @@ function describeGpu(name: string): ProductDescription {
     note: `Reken op een voeding van minstens ${g.recommendedPsu}W voor een systeem met deze videokaart. Gebruik de PC Builder om de exacte FPS bij jouw CPU te zien.`,
     learn: [
       { term: "VRAM (videogeheugen)", explain: "Geheugen op de videokaart zelf. Meer VRAM helpt bij hoge resoluties en textuur-instellingen. 8GB is genoeg voor 1080p, 12–16GB is fijner voor 1440p/4K." },
-      { term: "Prestatie-index", explain: "Onze relatieve maat (0–100) om videokaarten snel te vergelijken. Gebaseerd op publieke benchmark-gemiddelden — een indicatie, geen exacte meting." },
+      { term: "Prestatie-index", explain: "Onze relatieve maat (0 tot 100) om videokaarten snel te vergelijken. Hij is gebaseerd op publieke benchmark-gemiddelden, dus een indicatie en geen exacte meting." },
     ],
   };
 }
@@ -137,7 +137,7 @@ function describeRam(name: string): ProductDescription {
   const advice =
     gb && gb >= 32 ? "32GB is ruim voldoende, ook voor streamen en zwaar multitasken."
     : gb && gb >= 16 ? "16GB is de zoete plek voor de meeste gamers."
-    : gb ? `${gb}GB is krap voor moderne games — overweeg 16GB of meer.`
+    : gb ? `${gb}GB is krap voor moderne games. Overweeg 16GB of meer.`
     : "Voor gaming is 16GB de aanrader, 32GB voor zwaarder werk.";
 
   return {
@@ -147,7 +147,7 @@ function describeRam(name: string): ProductDescription {
     goodFor: ["Gamen", "Multitasken", gb && gb >= 32 ? "Streamen & renderen" : ""].filter(Boolean) as string[],
     note: ddr ? `Let op: ${ddr} werkt alleen op een moederbord en CPU die ${ddr} ondersteunen.` : undefined,
     learn: [
-      { term: "DDR4 vs DDR5", explain: "Twee generaties geheugen. DDR5 is nieuwer en sneller, maar je CPU én moederbord moeten het ondersteunen — ze zijn niet onderling uitwisselbaar." },
+      { term: "DDR4 vs DDR5", explain: "Twee generaties geheugen. DDR5 is nieuwer en sneller, maar je CPU én moederbord moeten het ondersteunen, want ze zijn niet onderling uitwisselbaar." },
       { term: "Dual channel", explain: "Twee reepjes geheugen samen zijn sneller dan één enkele. Een kit van 2×8GB is daarom vaak beter dan 1×16GB." },
     ],
   };
@@ -158,7 +158,7 @@ function describePsu(name: string): ProductDescription {
   return {
     detailed: Boolean(w),
     summary: w
-      ? `Deze voeding levert ${w} watt en is daarmee geschikt voor systemen die ongeveer tot ${Math.round(w * 0.65)}W verbruiken — met comfortabele marge.`
+      ? `Deze voeding levert ${w} watt en is daarmee geschikt voor systemen die ongeveer tot ${Math.round(w * 0.65)}W verbruiken, met een comfortabele marge.`
       : "De voeding (PSU) levert stroom aan alle onderdelen. Kies altijd wat extra wattage als marge voor stabiliteit en stilte.",
     specs: w ? [{ label: "Vermogen", value: `${w} W` }] : [],
     goodFor: [],
@@ -185,7 +185,7 @@ function describeMotherboard(name: string): ProductDescription {
     goodFor: [],
     note: socket ? `Je CPU moet socket ${socket} hebben, en je RAM moet ${ddr ?? "het juiste DDR-type"} zijn.` : undefined,
     learn: [
-      { term: "Formfactor", explain: "De maat van het bord (ATX, Micro-ATX, Mini-ITX). Het moet in je behuizing passen — een ATX-bord past niet in een Mini-ITX-kast." },
+      { term: "Formfactor", explain: "De maat van het bord (ATX, Micro-ATX, Mini-ITX). Het moet in je behuizing passen. Een ATX-bord past bijvoorbeeld niet in een Mini-ITX-kast." },
     ],
   };
 }
@@ -200,7 +200,7 @@ function describeStorage(name: string): ProductDescription {
     : isSsd
       ? "Een SSD is veel sneller dan een harde schijf en ideaal als systeemschijf."
       : isHdd
-        ? "Een harde schijf biedt veel ruimte voor weinig geld, maar is trager — handig als extra opslag."
+        ? "Een harde schijf biedt veel ruimte voor weinig geld, maar is trager. Handig als extra opslag naast een SSD."
         : "Opslag bewaart je besturingssysteem, games en bestanden.";
   return {
     detailed: isNvme || isSsd || isHdd,
@@ -247,11 +247,15 @@ function generic(category: ComponentType): ProductDescription {
     cpu: "De processor (CPU) is het rekenhart van je pc en bepaalt sterk je gaming- en werkprestaties.",
     gpu: "De videokaart (GPU) rendert je beeld en is de belangrijkste factor voor je FPS in games.",
     ram: "Werkgeheugen (RAM) bewaart de gegevens waar je systeem actief mee bezig is.",
-    storage: "Opslag bewaart je besturingssysteem, games en bestanden — een SSD maakt alles merkbaar sneller.",
+    storage: "Opslag bewaart je besturingssysteem, games en bestanden. Een SSD maakt alles merkbaar sneller.",
     psu: "De voeding (PSU) levert stabiele stroom aan al je onderdelen.",
     motherboard: "Het moederbord verbindt en voedt al je onderdelen.",
     case: "De behuizing huisvest en koelt je onderdelen.",
     cooling: "Koeling houdt je processor op temperatuur voor stabiele prestaties.",
+    monitor: "De monitor bepaalt hoe je games en werk eruitzien. Let op resolutie en refreshrate (Hz): meer Hz oogt vloeiender, maar je videokaart moet de bijbehorende FPS wel halen.",
+    keyboard: "Het toetsenbord is waar je het meeste mee werkt en speelt. Mechanische schakelaars geven een duidelijke aanslag en gaan lang mee.",
+    mouse: "Een goede muis ligt prettig in de hand en reageert nauwkeurig. Voor gaming tellen gewicht en sensor; voor werk vooral comfort.",
+    headset: "Een headset combineert geluid en microfoon in één. Handig voor games, calls en muziek zonder je omgeving te storen.",
   };
   return { detailed: false, summary: text[category], specs: [], goodFor: [], learn: [] };
 }

@@ -164,7 +164,7 @@ export function analyzeBottleneck(
       severityPct: 0,
       balancePos,
       title: "CPU heeft ruimte over",
-      detail: `Je CPU kan meer aan dan de ${gpu.label} vraagt op ${resLabel(res)}. Prima voor gaming — er is ruimte voor een snellere videokaart in de toekomst.`,
+      detail: `Je CPU kan meer aan dan de ${gpu.label} vraagt op ${resLabel(res)}. Prima voor gaming, en er is ruimte voor een snellere videokaart in de toekomst.`,
       tone: "good",
     };
   }
@@ -204,7 +204,7 @@ export function recommendHz(fps: number): HzAdvice {
     title: `${hz} Hz monitor`,
     detail:
       fps >= 90
-        ? `Je haalt zo'n ${fps} fps — een ${hz} Hz monitor maakt die soepelheid pas echt zichtbaar.`
+        ? `Je haalt zo'n ${fps} fps, dus een ${hz} Hz monitor maakt die soepelheid pas echt zichtbaar.`
         : `Bij ~${fps} fps is een ${hz} Hz monitor de logische keuze; hoger benut je toch niet.`,
   };
 }
@@ -250,7 +250,7 @@ export function buildScore(
   let tone: BuildScore["tone"] = "outline";
   if (score >= 88) {
     tierLabel = "Flagship";
-    blurb = "Topklasse — 4K op hoge framerates en alles op ultra.";
+    blurb = "Topklasse: 4K op hoge framerates en alles op ultra.";
     tone = "emerald";
   } else if (score >= 74) {
     tierLabel = "High-end";

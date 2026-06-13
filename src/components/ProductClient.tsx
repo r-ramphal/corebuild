@@ -12,6 +12,8 @@ import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { ProductDescription } from "@/components/ProductDescription";
 import { inferCategory } from "@/lib/relevance";
 import { useSearch } from "@/lib/use-search";
+import { useProductInfo } from "@/lib/use-product-info";
+import { RetailerLogo } from "@/components/RetailerLogo";
 import type { ComponentType } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
@@ -20,14 +22,6 @@ const RETAILER_LABEL: Record<string, string> = {
   megekko: "Megekko",
   azerty: "Azerty",
   alternate: "Alternate",
-};
-
-const RETAILER_BG: Record<string, string> = {
-  amazon: "#FF9900",
-  bol: "#0000FF",
-  megekko: "#00A651",
-  azerty: "#E30613",
-  alternate: "#00305F",
 };
 
 /** Hoeveel van de zoektermen komen terug in de resultaatnaam? */
@@ -91,6 +85,14 @@ export function ProductClient() {
 
   const best = matches.find((m) => m.inStock) ?? matches[0];
   const heroImage = matches.find((m) => m.imageUrl)?.imageUrl;
+
+  // Retailer-eigen omschrijving ophalen van de goedkoopste scrapebare aanbieding
+  // (Bol/Amazon blokkeren datacenter-IP's, dus die slaan we over voor de info-fetch)
+  const SCRAPABLE = ["megekko", "azerty", "alternate"];
+  const infoOffer =
+    matches.find((m) => m.inStock && !m.mock && SCRAPABLE.includes(m.retailer)) ??
+    matches.find((m) => !m.mock && SCRAPABLE.includes(m.retailer));
+  const retailerInfo = useProductInfo(infoOffer?.url ?? null);
 
   function handleAdd(slot: ComponentType) {
     if (!best) return;
@@ -248,8 +250,10 @@ export function ProductClient() {
           </div>
         </div>
 
-        {/* Productomschrijving uit de specs */}
-        {resolvedCat && <ProductDescription name={name} category={resolvedCat} />}
+        {/* Productomschrijving uit de specs + retailer-eigen info */}
+        {resolvedCat && (
+          <ProductDescription name={name} category={resolvedCat} retailerInfo={retailerInfo} />
+        )}
 
         {/* Price comparison table */}
         {!loading && matches.length > 0 && (
@@ -259,7 +263,7 @@ export function ProductClient() {
             </h2>
             <p className="font-body-sm text-body-sm text-on-surface-variant mb-6">
               {isFuzzy
-                ? "Geen exacte match gevonden — dit zijn de meest vergelijkbare resultaten."
+                ? "Geen exacte match gevonden. Dit zijn de meest vergelijkbare resultaten."
                 : `${matches.length} aanbieding${matches.length === 1 ? "" : "en"} gevonden, gesorteerd op prijs.`}
             </p>
 
@@ -275,14 +279,11 @@ export function ProductClient() {
                         : "border border-outline-variant hover:border-primary"
                     }`}
                   >
-                    <div className="flex items-center gap-3 sm:w-40 flex-shrink-0">
-                      <span
-                        className="font-label-technical text-[10px] uppercase tracking-tighter text-white px-2 py-0.5 rounded"
-                        style={{ backgroundColor: RETAILER_BG[item.retailer] ?? "#737687" }}
-                      >
-                        {RETAILER_LABEL[item.retailer] ?? item.retailer}
-                        {item.mock ? " · demo" : ""}
-                      </span>
+                    <div className="flex items-center gap-2 sm:w-40 flex-shrink-0">
+                      <RetailerLogo retailer={item.retailer} />
+                      {item.mock && (
+                        <span className="font-label-technical text-[10px] text-on-surface-variant">demo</span>
+                      )}
                       {isBest && (
                         <span className="bg-success-emerald text-white px-2 py-0.5 rounded-full font-label-technical text-[10px]">
                           Beste prijs

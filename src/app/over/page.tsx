@@ -40,7 +40,7 @@ export default function OverPage() {
             Sommige links naar webshops zijn affiliate-links. Koop je iets via
             zo&apos;n link, dan ontvangt CoreBuild mogelijk een kleine commissie
             van de webshop. Jij betaalt daardoor nooit meer; het beïnvloedt ook
-            niet welke aanbieding wij als beste prijs tonen — dat is altijd
+            niet welke aanbieding wij als beste prijs tonen, dat is altijd
             simpelweg de laagste prijs die we vonden.
           </p>
         </section>

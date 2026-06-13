@@ -24,7 +24,7 @@ const PILLARS = [
   {
     icon: MonitorPlay,
     title: "Monitor-advies",
-    desc: "Welke Hz benut jouw FPS het beste — geen euro verspild.",
+    desc: "Welke Hz jouw FPS het beste benut, zonder een euro te verspillen.",
   },
 ];
 
@@ -41,7 +41,7 @@ export function Hero() {
         </h1>
         <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-2xl mx-auto">
           Vergelijk real-time prijzen van de grootste tech-retailers én zie meteen wat je build
-          presteert — FPS, bottlenecks en het juiste scherm.
+          presteert: FPS, bottlenecks en het juiste scherm.
         </p>
 
         <HeroSearch />

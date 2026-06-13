@@ -17,7 +17,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const name = q ?? deslug(slug);
 
   return {
-    title: `${name} — prijzen vergelijken`,
+    title: `${name} prijzen vergelijken`,
     description: `Vergelijk actuele prijzen voor ${name} bij Amazon, Bol.com, Megekko, Azerty en Alternate. Vind de laagste prijs en voeg toe aan je PC-build.`,
     alternates: {
       canonical: `/product/${slug}`,

@@ -123,6 +123,29 @@ _RULES: dict[str, tuple[list[re.Pattern], re.Pattern]] = {
             re.I,
         ),
     ),
+    "monitor": (
+        [re.compile(r"\b(monitor|beeldscherm)\b", re.I), re.compile(r"\bultrawide\b", re.I)],
+        re.compile(
+            r"\b(arm|standaard|stand|muurbeugel|beugel|houder|kabel|adapter|reiniger|sleeve|hoes)\b"
+            r"|laptop|all.?in.?one|\btv\b",
+            re.I,
+        ),
+    ),
+    "keyboard": (
+        [re.compile(r"\b(toetsenbord|keyboard)\b", re.I)],
+        re.compile(
+            r"laptop|\bcover\b|\bhoes\b|sticker|keycaps?|polssteun|switch(es)?\b|stabilizers?",
+            re.I,
+        ),
+    ),
+    "mouse": (
+        [re.compile(r"\b(muis|mouse)\b", re.I)],
+        re.compile(r"muismat|mousepad|bungee|laptop|toetsenbord|skates|grip\s?tape", re.I),
+    ),
+    "headset": (
+        [re.compile(r"\b(headset|koptelefoon|hoofdtelefoon|headphones?)\b", re.I)],
+        re.compile(r"\b(standaard|hanger|stand|kabel|case|adapter|oordopjes|earbuds)\b", re.I),
+    ),
 }
 
 CATEGORIES = list(_RULES)
@@ -150,7 +173,10 @@ def infer_category(name: str) -> str | None:
     """Best-effort: leid de categorie af uit een productnaam."""
     if is_junk(name):
         return None
-    for category in ("motherboard", "gpu", "cpu", "psu", "cooling", "storage", "ram", "case"):
+    for category in (
+        "motherboard", "gpu", "cpu", "psu", "cooling", "storage", "ram", "case",
+        "monitor", "keyboard", "mouse", "headset",
+    ):
         if matches_category(name, category):
             return category
     return None

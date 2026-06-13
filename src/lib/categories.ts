@@ -1,5 +1,6 @@
 import type { ComponentType } from "./types";
 
+/** Kerncomponenten die in de PC Builder als slot verschijnen. */
 export const COMPONENT_TYPES: ComponentType[] = [
   "cpu",
   "gpu",
@@ -10,6 +11,17 @@ export const COMPONENT_TYPES: ComponentType[] = [
   "case",
   "cooling",
 ];
+
+/** Randapparatuur — wel te vergelijken in de catalogus, geen build-slot. */
+export const PERIPHERAL_TYPES: ComponentType[] = [
+  "monitor",
+  "keyboard",
+  "mouse",
+  "headset",
+];
+
+/** Alle browsbare categorieën (kerncomponenten + randapparatuur). */
+export const CATALOG_TYPES: ComponentType[] = [...COMPONENT_TYPES, ...PERIPHERAL_TYPES];
 
 export const COMPONENT_META: Record<
   ComponentType,
@@ -22,6 +34,8 @@ export const COMPONENT_META: Record<
     searchTerm: string;
     popularTags: string[];
     wattage: number;
+    /** Randapparaat: verschijnt niet als build-slot en telt niet mee in wattage. */
+    peripheral?: boolean;
   }
 > = {
   cpu: {
@@ -111,5 +125,53 @@ export const COMPONENT_META: Record<
     searchTerm: "CPU koeler AIO waterkoeling",
     popularTags: ["Noctua NH-D15", "be quiet! Dark Rock Pro 5", "Corsair H150i Elite", "Arctic Liquid Freezer III"],
     wattage: 10,
+  },
+  monitor: {
+    label: "Monitor",
+    shortLabel: "Monitor",
+    pageTitle: "Monitoren",
+    description:
+      "Maak je build af met het juiste scherm. Vergelijk gaming- en werkmonitoren op resolutie, refreshrate en prijs.",
+    emptyText: "Kies een monitor",
+    searchTerm: "gaming monitor",
+    popularTags: ["1440p 144Hz", "27 inch", "4K monitor", "ultrawide", "240Hz"],
+    wattage: 0,
+    peripheral: true,
+  },
+  keyboard: {
+    label: "Toetsenbord",
+    shortLabel: "Toetsenbord",
+    pageTitle: "Toetsenborden",
+    description:
+      "Van mechanisch tot draadloos: vergelijk toetsenborden van de grote retailers op prijs en voorraad.",
+    emptyText: "Kies een toetsenbord",
+    searchTerm: "mechanisch toetsenbord",
+    popularTags: ["mechanisch toetsenbord", "draadloos toetsenbord", "60% keyboard", "gaming toetsenbord"],
+    wattage: 0,
+    peripheral: true,
+  },
+  mouse: {
+    label: "Muis",
+    shortLabel: "Muis",
+    pageTitle: "Muizen",
+    description:
+      "Vergelijk gaming- en kantoormuizen op prijs en voorraad bij alle grote retailers.",
+    emptyText: "Kies een muis",
+    searchTerm: "gaming muis",
+    popularTags: ["draadloze muis", "gaming muis", "lichtgewicht muis", "Logitech muis"],
+    wattage: 0,
+    peripheral: true,
+  },
+  headset: {
+    label: "Headset",
+    shortLabel: "Headset",
+    pageTitle: "Headsets",
+    description:
+      "Vergelijk gaming-headsets en koptelefoons op prijs en voorraad bij alle grote retailers.",
+    emptyText: "Kies een headset",
+    searchTerm: "gaming headset",
+    popularTags: ["draadloze headset", "gaming headset", "7.1 surround", "Bluetooth koptelefoon"],
+    wattage: 0,
+    peripheral: true,
   },
 };

@@ -8,7 +8,12 @@ export type ComponentType =
   | "storage"
   | "psu"
   | "case"
-  | "cooling";
+  | "cooling"
+  // Randapparatuur — wel in de catalogus, niet in de build-slots
+  | "monitor"
+  | "keyboard"
+  | "mouse"
+  | "headset";
 
 export interface PriceResult {
   retailer: Retailer;

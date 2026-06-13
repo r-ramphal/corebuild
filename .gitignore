@@ -46,3 +46,6 @@ next-env.d.ts
 scrapers/.venv/
 __pycache__/
 *.pyc
+
+# Lokale scratch (open-db download voor scripts/build_dimensions.py)
+.bc-scratch/

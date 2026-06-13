@@ -22,8 +22,10 @@ export default function OverPage() {
             CoreBuild is een Nederlandse prijsvergelijker voor PC-componenten.
             We verzamelen prijzen van Amazon, Bol.com, Megekko, Azerty en
             Alternate, zodat je per onderdeel direct ziet waar het het
-            voordeligst is. Met de builder stel je een volledige PC samen,
-            inclusief een schatting van het stroomverbruik.
+            voordeligst is. Met de builder stel je een volledige PC samen, met
+            een schatting van het stroomverbruik en compatibiliteitschecks
+            (socket, geheugen, voeding, en of de videokaart en koeler in je
+            behuizing passen).
           </p>
           <p className="mt-4">
             Prijzen en voorraad zijn indicatief: we verversen ze regelmatig,
@@ -59,6 +61,35 @@ export default function OverPage() {
           <p className="mt-4">
             Wil je je account en gegevens laten verwijderen? Stuur een bericht
             en we verwijderen alles definitief.
+          </p>
+        </section>
+
+        <section id="databronnen">
+          <h2 className="font-title-md text-title-md text-on-surface mb-3">
+            Databronnen
+          </h2>
+          <p>
+            De afmetingen die we gebruiken voor de compatibiliteitschecks
+            (videokaartlengte, koelerhoogte, ruimte in de behuizing) komen uit de{" "}
+            <a
+              href="https://github.com/buildcores/buildcores-open-db"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              BuildCores OpenDB
+            </a>
+            , beschikbaar onder de{" "}
+            <a
+              href="https://opendatacommons.org/licenses/by/1-0/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Open Data Commons Attribution License (ODC-By 1.0)
+            </a>
+            . Maten zijn een indicatie; controleer bij twijfel altijd de
+            specificaties van de fabrikant.
           </p>
         </section>
       </div>

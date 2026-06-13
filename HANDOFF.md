@@ -95,11 +95,61 @@ rijke compat-specs) is de referentie voor componentdata.
 - Homepage geherpositioneerd: van FPS/bottleneck naar compatibiliteit + visuele build +
   prijsvergelijking (Hero-pijlers, CompatCheck, metadata).
 
+**Nieuw (14 juni 2026, deel 5) — BuildCores-categorieën (roadmap stap 1 ✅):**
+Catalogus uitgebreid van 12 naar **22 categorieën**. Tien nieuwe, allemaal browsbaar/
+vergelijkbaar maar **geen build-slot** (zelfde model als de bestaande randapparatuur):
+microfoon, webcam, speakers, case fan, koelpasta, geluidskaart, netwerkkaart, capture card,
+besturingssysteem (Windows-licenties), accessoires (kabels/hubs/risers/strips/stoffilters).
+- **Type-groepen** (`src/lib/categories.ts`): `PERIPHERAL_TYPES` uitgebreid (in/out-devices:
+  +microphone/webcam/speaker) en nieuw `ACCESSORY_TYPES` (interne extra's + software:
+  casefan/thermalpaste/soundcard/networkcard/capturecard/os/accessory). `CATALOG_TYPES`
+  = core + peripheral + accessory. Build-slots (`COMPONENT_TYPES`) ongewijzigd → builder,
+  builds-API en PriceList tonen de nieuwe categorieën bewust niet als slot.
+- **Relevance** (TS + Python spiegels): require/exclude per nieuwe categorie + `inferCategory`-
+  volgorde. `casefan` staat vóór `cooling` (losse fan → casefan; CPU-koeler valt via de
+  casefan-exclude alsnog door naar cooling). `accessory` is het meest generiek → altijd
+  als laatste. `isComponentType` is nu zelf-onderhoudend (checkt `RULES`).
+- **Scrapers**: `queries.py` heeft zoektermen voor alle 10 nieuwe categorieën; de 6-uurs
+  GitHub Action pakt ze automatisch mee (`refresh.py --category casefan,os,…` werkt ook).
+  Tot de eerste scrape vallen lege categoriepagina's terug op live scrapen van de searchTerm.
+- **Icons gecentraliseerd**: nieuwe `src/lib/category-icons.ts` (één `CATEGORY_ICONS`-map)
+  vervangt de 4 gedupliceerde icon-maps in CategoryGrid/Builder/SharedBuild/Categorie.
+- **Tests**: `npx tsx scripts/test-relevance.ts` → 69/69 (20 nieuwe cases). Python-spiegel
+  18/18 geverifieerd. `tsc --noEmit` + `eslint` schoon.
+
+**Nieuw (14 juni 2026, deel 6) — open-db dimensies + echte compat-checks (roadmap stap 2 ✅):**
+De BuildCores OpenDB (ODC-By) levert nu de fysieke maten voor compatibiliteit die eerder
+"gokwerk" was. **GPU-lengte vs behuizing**, **koelerhoogte vs behuizing** en **koeler-socket**
+zijn live in de builder, plus een nauwkeurigere formfactor-check op de echte ondersteunde lijst.
+- **Datasets** (`src/lib/specs/data/`, gegenereerd door `scripts/build_dimensions.py`):
+  `gpu-lengths.json` (per chipset lengte-range min/max/med, 267 chips, 14KB), `cases.json`
+  (3551 behuizingen: maxGpu/maxCooler/maxPsu + ondersteunde mobo-formfactors, 653KB),
+  `coolers.json` (2359 koelers: hoogte/water/radiator/sockets, 300KB). `ATTRIBUTION.md` +
+  `/over`-sectie "Databronnen" voor de ODC-By-naamsvermelding. **Server-only** (mogen niet
+  in de client-bundle).
+- **Eerlijk over onzekerheid**: GPU-lengte verschilt per board-partner, dus we matchen NIET op
+  exacte SKU maar oordelen tegen de chipset-RANGE: kast ≥ max → ok, kast < min → bad, ertussen
+  → warn ("check je exacte model"). De chipset komt uit het bestaande `detectGpu()`.
+- **Matcher** (`src/lib/specs/dimensions.ts`): token-overlap met merk- + modelnummer-poort en
+  60%-dekkingsdrempel voor behuizing/koeler (varianten delen dezelfde maten, dus betrouwbaar);
+  ruis (kleuren, "Air 168mm", USB-poorten) wordt gestript. Geen match → check verschijnt niet.
+- **Flow**: `/api/compat` (nodejs, server) → `useCompat` (SWR) in `BuildSummary` →
+  `analyzeBuild(components, compat?)` voegt de checks toe. `compat-types.ts` houdt de gedeelde
+  types data-vrij zodat de datasets uit de browser-bundle blijven.
+- **Verversen**: zie `src/lib/specs/data/ATTRIBUTION.md` (download tarball → `build_dimensions.py`).
+  `.bc-scratch/` (lokale open-db-download) staat in `.gitignore`.
+- **Tests**: `scripts/test-dimensions.ts` (matcher, 13 NL-namen) + `scripts/test-build-analysis.ts`
+  (verdict-logica, 7 cases) → beide groen; `tsc` + `eslint` schoon. End-to-end geverifieerd via
+  `/api/compat` op de dev-server (RTX 4090 in Meshify C → warn; NH-D15 165mm < 170mm → ok).
+- Bewust nog open: AIO-radiator vs behuizing (open-db PCCase heeft geen radiator-supportveld;
+  we tonen wel een info-melding met de radiatormaat). GPU's buiten `gpu-data.ts` (~37 chips)
+  krijgen nog geen lengtecheck — uitbreiden = rij toevoegen in gpu-data.
+
 **BuildCores-roadmap (volgende sessies, "deel voor deel"):**
-1. Componentcategorieën uitbreiden naar BuildCores-set (case fan, thermal paste, OS, sound/
-   network/capture card, microfoon, webcam, speaker, accessoire).
-2. **Open-db importeren** → echte per-product dimensies (GPU-lengte, koeler-hoogte, radiator,
-   case-maten) voor volledige compat-checks zoals BuildCores; matchen op gescrapete NL-producten.
+1. ✅ Componentcategorieën uitbreiden naar BuildCores-set (case fan, thermal paste, OS, sound/
+   network/capture card, microfoon, webcam, speaker, accessoire). — gedaan, deel 5.
+2. ✅ Open-db importeren → echte per-product dimensies (GPU-lengte, koeler-hoogte, case-maten)
+   voor volledige compat-checks; matchen op gescrapete NL-producten. — gedaan, deel 6.
 3. Build-templates + "smart generate"-achtige vragenlijst (geen persoonlijke data).
 4. Community: voltooide builds-galerij, builds vergelijken.
 5. Blog. (Geen sponsors/reclame, geen persoonlijke info — bewust weggelaten.)
@@ -306,8 +356,8 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 ### Nog te bouwen
 - [ ] **Prijshistorie** — aparte tabel of `listings` niet meer verwijderen maar versieneren
 - [ ] **Wachtwoord vergeten** — better-auth reset-flow vereist een e-mailprovider (bijv. Resend)
-- [ ] **Compatibiliteitscheck** — socket/DDR/PSU/formfactor ✅ gebouwd (build-intelligentie).
-  Nog open: GPU-lengte vs behuizing en koeler-hoogte (staat zelden in productnamen)
+- [x] **Compatibiliteitscheck** — socket/DDR/PSU/formfactor + GPU-lengte/koelerhoogte/koeler-socket
+  ✅ gebouwd (open-db dimensies, deel 6). Nog open: AIO-radiator vs behuizing (geen open-db-veld)
 - [ ] **Prijsalerts** — "Stel Alert In"-knop op categoriepagina's is nog disabled/dood
 
 ---

@@ -17,6 +17,7 @@ import {
   type FormFactor,
 } from "./detect";
 import type { DdrGen, Socket } from "./cpu-data";
+import type { CompatData } from "./compat-types";
 
 export type CheckStatus = "ok" | "warn" | "bad" | "info";
 
@@ -54,7 +55,7 @@ export interface BuildAnalysis {
   checks: CompatCheck[];
 }
 
-export function analyzeBuild(components: BuildComponents): BuildAnalysis {
+export function analyzeBuild(components: BuildComponents, compat?: CompatData): BuildAnalysis {
   const cpu = components.cpu ? detectCpu(components.cpu.name) : null;
   const gpu = components.gpu ? detectGpu(components.gpu.name) : null;
 
@@ -101,6 +102,7 @@ export function analyzeBuild(components: BuildComponents): BuildAnalysis {
     recommendedPsu,
     hasStorage,
     hasCooling,
+    compat,
   });
 
   const compatible = !checks.some((c) => c.status === "bad");
@@ -140,6 +142,7 @@ interface CheckInput {
   recommendedPsu: number;
   hasStorage: boolean;
   hasCooling: boolean;
+  compat?: CompatData;
 }
 
 /** True als twee DDR-aanduidingen samen kunnen werken. */
@@ -218,8 +221,20 @@ function buildChecks(i: CheckInput): CompatCheck[] {
     });
   }
 
-  // 4. Behuizing vs moederbord-formfactor
-  if (i.caseForm && i.moboForm) {
+  // 4. Behuizing vs moederbord-formfactor — echte open-db-lijst als die er is,
+  //    anders een schatting op basis van de formfactor-naam.
+  const supportedForms = i.compat?.case?.mobo;
+  if (i.moboForm && supportedForms && supportedForms.length > 0) {
+    const fits = supportedForms.includes(i.moboForm);
+    checks.push({
+      id: "formfactor",
+      status: fits ? "ok" : "bad",
+      title: fits ? "Moederbord past in de behuizing" : "Moederbord past niet in de behuizing",
+      detail: fits
+        ? `De behuizing ondersteunt ${i.moboForm}.`
+        : `De behuizing ondersteunt ${supportedForms.join(", ")}, geen ${i.moboForm}. Kies een passend bord of een ruimere kast.`,
+    });
+  } else if (i.caseForm && i.moboForm) {
     const order: FormFactor[] = ["Mini-ITX", "Micro-ATX", "ATX", "E-ATX"];
     const fits = order.indexOf(i.moboForm) <= order.indexOf(i.caseForm);
     checks.push({
@@ -268,6 +283,70 @@ function buildChecks(i: CheckInput): CompatCheck[] {
       status: "warn",
       title: "Nog geen opslag",
       detail: "Een NVMe-SSD zorgt voor snelle laadtijden. Voeg er minstens één toe.",
+    });
+  }
+
+  // 8. Videokaartlengte vs behuizing (echte maten uit de open-db).
+  //    GPU-lengte verschilt per board-partner; we oordelen tegen de range van
+  //    alle kaarten met deze chip, dus blijven we eerlijk over de onzekerheid.
+  const gpuLen = i.compat?.gpu;
+  const caseMaxGpu = i.compat?.case?.maxGpu ?? null;
+  if (gpuLen && caseMaxGpu) {
+    if (caseMaxGpu >= gpuLen.max) {
+      checks.push({
+        id: "gpu-length",
+        status: "ok",
+        title: "Videokaart past in de behuizing",
+        detail: `Zelfs de langste ${gpuLen.chipset}-kaarten (~${gpuLen.max}mm) passen; je behuizing biedt ${caseMaxGpu}mm.`,
+      });
+    } else if (caseMaxGpu < gpuLen.min) {
+      checks.push({
+        id: "gpu-length",
+        status: "bad",
+        title: "Videokaart past niet in de behuizing",
+        detail: `${gpuLen.chipset}-kaarten zijn minstens ~${gpuLen.min}mm, maar je behuizing biedt ${caseMaxGpu}mm. Kies een kortere kaart of een ruimere kast.`,
+      });
+    } else {
+      checks.push({
+        id: "gpu-length",
+        status: "warn",
+        title: "Controleer de kaartlengte",
+        detail: `${gpuLen.chipset}-kaarten lopen van ~${gpuLen.min} tot ~${gpuLen.max}mm; je behuizing biedt ${caseMaxGpu}mm. De meeste passen, maar check de lengte van jouw exacte model.`,
+      });
+    }
+  }
+
+  // 9. CPU-koeler vs behuizing + socket (echte maten uit de open-db).
+  const cooler = i.compat?.cooler;
+  const caseMaxCooler = i.compat?.case?.maxCooler ?? null;
+  if (cooler && !cooler.water && cooler.height && caseMaxCooler) {
+    const fits = cooler.height <= caseMaxCooler;
+    checks.push({
+      id: "cooler-height",
+      status: fits ? "ok" : "bad",
+      title: fits ? "CPU-koeler past qua hoogte" : "CPU-koeler is te hoog",
+      detail: fits
+        ? `De koeler is ${cooler.height}mm; je behuizing laat ${caseMaxCooler}mm toe.`
+        : `De koeler is ${cooler.height}mm, maar je behuizing laat maar ${caseMaxCooler}mm toe. Kies een lagere koeler.`,
+    });
+  } else if (cooler && cooler.water && cooler.radiator && i.components.case) {
+    checks.push({
+      id: "cooler-radiator",
+      status: "info",
+      title: `AIO met ${cooler.radiator}mm radiator`,
+      detail: `Controleer of je behuizing een ${cooler.radiator}mm radiator op één van de panelen kan monteren.`,
+    });
+  }
+
+  // 10. Koeler ondersteunt de CPU-socket (montagekit). Bewust 'warn' i.p.v.
+  //     'bad': een ontbrekende socket kan soms met een losse bracket alsnog.
+  const cpuSocket = i.cpu?.socket ?? i.moboSocket;
+  if (cooler && cooler.sockets.length > 0 && cpuSocket && !cooler.sockets.includes(cpuSocket)) {
+    checks.push({
+      id: "cooler-socket",
+      status: "warn",
+      title: "Koeler vermeldt deze socket niet",
+      detail: `De koeler ondersteunt ${cooler.sockets.join(", ")}, maar niet ${cpuSocket}. Controleer of er een ${cpuSocket}-montagekit bij zit.`,
     });
   }
 

@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import type { BuildComponents } from "@/lib/store/build";
 import { analyzeBuild, type CheckStatus } from "@/lib/specs/build-analysis";
+import { useCompat } from "@/lib/use-compat";
 
 const CHECK_ICON: Record<CheckStatus, React.ReactNode> = {
   ok: <CircleCheck className="w-4 h-4 text-success-emerald flex-shrink-0" />,
@@ -15,7 +16,8 @@ const CHECK_ICON: Record<CheckStatus, React.ReactNode> = {
 };
 
 export function BuildSummary({ components }: { components: BuildComponents }) {
-  const a = useMemo(() => analyzeBuild(components), [components]);
+  const compat = useCompat(components);
+  const a = useMemo(() => analyzeBuild(components, compat), [components, compat]);
   const { power, ddr, checks } = a;
 
   const hasParts = Object.keys(components).length > 0;

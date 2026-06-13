@@ -10,6 +10,7 @@ import { CATEGORY_ICONS as ICONS } from "@/lib/category-icons";
 import { formatEur } from "@/lib/format";
 import { BuildPreview2D } from "@/components/builder/BuildPreview2D";
 import { BuildSummary } from "@/components/builder/BuildSummary";
+import { SmartGenerate } from "@/components/builder/SmartGenerate";
 import {
   detectCpu, detectGpu, detectRamGb, detectDdr, detectSocket,
   detectPsuWatts, detectFormFactor,
@@ -121,6 +122,8 @@ export function BuilderClient() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left: slots + intelligentie */}
         <div className="lg:col-span-7 space-y-5">
+          <SmartGenerate />
+
           <div className="space-y-3">
             {COMPONENT_TYPES.map((type) => {
               const meta = COMPONENT_META[type];

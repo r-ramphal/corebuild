@@ -145,12 +145,35 @@ zijn live in de builder, plus een nauwkeurigere formfactor-check op de echte ond
   we tonen wel een info-melding met de radiatormaat). GPU's buiten `gpu-data.ts` (~37 chips)
   krijgen nog geen lengtecheck — uitbreiden = rij toevoegen in gpu-data.
 
+**Nieuw (14 juni 2026, deel 7) — smart generate + build-templates (roadmap stap 3 ✅):**
+De builder kan nu een complete, compatibele PC voorstellen uit echte catalogus-producten op
+basis van een gebruiksprofiel + budget (geen persoonlijke data).
+- **Generator** (`src/lib/specs/generate.ts`, puur/testbaar): verdeelt het budget over de slots
+  (per use case + resolutie), kiest de sterkste betaalbare GPU/CPU (index uit gpu-data/cpu-data)
+  en de rest compatibel: moederbord-socket = CPU-socket, RAM-DDR = platform, voeding ≥ aanbevolen
+  wattage, opslag = SSD ≥1TB (geen HDD), koeler alleen bij een warme CPU (≥95W; anders boxed).
+  Office → geen losse GPU (iGPU-CPU vereist). Onbetaalbaar slot → goedkoopste i.p.v. leeg.
+- **`/api/generate`** (nodejs): haalt catalogus-kandidaten per slot (`getCatalogListings` +
+  `matchesCategory`-vangnet), draait de generator, geeft `{components, notes, total, overBudget}`.
+- **UI** `components/builder/SmartGenerate.tsx`: vragenlijst (gebruik/resolutie/budget) + 5
+  snelstart-templates (Budget 1080p, 1440p gaming, 4K gaming, Creator, Werk & thuis) →
+  `loadComponents` vult de builder + toont een toelichting per keuze. Bovenaan de builder.
+- **Catalogus-vondst**: cooling-relevance lekte "Montagebeugel" → "beugel/montage/mounting"
+  toegevoegd aan `cooling.exclude` (TS + Python spiegels); de generator weert accessoires + HDD's
+  als extra vangnet. Live geverifieerd: 4K→RTX 5080, 1440p→RX 9070 XT, budget→RTX 5060, SSD i.p.v.
+  HDD, echte koeler i.p.v. beugel.
+- **Tests**: `scripts/test-generate.ts` (synthetische kandidaten: tier/compat/budget/fallback) +
+  end-to-end tegen de live Neon-catalogus. `tsc` + `eslint` schoon; relevance 69/69.
+- Bekend/acceptabel v1: voeding/behuizing = goedkoopste binnen budget (kwaliteit varieert);
+  Intel DDR4/DDR5-borden kunnen met RAM mismatchen (deel-6 compat-check flagt dat). Ruimte voor
+  een 2e pass die restbudget naar GPU/CPU rolt.
+
 **BuildCores-roadmap (volgende sessies, "deel voor deel"):**
 1. ✅ Componentcategorieën uitbreiden naar BuildCores-set (case fan, thermal paste, OS, sound/
    network/capture card, microfoon, webcam, speaker, accessoire). — gedaan, deel 5.
 2. ✅ Open-db importeren → echte per-product dimensies (GPU-lengte, koeler-hoogte, case-maten)
    voor volledige compat-checks; matchen op gescrapete NL-producten. — gedaan, deel 6.
-3. Build-templates + "smart generate"-achtige vragenlijst (geen persoonlijke data).
+3. ✅ Build-templates + "smart generate"-achtige vragenlijst (geen persoonlijke data). — gedaan, deel 7.
 4. Community: voltooide builds-galerij, builds vergelijken.
 5. Blog. (Geen sponsors/reclame, geen persoonlijke info — bewust weggelaten.)
 6. Eventueel echt 3D later; nu 2.5D per gebruikerskeuze.

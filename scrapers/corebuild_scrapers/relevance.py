@@ -117,9 +117,9 @@ _RULES: dict[str, tuple[list[re.Pattern], re.Pattern]] = {
         ],
         re.compile(
             r"screen module|lcd-?(display|scherm)\b.*module|backplate|eisblock|waterblock"
-            r"|ek-quantum|bracket|houder|koelpasta|thermal\s?(paste|pad)|fan\s?hub"
-            r"|controller\s?module|laptop|notebook|gpu|behuizing|midi tower|mid.?tower"
-            r"|full tower|chassis|zonder koeler|\btray\b|combokit",
+            r"|ek-quantum|bracket|montagebeugel|beugel|montagekit|mounting|houder|koelpasta"
+            r"|thermal\s?(paste|pad)|fan\s?hub|controller\s?module|laptop|notebook|gpu"
+            r"|behuizing|midi tower|mid.?tower|full tower|chassis|zonder koeler|\btray\b|combokit",
             re.I,
         ),
     ),

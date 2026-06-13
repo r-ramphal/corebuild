@@ -90,7 +90,7 @@ const RULES: Record<ComponentType, CategoryRule> = {
       /\bcase\s?fan|ventilator\b/i,
     ],
     exclude:
-      /screen module|lcd-?(display|scherm)\b.*module|backplate|eisblock|waterblock|ek-quantum|bracket|houder|koelpasta|thermal\s?(paste|pad)|fan\s?hub|controller\s?module|laptop|notebook|gpu|behuizing|midi tower|mid.?tower|full tower|chassis|zonder koeler|\btray\b|combokit/i,
+      /screen module|lcd-?(display|scherm)\b.*module|backplate|eisblock|waterblock|ek-quantum|bracket|montagebeugel|beugel|montagekit|mounting|houder|koelpasta|thermal\s?(paste|pad)|fan\s?hub|controller\s?module|laptop|notebook|gpu|behuizing|midi tower|mid.?tower|full tower|chassis|zonder koeler|\btray\b|combokit/i,
   },
   monitor: {
     require: [/\b(monitor|beeldscherm)\b/i, /\bultrawide\b/i],

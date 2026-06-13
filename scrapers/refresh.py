@@ -5,6 +5,7 @@ Gebruik:
   python refresh.py --all                          # alle populaire zoektermen
   python refresh.py --all --retailers megekko,azerty,alternate
   python refresh.py --all --limit 5 --delay 3
+  python refresh.py --category monitor,keyboard    # alleen deze categorieën
 
 De site serveert rijen direct uit de database (TTL 30 min per zoekterm).
 """
@@ -14,7 +15,7 @@ import sys
 import time
 
 from corebuild_scrapers.db import get_conn, save_listings
-from corebuild_scrapers.queries import all_queries
+from corebuild_scrapers.queries import CATEGORY_QUERIES, all_queries
 from corebuild_scrapers.relevance import is_junk, matches_category
 from corebuild_scrapers.retailers import SCRAPERS
 
@@ -51,6 +52,10 @@ def main() -> None:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--query", help="één zoekterm verversen")
     group.add_argument("--all", action="store_true", help="alle populaire zoektermen verversen")
+    group.add_argument(
+        "--category",
+        help=f"alleen deze categorie(ën) verversen, komma-gescheiden: {','.join(CATEGORY_QUERIES)}",
+    )
     parser.add_argument(
         "--retailers",
         default=",".join(SCRAPERS),
@@ -65,9 +70,18 @@ def main() -> None:
     if unknown:
         sys.exit(f"Onbekende retailer(s): {', '.join(unknown)}")
 
-    queries: list[tuple[str, str | None]] = (
-        [(args.query, None)] if args.query else list(all_queries())
-    )
+    if args.query:
+        queries: list[tuple[str, str | None]] = [(args.query, None)]
+    elif args.category:
+        wanted = [c.strip() for c in args.category.split(",") if c.strip()]
+        unknown_cat = [c for c in wanted if c not in CATEGORY_QUERIES]
+        if unknown_cat:
+            sys.exit(f"Onbekende categorie(ën): {', '.join(unknown_cat)}")
+        queries = [
+            (q, cat) for cat in wanted for q in CATEGORY_QUERIES[cat]
+        ]
+    else:
+        queries = list(all_queries())
     if args.limit:
         queries = queries[: args.limit]
 

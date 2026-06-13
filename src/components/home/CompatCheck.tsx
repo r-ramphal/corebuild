@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ShieldCheck, Boxes, Tag, ArrowRight } from "lucide-react";
+import { RotatingShowcase } from "@/components/home/RotatingShowcase";
 
 const FEATURES = [
   {
@@ -26,13 +26,7 @@ export function CompatCheck() {
       <div className="max-w-[1280px] mx-auto grid md:grid-cols-2 gap-16 items-center">
         <div className="relative">
           <div className="absolute -top-12 -left-12 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-          <Image
-            src="/images/feature-pc.png"
-            alt="Binnenkant van een high-end gaming PC met CPU-koeler en RGB-verlichting"
-            width={960}
-            height={640}
-            className="rounded-xl border border-outline-variant shadow-2xl relative z-10 w-full h-auto"
-          />
+          <RotatingShowcase />
 
           {/* Zwevend voorbeeld-kaartje: compatibiliteit in actie */}
           <div className="absolute z-20 -bottom-5 -right-3 sm:right-4 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-xl p-4 w-56 animate-float">

@@ -211,6 +211,10 @@ three.js), in lijn met de rest van het project.
   (hydration-veilig). BuilderClient rendert nu deze wrapper i.p.v. direct de 2.5D.
 - **Verificatie**: visueel via Chrome headless-screenshots (volledige + half gevulde build, en de
   builder met toggle); `tsc` + `eslint` schoon.
+- **Homepage**: de statische foto in de "Slim samenstellen"-sectie (`CompatCheck.tsx`) is vervangen
+  door een **roterende showcase** (`components/home/RotatingShowcase.tsx`) van 9 pc-foto's
+  (`public/images/build/build-1..9.jpg`, met sharp geoptimaliseerd naar 1200×900, 64–194 KB).
+  Wisselt elke 4,5s met crossfade; stopt bij `prefers-reduced-motion`. Bron: Pexels (vrije licentie).
 
 **BuildCores-roadmap — VOLLEDIG AF (1–6):**
 1. ✅ Componentcategorieën uitbreiden naar BuildCores-set. — deel 5.

@@ -33,6 +33,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function CategoriePage() {
-  return <CategorieClient />;
+export default async function CategoriePage({ params }: Props) {
+  const { type } = await params;
+  // key={type} remount het component bij wisselen van categorie, zodat de
+  // zoek-/filterstate vanzelf reset (geen reset-effect nodig).
+  return <CategorieClient key={type} />;
 }

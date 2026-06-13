@@ -11,7 +11,8 @@ import { formatEur } from "@/lib/format";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { ProductDescription } from "@/components/ProductDescription";
 import { inferCategory } from "@/lib/relevance";
-import type { ComponentType, PriceResult, SearchResults } from "@/lib/types";
+import { useSearch } from "@/lib/use-search";
+import type { ComponentType } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
   amazon: "Amazon",
@@ -49,21 +50,15 @@ export function ProductClient() {
 
   const { setComponent } = useBuildStore();
 
-  const [results, setResults] = useState<SearchResults | null>(null);
-  const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setLoading(true);
-    const catParam = cat ? `&cat=${encodeURIComponent(cat)}` : "";
-    fetch(`/api/search?q=${encodeURIComponent(name)}${catParam}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(r)))
-      .then((data: SearchResults) => setResults(data))
-      .catch(() => setResults({ query: name, results: [], errors: [] }))
-      .finally(() => setLoading(false));
-  }, [name, cat]);
+  const catParam = cat ? `&cat=${encodeURIComponent(cat)}` : "";
+  const { results, loading } = useSearch(
+    `/api/search?q=${encodeURIComponent(name)}${catParam}`,
+    name
+  );
 
   useEffect(() => {
     if (!pickerOpen) return;

@@ -25,8 +25,16 @@ export async function GET(_req: NextRequest, { params }: Params) {
   }
 
   // Geen userId teruggeven op een publieke route
-  const { userId: _userId, ...publicBuild } = row;
-  return NextResponse.json({ build: publicBuild });
+  return NextResponse.json({
+    build: {
+      id: row.id,
+      publicId: row.publicId,
+      name: row.name,
+      components: row.components,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    },
+  });
 }
 
 /** Verwijder een eigen build. */

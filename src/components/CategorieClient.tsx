@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -14,7 +14,8 @@ import { formatEur } from "@/lib/format";
 import { productUrl } from "@/lib/product-url";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { bestValueIndex, hasValueMetric } from "@/lib/specs/value";
-import type { ComponentType, SearchResults, PriceResult } from "@/lib/types";
+import { useSearch } from "@/lib/use-search";
+import type { ComponentType, PriceResult } from "@/lib/types";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   cpu: Cpu,
@@ -209,8 +210,7 @@ export function CategorieClient() {
   const meta = COMPONENT_META[componentType];
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResults | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [activeQuery, setActiveQuery] = useState("");
   const [maxPrice, setMaxPrice] = useState(2500);
   const [sortBy, setSortBy] = useState<"asc" | "desc">("asc");
 
@@ -218,37 +218,25 @@ export function CategorieClient() {
 
   // Lege zoekterm = catalogusmodus: alle bekende producten in deze categorie.
   // `cat` zorgt er server-side voor dat alleen relevante componenten terugkomen.
-  const search = useCallback(
-    (q: string) => {
-      setLoading(true);
-      setResults(null);
-      const params = new URLSearchParams();
-      if (q) params.set("q", q);
-      params.set("cat", componentType);
-      fetch(`/api/search?${params.toString()}`)
-        .then((r) => (r.ok ? r.json() : Promise.reject()))
-        .then((data: SearchResults) => setResults(data))
-        .catch(() => setResults({ query: q, results: [], errors: [] }))
-        .finally(() => setLoading(false));
-    },
-    [componentType]
-  );
-
-  useEffect(() => {
-    if (meta) {
-      setQuery("");
-      search("");
-    }
-  }, [meta, search]);
+  // De pagina remount dit component per categorie (key={type}), dus bij
+  // binnenkomst staat activeQuery op "" en laadt de catalogus vanzelf.
+  const searchUrl = (() => {
+    if (!meta) return null;
+    const sp = new URLSearchParams();
+    if (activeQuery) sp.set("q", activeQuery);
+    sp.set("cat", componentType);
+    return `/api/search?${sp.toString()}`;
+  })();
+  const { results, loading } = useSearch(searchUrl, activeQuery);
 
   function handleTagClick(tag: string) {
     setQuery(tag);
-    search(tag);
+    setActiveQuery(tag);
   }
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
-    search(query);
+    setActiveQuery(query);
   }
 
   if (!meta) {
@@ -327,7 +315,7 @@ export function CategorieClient() {
                   setMaxPrice(2500);
                   setSortBy("asc");
                   setQuery("");
-                  search("");
+                  setActiveQuery("");
                 }}
                 className="text-primary font-label-technical text-label-technical hover:underline"
               >

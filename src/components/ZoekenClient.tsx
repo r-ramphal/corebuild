@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PriceList } from "./PriceList";
 import { useBuildStore } from "@/lib/store/build";
+import { useSearch } from "@/lib/use-search";
 import type { SearchResults, Retailer, ComponentType } from "@/lib/types";
 
 const ALL_RETAILERS: Retailer[] = ["amazon", "bol", "megekko", "azerty", "alternate"];
@@ -23,23 +24,15 @@ export function ZoekenClient() {
   const query = searchParams.get("q") ?? "";
   const { setComponent } = useBuildStore();
 
-  const [results, setResults] = useState<SearchResults | null>(null);
-  const [loading, setLoading] = useState(false);
   const [selectedRetailers, setSelectedRetailers] = useState<Retailer[]>(ALL_RETAILERS);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState(2000);
   const [sortBy, setSortBy] = useState<SortMode>("asc");
 
-  useEffect(() => {
-    if (!query) return;
-    setLoading(true);
-    setResults(null);
-    fetch(`/api/search?q=${encodeURIComponent(query)}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(r)))
-      .then((data: SearchResults) => setResults(data))
-      .catch(() => setResults({ query, results: [], errors: [] }))
-      .finally(() => setLoading(false));
-  }, [query]);
+  const { results, loading } = useSearch(
+    query ? `/api/search?q=${encodeURIComponent(query)}` : null,
+    query
+  );
 
   function toggleRetailer(retailer: Retailer) {
     setSelectedRetailers((prev) =>

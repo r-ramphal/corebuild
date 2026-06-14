@@ -1,8 +1,22 @@
 import Link from "next/link";
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import { COMPONENT_TYPES, COMPONENT_META } from "@/lib/categories";
-import { CATEGORY_ICONS } from "@/lib/category-icons";
+import type { ComponentType } from "@/lib/types";
 
-/** Brutalistische categorie-index: bordered cellen, mono-indexnummers, hover → oranje. */
+/** Echte product-foto per kerncategorie (geoptimaliseerd, public/images/cat). */
+const CAT_IMG: Partial<Record<ComponentType, string>> = {
+  cpu: "/images/cat/cpu.webp",
+  gpu: "/images/cat/gpu.webp",
+  motherboard: "/images/cat/motherboard.webp",
+  ram: "/images/cat/ram.webp",
+  storage: "/images/cat/storage.webp",
+  psu: "/images/cat/psu.webp",
+  case: "/images/cat/case.webp",
+  cooling: "/images/cat/cooling.webp",
+};
+
+/** Categorie-bento met echte foto's: grayscale → kleur op hover, witte label-footer. */
 export function GiastCategories() {
   return (
     <section className="bg-gp-bg-soft text-gp-ink border-y border-gp-line">
@@ -17,24 +31,35 @@ export function GiastCategories() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 border-t border-l border-gp-line">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {COMPONENT_TYPES.map((type, idx) => {
-            const Icon = CATEGORY_ICONS[type];
+            const img = CAT_IMG[type];
             return (
               <Link
                 key={type}
                 href={`/categorie/${type}`}
-                className="group relative border-r border-b border-gp-line p-5 sm:p-6 aspect-[4/3] flex flex-col justify-between hover:bg-gp-orange transition-colors duration-200"
+                className="group border border-gp-line bg-gp-bg overflow-hidden flex flex-col"
               >
-                <div className="flex items-start justify-between">
-                  <span className="font-plex text-[12px] text-gp-ink-soft group-hover:text-white/80">
+                <div className="relative aspect-[4/3] overflow-hidden bg-gp-ink">
+                  {img && (
+                    <Image
+                      src={img}
+                      alt={COMPONENT_META[type].label}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
+                    />
+                  )}
+                  <span className="absolute top-2.5 left-2.5 font-plex text-[11px] bg-gp-bg/90 px-1.5 py-0.5 text-gp-ink-soft">
                     {String(idx + 1).padStart(2, "0")}
                   </span>
-                  <Icon className="w-5 h-5 text-gp-ink-soft group-hover:text-white transition-colors" />
                 </div>
-                <span className="font-mont font-bold text-[17px] sm:text-[19px] group-hover:text-white transition-colors">
-                  {COMPONENT_META[type].shortLabel}
-                </span>
+                <div className="flex items-center justify-between px-4 py-3 border-t border-gp-line group-hover:bg-gp-orange transition-colors duration-200">
+                  <span className="font-mont font-bold text-[16px] group-hover:text-white transition-colors">
+                    {COMPONENT_META[type].shortLabel}
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-gp-ink-soft group-hover:text-white transition-colors" />
+                </div>
               </Link>
             );
           })}

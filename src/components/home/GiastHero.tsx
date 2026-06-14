@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Plus } from "lucide-react";
 
 const WORDS = ["GAMEN", "WERKEN", "CREËREN", "STREAMEN"];
@@ -61,16 +62,21 @@ export function GiastHero() {
             </div>
           </div>
 
-          {/* Decoratieve technische kolom */}
-          <div className="hidden lg:flex lg:col-span-4 items-center justify-center relative" aria-hidden="true">
-            <div className="relative w-64 h-64">
-              <div className="absolute inset-0 rounded-full border border-gp-line-strong" />
-              <div className="absolute inset-6 rounded-full border border-gp-line" />
-              {/* crosshair */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gp-line -translate-x-1/2" />
-              <div className="absolute top-1/2 left-0 right-0 h-px bg-gp-line -translate-y-1/2" />
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-gp-orange rounded-full" />
-              <span className="absolute -bottom-6 right-0 font-plex text-[11px] uppercase tracking-widest text-gp-ink-soft">
+          {/* Featured build — echte foto met technische kaderlijnen */}
+          <div className="hidden lg:block lg:col-span-4 relative">
+            <div className="relative border border-gp-line bg-gp-ink">
+              <Image
+                src="/images/hero/build.webp"
+                alt="CoreBuild-systeem in aanbouw, koeling met oranje verlichting"
+                width={500}
+                height={620}
+                priority
+                className="w-full h-[460px] object-cover"
+              />
+              {/* Technische hoekmarkeringen */}
+              <span className="absolute top-2 left-2 w-3.5 h-3.5 border-t border-l border-gp-orange" />
+              <span className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b border-r border-gp-orange" />
+              <span className="absolute bottom-3 left-3 font-plex text-[11px] uppercase tracking-widest text-white bg-gp-ink/60 backdrop-blur-sm px-2 py-1">
                 _build/ready
               </span>
             </div>

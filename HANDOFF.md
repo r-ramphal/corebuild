@@ -2,15 +2,17 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
-## ▶ UI-REDESIGN — drie richtingen op branches (functionaliteit overal ongewijzigd)
+## ▶ UI-REDESIGN — giastpc-stijl is LIVE op productie (functionaliteit ongewijzigd)
 
-De **functionaliteit is compleet en live** (t/m e-mail-prijsalerts). Er lopen **drie visuele redesigns**
-op branches; productie (`master`, corebuildnl.com) draait nog de óude lichte "Technical Precision"-UI.
+De **giastpc-redesign** (licht/oranje/mono brutalist) is op **14-06 gemerged naar `master`** en draait
+nu **live op corebuildnl.com** — bewust uitgerold zodat echte gebruikers het op mobiel kunnen testen.
+De data/logica-laag is overal ongemoeid (scrapers, Neon+Drizzle, `/api/*`, auth, prijshistorie, alerts).
 
-| Branch | Stijl | Preview (ingelogd in Vercel) |
+| Branch | Stijl | Status |
 |---|---|---|
-| `redesign-stitch` | **Dark glassmorphism** (donker/blauw/glas) | `…-git-redesign-stitch-…vercel.app` |
-| `redesign-giastpc` | **Licht/oranje/mono brutalist** (giastpc.it-stijl) — **actieve richting** | `…-git-redesign-giastpc-…vercel.app` |
+| `master` | **Licht/oranje/mono brutalist** (giastpc.it) | ✅ **LIVE op corebuildnl.com** |
+| `redesign-stitch` | **Dark glassmorphism** (donker/blauw/glas) | alternatief, op branch (niet live) |
+| `redesign-giastpc` | = nu in master gemerged | bronbranch |
 
 **`redesign-giastpc` (deze branch) — stap 1·2·3 AF:**
 - **Designsysteem**: wit canvas, oranje `#FF8800`, blueprint-rasterlijnen; **Montserrat** (koppen) +
@@ -25,13 +27,24 @@ op branches; productie (`master`, corebuildnl.com) draait nog de óude lichte "T
   met **sharp** → webp (22–183KB) in `public/images/cat/*` + `public/images/hero/*`. Categorie-bento met
   grayscale→kleur foto's, hero featured-build-foto, featured-build-band (oranje pixel-kop). De foto's
   zijn gemapt per categorie (cpu/gpu/motherboard/ram/storage/psu/case/cooling).
-- **Homepage-componenten**: `home/GiastHero` (kinetisch roterend woord), `GiastMarquee`, `GiastTerminal`,
-  `GiastCategories` (foto-bento), `GiastShowcase`, `GiastManifest`. Navbar/Footer mono+oranje.
-- Verificatie: `tsc`/`eslint` + **`next build` (53 pagina's)** groen; headless-screenshots over alle pagina's.
+- **Homepage-componenten**: `home/GiastHero` (kinetisch roterend woord + `GiastBlueprint`-element),
+  `GiastMarquee`, `GiastTerminal`, `GiastCategories` (foto-bento), `GiastShowcase`, `GiastManifest`.
+- **Navbar** (laatste ronde): logo **gecentreerd** (`grid-cols-3`) + **hamburger-uitklapmenu** (genummerde
+  links, alle schermen) — giastpc-stijl. Hero-foto vervangen door geanimeerd **`GiastBlueprint`** (8 slots
+  rond core + radar-sweep). Footer mono+oranje.
+- **Mobiele responsiveness**: grids hadden `lg:grid-cols-12` zónder mobiele kolom → auto-kolom-overflow;
+  gefixt met `grid-cols-1` (hero/terminal/showcase) + `main,footer{min-width:0}` (body is flexkolom →
+  groeit anders breder dan de viewport) + kleinere hero-kop. **Let op**: headless-Chrome rendert het
+  layout-viewport bréder dan `--window-size` (quirk) → mobiele screenshots zijn onbetrouwbaar; echte
+  mobiele check loopt via gebruikers op corebuildnl.com.
+- Verificatie: `tsc` + `eslint(src)` + **`next build` (53 pagina's)** groen; desktop via headless geverifieerd.
 - **Nog open/optioneel**: per-categorie hero-foto op de `/categorie/[type]`-headers; preassembled-product-
-  kaarten op een aparte pagina; blog-bento. **Bewaard**: routes/stores/`useSyncExternalStore`/a11y/de
+  kaarten op een aparte pagina; blog-bento; oude ongebruikte home-componenten (Hero/CompatCheck/
+  Snelkoppelingen/RotatingShowcase) opruimen. **Bewaard**: routes/stores/`useSyncExternalStore`/a11y/de
   "geen ongelayerde CSS"-gotcha (alle utilities in `@layer utilities`).
-- **Beslissing aan gebruiker**: welke branch wordt productie (merge naar `master` → auto-deploy).
+- **Gotcha (deze sessie)**: de lokale `.shots/`-screenshotmap (Chrome-profielen) wordt door Tailwind v4
+  én `eslint .` mee-gescand → vreemde extensie-CSS/124 lint-errors. `.shots*` staat in `.gitignore`;
+  verwijder de map vóór `eslint .` of lint gericht `eslint src`.
 
 > **Scope blijft puur frontend/visueel** — data/logica (scrapers, Neon+Drizzle, `/api/*`, auth,
 > prijshistorie, prijsalert-cron) niet aanraken.

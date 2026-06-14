@@ -2,6 +2,25 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ VOLGENDE STAP (gepland 14 juni 2026) — nieuw UI-design via Google Stitch
+
+De **functionaliteit is compleet en live** (alle features hieronder, t/m de e-mail-prijsalerts).
+De volgende stap is een **visuele redesign**: een veel moderner UI, ontworpen in **Google Stitch**.
+Dit wordt in een **aparte sessie** gebouwd (de gebruiker is het Stitch-design nog aan het maken).
+
+- **Scope = puur frontend/visueel.** De data- en logicalagen blijven intact: scrapers, Neon +
+  Drizzle, `/api/*`-routes, relevance/specs/clean-name, auth, prijshistorie en de prijsalert-cron
+  zijn af en moeten **niet** worden aangeraakt — alleen de presentatie verandert.
+- **Huidige UI = 1:1 met de óude Stitch-export** ("Technical Precision", bron
+  `C:\Users\Lenovo\Downloads\stitch_corebuild_pc_vergelijker\` + `DESIGN.md`). De nieuwe Stitch-export
+  vervangt dat. Verwacht nieuwe tokens/typografie/kleuren in `globals.css` (`--cb-*` + `@theme inline`)
+  en herwerkte componenten.
+- **Bewaar bij de redesign**: alle bestaande routes/paginastructuur, de Zustand-stores
+  (build + volglijst), `useSyncExternalStore`-hydration-patroon, a11y (skip-link, focus-visible,
+  reduced-motion), en de "geen ongelayerde CSS in globals.css"-gotcha (zie onder).
+- **Aanpak (suggestie voor de bouwsessie)**: net als de eerste keer — Stitch-export downloaden,
+  tokens naar `globals.css`, daarna componenten per pagina herwerken; functionaliteit hergebruiken.
+
 ## Status (13 juni 2026)
 
 **Alles uit het oorspronkelijke plan is gebouwd en live:** Stitch-design (1:1),

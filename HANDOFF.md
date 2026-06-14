@@ -2,24 +2,39 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
-## ▶ VOLGENDE STAP (gepland 14 juni 2026) — nieuw UI-design via Google Stitch
+## ▶ UI-REDESIGN — drie richtingen op branches (functionaliteit overal ongewijzigd)
 
-De **functionaliteit is compleet en live** (alle features hieronder, t/m de e-mail-prijsalerts).
-De volgende stap is een **visuele redesign**: een veel moderner UI, ontworpen in **Google Stitch**.
-Dit wordt in een **aparte sessie** gebouwd (de gebruiker is het Stitch-design nog aan het maken).
+De **functionaliteit is compleet en live** (t/m e-mail-prijsalerts). Er lopen **drie visuele redesigns**
+op branches; productie (`master`, corebuildnl.com) draait nog de óude lichte "Technical Precision"-UI.
 
-- **Scope = puur frontend/visueel.** De data- en logicalagen blijven intact: scrapers, Neon +
-  Drizzle, `/api/*`-routes, relevance/specs/clean-name, auth, prijshistorie en de prijsalert-cron
-  zijn af en moeten **niet** worden aangeraakt — alleen de presentatie verandert.
-- **Huidige UI = 1:1 met de óude Stitch-export** ("Technical Precision", bron
-  `C:\Users\Lenovo\Downloads\stitch_corebuild_pc_vergelijker\` + `DESIGN.md`). De nieuwe Stitch-export
-  vervangt dat. Verwacht nieuwe tokens/typografie/kleuren in `globals.css` (`--cb-*` + `@theme inline`)
-  en herwerkte componenten.
-- **Bewaar bij de redesign**: alle bestaande routes/paginastructuur, de Zustand-stores
-  (build + volglijst), `useSyncExternalStore`-hydration-patroon, a11y (skip-link, focus-visible,
-  reduced-motion), en de "geen ongelayerde CSS in globals.css"-gotcha (zie onder).
-- **Aanpak (suggestie voor de bouwsessie)**: net als de eerste keer — Stitch-export downloaden,
-  tokens naar `globals.css`, daarna componenten per pagina herwerken; functionaliteit hergebruiken.
+| Branch | Stijl | Preview (ingelogd in Vercel) |
+|---|---|---|
+| `redesign-stitch` | **Dark glassmorphism** (donker/blauw/glas) | `…-git-redesign-stitch-…vercel.app` |
+| `redesign-giastpc` | **Licht/oranje/mono brutalist** (giastpc.it-stijl) — **actieve richting** | `…-git-redesign-giastpc-…vercel.app` |
+
+**`redesign-giastpc` (deze branch) — stap 1·2·3 AF:**
+- **Designsysteem**: wit canvas, oranje `#FF8800`, blueprint-rasterlijnen; **Montserrat** (koppen) +
+  **IBM Plex Mono** (body/labels) + **Pixelify Sans** (oranje pixel-kopbalken); **scherpe hoeken** (radius 0).
+  Aanpak = de bestaande Material-`--cb-*`-tokens + fonts + radius **globaal hermapt** in `globals.css`
+  → alle ~25 pagina's flippen automatisch mee (zelfde truc als de dark-flip). Plus `gp-*`-tokens/utilities
+  (`gp-grid`, `gp-highlight`, `gp-bar`, `font-pixel`, marquee, caret).
+- **Stap 1 — motion**: GSAP + Lenis (`components/motion/SmoothScroll.tsx` + `Reveal.tsx`), smooth scroll +
+  scroll-reveals, **reduced-motion-veilig**. Getypte **terminal build-log** (`home/GiastTerminal.tsx`).
+- **Stap 2 — alle pagina's** omgezet via de remap (builder/categorie/product/zoeken/inloggen/blog… getest).
+- **Stap 3 — echte product-foto's**: license-free hardware-fotografie (bron `Downloads/corebuildfoto`),
+  met **sharp** → webp (22–183KB) in `public/images/cat/*` + `public/images/hero/*`. Categorie-bento met
+  grayscale→kleur foto's, hero featured-build-foto, featured-build-band (oranje pixel-kop). De foto's
+  zijn gemapt per categorie (cpu/gpu/motherboard/ram/storage/psu/case/cooling).
+- **Homepage-componenten**: `home/GiastHero` (kinetisch roterend woord), `GiastMarquee`, `GiastTerminal`,
+  `GiastCategories` (foto-bento), `GiastShowcase`, `GiastManifest`. Navbar/Footer mono+oranje.
+- Verificatie: `tsc`/`eslint` + **`next build` (53 pagina's)** groen; headless-screenshots over alle pagina's.
+- **Nog open/optioneel**: per-categorie hero-foto op de `/categorie/[type]`-headers; preassembled-product-
+  kaarten op een aparte pagina; blog-bento. **Bewaard**: routes/stores/`useSyncExternalStore`/a11y/de
+  "geen ongelayerde CSS"-gotcha (alle utilities in `@layer utilities`).
+- **Beslissing aan gebruiker**: welke branch wordt productie (merge naar `master` → auto-deploy).
+
+> **Scope blijft puur frontend/visueel** — data/logica (scrapers, Neon+Drizzle, `/api/*`, auth,
+> prijshistorie, prijsalert-cron) niet aanraken.
 
 ## Status (13 juni 2026)
 

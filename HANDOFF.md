@@ -224,8 +224,68 @@ three.js), in lijn met de rest van het project.
 5. ✅ Blog (educatief, geen sponsors/reclame/persoonsdata). — deel 9.
 6. ✅ Echt 3D-aanzicht (CSS-3D), 2.5D blijft default per gebruikerskeuze. — deel 10.
 
-**Open punten:** prijshistorie, wachtwoord-vergeten-flow (e-mailprovider nodig),
-fase 3 roadmap (officiële API's na KvK), prijsalerts.
+**Nieuw (14 juni 2026, deel 11) — overzicht + prijshistorie (code):**
+- **Snelkoppelingen overzichtelijker**: `CategoryGrid` toont de 22 categorieën nu in drie
+  gegroepeerde blokken met subkop (Onderdelen / Randapparatuur / Accessoires & extra's) i.p.v.
+  één platte lijst. Geldt voor de homepage én `/categorie`. Kaartontwerp ongewijzigd.
+- **Prijshistorie** (✅ live, migratie toegepast):
+  - Nieuwe tabel `price_history` (`drizzle/0004_whole_human_torch.sql`): append-only meetpunten
+    per (retailer, url), nooit overschreven. Schrijvers slaan een punt over als het laatste punt
+    dezelfde prijs heeft én jonger is dan 20 uur → tabel blijft begrensd, prijswijzigingen wél vast.
+  - **Spiegels**: zowel `src/lib/db/listings.ts` (`saveListings`, write-through) als de Python
+    `scrapers/corebuild_scrapers/db.py` (`save_listings`, 6-uurs Action) appenden punten.
+  - **Lezen**: `getPriceHistory(db, urls, days)` → laagste prijs per dag over de aanbiedings-urls.
+    `POST /api/price-history` (nodejs, http(s)-urlguard, max 12 urls) → `{ points }`.
+  - **UI**: `components/PriceHistoryChart.tsx` (dependency-vrije SVG area/lijn, laagste/hoogste +
+    trend t.o.v. eerste meting, reduced-motion-veilig) via `lib/use-price-history.ts` (SWR, POST).
+    Getoond op `/product/[slug]` zodra er ≥2 meetpunten zijn (anders verborgen).
+  - `tsc` + `eslint` + `py_compile` schoon. **Migratie ✅ toegepast op Neon** (`db:push`,
+    14-06): tabel + kolommen geverifieerd, `getPriceHistory` leest live (0 rijen tot de eerste
+    scrape). De tabel vult zich vanzelf bij de volgende write-through/6-uurs scrape.
+
+**Nieuw (14 juni 2026, deel 12) — volglijst (prijsalerts v1):**
+Client-side **volglijst** (localStorage, geen account nodig) i.p.v. de dode "Stel Alert In"-knop.
+Eerlijk gelabeld als "Volg prijs"; échte e-mail/push-alerts komen pas met een e-mailprovider.
+- **Store**: `src/lib/store/watchlist.ts` (Zustand persist, key `corebuild-watchlist`, max 100).
+  `WatchItem` = id (categorie + genormaliseerde naam, ontdubbelt over retailers) + url/retailer/
+  prijs-bij-toevoegen/afbeelding/timestamp. `watchId()` is de stabiele sleutel.
+- **`WatchButton`** (`components/WatchButton.tsx`, variant `icon`/`full`): toggle, hydration-veilig
+  via nieuwe `lib/use-hydrated.ts` (`useSyncExternalStore` — geen setState-in-effect; eslint-regel
+  `react-hooks/set-state-in-effect` verbiedt het mounted-effect-patroon). Op de categoriekaarten
+  (icoon bij in-voorraad, "Volg prijs" i.p.v. de dode knop bij uitverkocht) en de productpagina-hero.
+- **`/volglijst`** (`VolglijstClient`, navbar + footer + noindex): lijst met per rij de actuele prijs
+  (≈ laatste `price_history`-punt voor die url) en het verschil sinds toevoegen (groen/rood), link naar
+  de productpagina, verwijderen, "Wis volglijst". Lege staat verwijst naar de categorieën.
+- **Verificatie**: `tsc` + `eslint` schoon; dev-server → `/volglijst` 200, `/categorie(/cpu)` 200,
+  `/product` 200, `POST /api/price-history` 200 (`{points:[]}`) / 400 zonder urls, homepage toont de
+  drie categoriegroepen. Geen runtime-fouten in de dev-log.
+
+**Nieuw (14 juni 2026, deel 13) — e-mail (Resend) + wachtwoord-vergeten:**
+Wachtwoord-reset-flow end-to-end gescaffold. **Werkt zodra `RESEND_API_KEY` gezet is**; zonder
+sleutel degradeert het netjes (de flow toont de neutrale bevestiging, alleen de mail wordt niet
+verstuurd). Dependency-vrij: geen `resend`-package, gewoon de Resend REST API via `fetch`.
+- **Mailer**: `src/lib/email.ts` (`sendEmail`, leest `RESEND_API_KEY` + optioneel `EMAIL_FROM`;
+  no-opt + waarschuwing zonder sleutel). `src/lib/email-templates.ts` (`resetPasswordEmail`,
+  inline-gestylede merk-mail, geen tracking/externe afbeeldingen).
+- **better-auth**: `src/lib/auth.ts` kreeg `emailAndPassword.sendResetPassword` → `sendEmail`.
+  `src/lib/auth-client.ts` exporteert nu ook `requestPasswordReset` + `resetPassword`.
+- **Pagina's**: `/wachtwoord-vergeten` (e-mail → resetlink, neutrale bevestiging, geen account-lek)
+  en `/wachtwoord-herstellen` (server + Suspense → `WachtwoordHerstellenClient` leest `token`/`error`
+  uit de URL, nieuw wachtwoord 2x, ongeldige/verlopen token = nette melding). "Wachtwoord vergeten?"-
+  link op `/inloggen` (alleen in login-modus).
+- **Flow**: `requestPasswordReset({ email, redirectTo: "/wachtwoord-herstellen" })` → better-auth
+  maakt token + link → `sendResetPassword` mailt 'm → gebruiker landt op `…?token=…` → `resetPassword`.
+- **Verificatie**: `tsc` + `eslint` schoon (bevestigt ook dat de better-auth-API-namen kloppen);
+  dev-server → alle 3 pagina's 200, `POST /api/auth/request-password-reset` → neutrale 200 (geen lek).
+  Echt mailen + reset met een bestaande user = handmatig testen zodra de key er is (vereiste prod-write).
+- **TODO (jij)**: in Resend een account + (geverifieerd) domein, dan `RESEND_API_KEY` (+ `EMAIL_FROM=
+  "CoreBuild <noreply@corebuildnl.com>"`) zetten in `.env.local` én Vercel. Tot de domeinverificatie
+  rond is verstuurt Resend alleen naar de account-owner (testafzender `onboarding@resend.dev`).
+
+**Open punten:** fase 3 roadmap (officiële API's na KvK);
+**e-mail/push-alerts op de volglijst** = échte feature die nog moet: de volglijst is nu client-side
+(localStorage), voor e-mailalerts moet die server-side (tabel + auth-gated API) + een cron die
+`price_history` op dalingen checkt en via `sendEmail` mailt. De mailer (deel 13) staat er al klaar voor.
 
 ## Overzicht
 
@@ -423,11 +483,11 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
   indexen/coëfficiënten in `gpu-data`/`cpu-data`/`performance.ts` aan en draai de tests.
 
 ### Nog te bouwen
-- [ ] **Prijshistorie** — aparte tabel of `listings` niet meer verwijderen maar versieneren
-- [ ] **Wachtwoord vergeten** — better-auth reset-flow vereist een e-mailprovider (bijv. Resend)
+- [x] **Prijshistorie** — append-only tabel `price_history` (deel 11). ✅ Migratie op Neon; grafiek op productpagina
+- [~] **Wachtwoord vergeten** — flow gescaffold (deel 13, Resend). Werkt zodra `RESEND_API_KEY` gezet is
 - [x] **Compatibiliteitscheck** — socket/DDR/PSU/formfactor + GPU-lengte/koelerhoogte/koeler-socket
   ✅ gebouwd (open-db dimensies, deel 6). Nog open: AIO-radiator vs behuizing (geen open-db-veld)
-- [ ] **Prijsalerts** — "Stel Alert In"-knop op categoriepagina's is nog disabled/dood
+- [~] **Prijsalerts** — volglijst v1 ✅ (deel 12, "Volg prijs" + `/volglijst`). Nog open: e-mail/push-melding bij prijsdaling (e-mailprovider nodig)
 
 ---
 
@@ -457,8 +517,12 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
   e-mail + wachtwoord (min. 8 tekens), trustedOrigins voor www/apex/localhost
 - **Tabellen**: `src/lib/db/auth-schema.ts` (user/session/account/verification, standaard better-auth)
 - **API-route**: `src/app/api/auth/[...all]/route.ts` via `toNextJsHandler` — zelfde origin, geen CORS-gedoe
-- **Client**: `src/lib/auth-client.ts` — `createAuthClient()` zonder plugins; exports `signIn/signUp/signOut/useSession`
+- **Client**: `src/lib/auth-client.ts` — `createAuthClient()` zonder plugins; exports
+  `signIn/signUp/signOut/useSession` + `requestPasswordReset/resetPassword` (deel 13)
 - **Secret**: `BETTER_AUTH_SECRET` staat in `.env.local` én in Vercel (production/preview/development)
+- **Wachtwoord-reset (deel 13)**: `emailAndPassword.sendResetPassword` mailt via `src/lib/email.ts`
+  (Resend). Pagina's `/wachtwoord-vergeten` + `/wachtwoord-herstellen`. Vereist `RESEND_API_KEY`
+  (+ optioneel `EMAIL_FROM`) — zie Deployment. Zonder sleutel werkt de flow, maar verstuurt geen mail.
 
 ### Opgeslagen builds
 - Tabel `builds`: `publicId` (deelbaar, base64url), `userId` (cascade), `name`, `components` (jsonb-snapshot
@@ -491,3 +555,6 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 
 **Env vars** (Vercel): `STORAGE_DATABASE_URL` (Neon-integratie, automatisch), `BETTER_AUTH_SECRET` (gezet).
 Na Amazon Associates-goedkeuring: `AMAZON_ASSOCIATE_TAG` toevoegen.
+Voor de wachtwoord-reset-mail (deel 13): `RESEND_API_KEY` (verplicht om te versturen) en optioneel
+`EMAIL_FROM` (bv. `CoreBuild <noreply@corebuildnl.com>` na domeinverificatie in Resend) — zetten in
+`.env.local` én Vercel (production/preview).

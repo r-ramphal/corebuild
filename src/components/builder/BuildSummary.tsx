@@ -27,7 +27,7 @@ export function BuildSummary({ components }: { components: BuildComponents }) {
   const powerBar = power.recommendedPsu > 0 ? Math.min(100, Math.round((power.drawWatts / power.recommendedPsu) * 100)) : 0;
 
   return (
-    <section className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+    <section className="glass-panel rounded-xl overflow-hidden">
       {/* Statusbalk: compatibel-badge + wattage + DDR (BuildCores-stijl) */}
       <div className="flex flex-wrap items-center gap-2 px-5 sm:px-6 py-3.5 border-b border-outline-variant bg-gradient-to-r from-primary/[0.05] to-transparent">
         {hasParts ? (

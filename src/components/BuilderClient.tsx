@@ -135,7 +135,7 @@ export function BuilderClient() {
                 return (
                   <div
                     key={type}
-                    className="group flex items-center justify-between gap-3 p-4 bg-surface-container-lowest border border-outline-variant rounded-xl hover:border-primary hover:shadow-sm transition-all"
+                    className="group flex items-center justify-between gap-3 p-4 glass-panel glow-hover rounded-xl transition-all"
                   >
                     <div className="flex items-center gap-4 min-w-0">
                       <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -187,7 +187,7 @@ export function BuilderClient() {
               return (
                 <div
                   key={type}
-                  className="flex items-center justify-between p-4 bg-surface-container-low/40 border border-dashed border-outline-variant rounded-xl group hover:border-primary transition-colors"
+                  className="flex items-center justify-between p-4 bg-surface-container/30 border border-dashed border-outline-variant/60 rounded-xl group hover:border-primary/60 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center flex-shrink-0">
@@ -202,7 +202,7 @@ export function BuilderClient() {
                   </div>
                   <Link
                     href={`/categorie/${type}`}
-                    className="px-4 py-2 border border-primary text-primary font-label-technical text-label-technical rounded-lg hover:bg-primary hover:text-white transition-all flex items-center gap-2 flex-shrink-0"
+                    className="px-4 py-2 border border-primary text-primary font-label-technical text-label-technical rounded-lg hover:bg-primary hover:text-on-primary transition-all flex items-center gap-2 flex-shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" /> Voeg toe
                   </Link>
@@ -217,7 +217,7 @@ export function BuilderClient() {
 
         {/* Right: build-overzicht (sticky) */}
         <aside className="lg:col-span-5">
-          <div className="sticky top-24 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+          <div className="sticky top-24 glass-panel rounded-xl p-6">
             <div className="flex justify-between items-center mb-5">
               <h2 className="font-title-md text-title-md text-on-surface">Build-overzicht</h2>
               {filledCount > 0 && (
@@ -322,7 +322,7 @@ export function BuilderClient() {
                         ? "bg-success-emerald text-white"
                         : filledCount === 0
                           ? "bg-surface-container text-outline cursor-not-allowed border border-outline-variant/30"
-                          : "bg-surface-container-lowest text-primary border border-primary hover:bg-primary hover:text-white"
+                          : "bg-surface-container-lowest text-primary border border-primary hover:bg-primary hover:text-on-primary"
                     }`}
                   >
                     {saved ? (

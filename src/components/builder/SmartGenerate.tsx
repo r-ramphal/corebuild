@@ -67,9 +67,9 @@ export function SmartGenerate() {
   }
 
   return (
-    <section className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+    <section className="glass-panel rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2.5 px-5 sm:px-6 py-3.5 border-b border-outline-variant bg-gradient-to-r from-primary/[0.06] to-transparent">
+      <div className="flex items-center gap-2.5 px-5 sm:px-6 py-3.5 border-b border-outline-variant/40 bg-gradient-to-r from-primary/[0.08] to-transparent">
         <WandSparkles className="w-4 h-4 text-primary" />
         <h2 className="font-title-md text-title-md text-on-surface">Smart generate</h2>
         <span className="font-body-sm text-[12px] text-on-surface-variant hidden sm:inline">

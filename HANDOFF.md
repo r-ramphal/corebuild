@@ -38,10 +38,13 @@ De data/logica-laag is overal ongemoeid (scrapers, Neon+Drizzle, `/api/*`, auth,
   layout-viewport bréder dan `--window-size` (quirk) → mobiele screenshots zijn onbetrouwbaar; echte
   mobiele check loopt via gebruikers op corebuildnl.com.
 - Verificatie: `tsc` + `eslint(src)` + **`next build` (53 pagina's)** groen; desktop via headless geverifieerd.
+- **Opgeruimd (14-06)**: oude ongebruikte home-componenten verwijderd — `home/Hero`, `HeroSearch`,
+  `home/CompatCheck`, `home/RotatingShowcase`, `home/Snelkoppelingen` + de 9 `public/images/build/*.jpg`
+  (alleen door RotatingShowcase gebruikt). `home/` bevat nu enkel de `Giast*`-componenten. `CategoryGrid`
+  blijft (gebruikt door `/categorie`); `promo-gpu.png` + `feature-pc.png` (OG) blijven.
 - **Nog open/optioneel**: per-categorie hero-foto op de `/categorie/[type]`-headers; preassembled-product-
-  kaarten op een aparte pagina; blog-bento; oude ongebruikte home-componenten (Hero/CompatCheck/
-  Snelkoppelingen/RotatingShowcase) opruimen. **Bewaard**: routes/stores/`useSyncExternalStore`/a11y/de
-  "geen ongelayerde CSS"-gotcha (alle utilities in `@layer utilities`).
+  kaarten op een aparte pagina; blog-bento; OG-image (`feature-pc.png`) is nog de oude lichte stijl.
+  **Bewaard**: routes/stores/`useSyncExternalStore`/a11y/de "geen ongelayerde CSS"-gotcha (utilities in `@layer`).
 - **Gotcha (deze sessie)**: de lokale `.shots/`-screenshotmap (Chrome-profielen) wordt door Tailwind v4
   én `eslint .` mee-gescand → vreemde extensie-CSS/124 lint-errors. `.shots*` staat in `.gitignore`;
   verwijder de map vóór `eslint .` of lint gericht `eslint src`.

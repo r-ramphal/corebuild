@@ -114,6 +114,59 @@
   --radius: 0.5rem;
 }
 
+/* === giastpc-pivot: bestaande Material-tokens hermappen naar het lichte/oranje
+   systeem, zodat de nog niet handmatig omgezette pagina's automatisch meeflippen
+   (zelfde aanpak als de dark-mode-flip). Latere :root wint van de bovenstaande. === */
+:root {
+  --cb-primary: #ff8800;
+  --cb-primary-container: #e67700;
+  --cb-on-primary: #ffffff;
+  --cb-on-primary-container: #ffffff;
+  --cb-primary-fixed: #ffe4cc;
+  --cb-primary-fixed-dim: #ffcaa0;
+  --cb-on-primary-fixed: #3a1d00;
+  --cb-on-primary-fixed-variant: #8a4a00;
+
+  --cb-secondary: #0e0e0e;
+  --cb-secondary-container: #2b2b2b;
+  --cb-secondary-fixed: #e5e5e5;
+  --cb-secondary-fixed-dim: #d4d4d4;
+  --cb-on-secondary: #ffffff;
+  --cb-on-secondary-container: #ffffff;
+  --cb-on-secondary-fixed: #0e0e0e;
+  --cb-on-secondary-fixed-variant: #2b2b2b;
+
+  --cb-surface: #ffffff;
+  --cb-surface-bright: #ffffff;
+  --cb-surface-dim: #f0efec;
+  --cb-surface-container-lowest: #ffffff;
+  --cb-surface-container-low: #faf9f7;
+  --cb-surface-container: #f5f4f1;
+  --cb-surface-container-high: #ececea;
+  --cb-surface-container-highest: #e5e5e5;
+  --cb-surface-variant: #f5f4f1;
+  --cb-surface-tint: #ff8800;
+
+  --cb-on-surface: #0e0e0e;
+  --cb-on-surface-variant: #6b6b6b;
+
+  --cb-background: #ffffff;
+  --cb-on-background: #0e0e0e;
+
+  --cb-outline: #b0b0b0;
+  --cb-outline-variant: #e5e5e5;
+
+  --cb-inverse-surface: #0e0e0e;
+  --cb-inverse-on-surface: #ffffff;
+  --cb-inverse-primary: #ff8800;
+
+  --cb-tertiary: #e67700;
+  --cb-tertiary-container: #ff8800;
+
+  /* Brutalist: scherpe hoeken overal (pills/dots blijven rond via rounded-full) */
+  --radius: 0px;
+}
+
 @theme inline {
   /* giastpc-pivot: kleuren + fonts */
   --color-gp-bg: var(--gp-bg);
@@ -129,20 +182,20 @@
   --font-mont: var(--font-montserrat);
   --font-pixel: var(--font-pixelify);
 
-  /* Font variables — huisstijl: Hanken (koppen) + Inter (al het andere) */
-  --font-heading: var(--font-hanken);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-inter);
+  /* Font variables — giastpc: Montserrat (koppen) + IBM Plex Mono (al het andere) */
+  --font-heading: var(--font-montserrat);
+  --font-sans: var(--font-plex-mono);
+  --font-mono: var(--font-plex-mono);
 
-  /* Stitch typography font families */
-  --font-display-lg: var(--font-hanken);
-  --font-headline-lg: var(--font-hanken);
-  --font-headline-lg-mobile: var(--font-hanken);
-  --font-title-md: var(--font-hanken);
-  --font-body-lg: var(--font-inter);
-  --font-body-sm: var(--font-inter);
-  --font-label-price: var(--font-inter);
-  --font-label-technical: var(--font-inter);
+  /* Typografie-families hermapt naar het giastpc-systeem */
+  --font-display-lg: var(--font-montserrat);
+  --font-headline-lg: var(--font-montserrat);
+  --font-headline-lg-mobile: var(--font-montserrat);
+  --font-title-md: var(--font-montserrat);
+  --font-body-lg: var(--font-plex-mono);
+  --font-body-sm: var(--font-plex-mono);
+  --font-label-price: var(--font-plex-mono);
+  --font-label-technical: var(--font-plex-mono);
 
   /* Shadcn compat */
   --color-background: var(--background);
@@ -164,12 +217,12 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Radius — Stitch scale: rounded 2px, lg 4px, xl 8px, full 12px */
-  --radius-sm: 0.125rem;
-  --radius-md: 0.25rem;
-  --radius-lg: 0.25rem;
-  --radius-xl: 0.5rem;
-  --radius-2xl: 0.75rem;
+  /* Radius — giastpc brutalist: alles scherp */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
 
   /* Extended CoreBuild color tokens */
   --color-surface: var(--cb-surface);
@@ -281,16 +334,16 @@
 @layer utilities {
   /* Stitch border-radius scale (overrides Tailwind defaults) */
   .rounded {
-    border-radius: 0.125rem;
+    border-radius: 0;
   }
   .rounded-lg {
-    border-radius: 0.25rem;
+    border-radius: 0;
   }
   .rounded-xl {
-    border-radius: 0.5rem;
+    border-radius: 0;
   }
   .rounded-full {
-    border-radius: 0.75rem;
+    border-radius: 9999px;
   }
   .text-display-lg {
     font-size: 3rem;

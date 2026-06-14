@@ -3,6 +3,18 @@
 @import "shadcn/tailwind.css";
 
 :root {
+  /* === giastpc-pivot: technisch-brutalistisch palet ===
+     Wit canvas, één felle oranje accent, blueprint-rasterlijnen. */
+  --gp-bg: #ffffff;
+  --gp-bg-soft: #faf9f7;
+  --gp-ink: #0e0e0e;
+  --gp-ink-soft: #6b6b6b;
+  --gp-orange: #ff8800;
+  --gp-orange-dark: #e67700;
+  --gp-line: #e5e5e5;
+  --gp-line-strong: #d4d4d4;
+  --gp-tint: #fff5eb;
+
   /* CoreBuild primary palette */
   --cb-primary: #0049db;
   --cb-primary-container: #2962ff;
@@ -103,6 +115,19 @@
 }
 
 @theme inline {
+  /* giastpc-pivot: kleuren + fonts */
+  --color-gp-bg: var(--gp-bg);
+  --color-gp-bg-soft: var(--gp-bg-soft);
+  --color-gp-ink: var(--gp-ink);
+  --color-gp-ink-soft: var(--gp-ink-soft);
+  --color-gp-orange: var(--gp-orange);
+  --color-gp-orange-dark: var(--gp-orange-dark);
+  --color-gp-line: var(--gp-line);
+  --color-gp-line-strong: var(--gp-line-strong);
+  --color-gp-tint: var(--gp-tint);
+  --font-plex: var(--font-plex-mono);
+  --font-mont: var(--font-montserrat);
+
   /* Font variables — huisstijl: Hanken (koppen) + Inter (al het andere) */
   --font-heading: var(--font-hanken);
   --font-sans: var(--font-inter);
@@ -391,4 +416,59 @@
   border-radius: 50%;
   background: var(--cb-primary);
   cursor: pointer;
+}
+
+/* === giastpc-pivot: blueprint-raster, marquee & kinetische typografie === */
+@keyframes gp-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes gp-word-in {
+  0% { opacity: 0; transform: translateY(0.5em); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes gp-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@layer utilities {
+  /* Blueprint-rasterachtergrond (technische tekening) */
+  .gp-grid {
+    background-image:
+      linear-gradient(to right, var(--gp-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--gp-line) 1px, transparent 1px);
+    background-size: 88px 88px;
+  }
+  .gp-grid-fade {
+    -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, #000 55%, transparent 100%);
+    mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, #000 55%, transparent 100%);
+  }
+  /* Verticale begrenzingslijnen links/rechts van de contentkolom */
+  .gp-rule-x {
+    border-left: 1px solid var(--gp-line);
+    border-right: 1px solid var(--gp-line);
+  }
+  .font-plex { font-family: var(--font-plex-mono), ui-monospace, monospace; }
+  .font-mont { font-family: var(--font-montserrat), ui-sans-serif, sans-serif; }
+
+  /* Oranje highlight-balk achter een woord (kinetische kop) */
+  .gp-highlight {
+    background: var(--gp-orange);
+    color: #fff;
+    padding: 0 0.18em;
+  }
+  .gp-word-in { animation: gp-word-in 0.5s cubic-bezier(0.22, 0.7, 0.2, 1) both; }
+  .gp-caret::after {
+    content: "_";
+    margin-left: 0.05em;
+    animation: gp-blink 1.1s step-end infinite;
+    color: var(--gp-orange);
+  }
+  .gp-marquee-track {
+    display: inline-flex;
+    white-space: nowrap;
+    animation: gp-marquee 26s linear infinite;
+  }
+  .gp-marquee:hover .gp-marquee-track { animation-play-state: paused; }
 }

@@ -52,14 +52,14 @@ export function Navbar() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-surface border-b border-outline-variant">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-gp-bg/90 backdrop-blur-sm border-b border-gp-line">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gp-rule-x">
         <div className="flex items-center gap-8">
           <Link
             href="/"
-            className="font-headline-lg text-headline-lg font-bold text-primary"
+            className="font-mont font-extrabold text-[20px] tracking-tight text-gp-ink"
           >
-            CoreBuild
+            Core<span className="text-gp-orange">Build</span>
           </Link>
 
           <nav aria-label="Hoofdnavigatie" className="hidden md:flex items-center gap-6">
@@ -71,10 +71,8 @@ export function Navbar() {
                   href={href}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "font-label-technical text-label-technical transition-colors duration-200",
-                    isActive
-                      ? "text-primary border-b-2 border-primary pb-1"
-                      : "text-on-surface-variant hover:text-primary",
+                    "font-plex text-[12px] uppercase tracking-wider transition-colors duration-200",
+                    isActive ? "text-gp-orange" : "text-gp-ink-soft hover:text-gp-orange",
                   )}
                 >
                   {label}
@@ -97,7 +95,7 @@ export function Navbar() {
                 onClick={() => setMenuOpen((o) => !o)}
                 aria-expanded={menuOpen}
                 aria-haspopup="menu"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-outline-variant font-label-technical text-label-technical text-on-surface hover:border-primary hover:text-primary transition-colors"
+                className="flex items-center gap-2 px-4 py-2 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors"
               >
                 {session.user.name || session.user.email}
                 <ChevronDown className="w-3.5 h-3.5" />
@@ -125,7 +123,7 @@ export function Navbar() {
             <Link
               href="/inloggen"
               className={cn(
-                "hidden md:inline-block bg-primary text-on-primary px-6 py-2 rounded-lg font-label-technical text-label-technical transition-opacity hover:opacity-90",
+                "hidden md:inline-flex items-center bg-gp-orange text-white px-6 py-2 font-plex text-[12px] uppercase tracking-wider transition-colors hover:bg-gp-orange-dark",
                 isPending && "opacity-0",
               )}
             >

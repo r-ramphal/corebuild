@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, Inter } from "next/font/google";
+import { Hanken_Grotesk, Inter, IBM_Plex_Mono, Montserrat } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
 
-// Twee lettertypes vormen de hele huisstijl: Hanken Grotesk voor koppen,
-// Inter voor alle tekst, labels en knoppen.
+// Huisstijl (giastpc-pivot): Montserrat (zware koppen) + IBM Plex Mono
+// (technische/terminal-tekst & labels). Hanken + Inter blijven nog voor de
+// nog-niet-omgezette pagina's.
 const hanken = Hanken_Grotesk({
   variable: "--font-hanken",
   subsets: ["latin"],
@@ -17,6 +18,20 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  weight: ["600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -77,7 +92,7 @@ export default function RootLayout({
   return (
     <html
       lang="nl"
-      className={`${hanken.variable} ${inter.variable}`}
+      className={`${hanken.variable} ${inter.variable} ${plexMono.variable} ${montserrat.variable}`}
     >
       <body>
         <a href="#main-content" className="skip-link">

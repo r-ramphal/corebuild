@@ -49,3 +49,7 @@ __pycache__/
 
 # Lokale scratch (open-db download voor scripts/build_dimensions.py)
 .bc-scratch/
+
+# lokale screenshots/chrome-profielen (niet scannen/committen)
+.shots/
+.shots*

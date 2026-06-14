@@ -6,6 +6,7 @@ import {
   boolean,
   timestamp,
   index,
+  uniqueIndex,
   jsonb,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
@@ -108,3 +109,42 @@ export const builds = pgTable(
 );
 
 export type BuildRow = typeof builds.$inferSelect;
+
+/**
+ * E-mail-prijsalerts (server-side, alleen voor ingelogde gebruikers). De
+ * client-side volglijst (localStorage) blijft bestaan; dit is de opt-in om
+ * een e-mail te krijgen zodra de prijs daalt. Een dagelijkse cron
+ * (`/api/cron/price-alerts`) vergelijkt de laatste `price_history`-prijs met
+ * `targetCents` en mailt via Resend.
+ */
+export const priceAlerts = pgTable(
+  "price_alerts",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** Stabiele product-identiteit (categorie + genormaliseerde naam) */
+    productId: text("product_id").notNull(),
+    name: text("name").notNull(),
+    category: text("category").notNull(),
+    /** De aanbieding waarvan we de prijs volgen (matcht price_history.url) */
+    url: text("url").notNull(),
+    retailer: text("retailer").notNull(),
+    imageUrl: text("image_url"),
+    /** Mail zodra de prijs op of onder deze drempel komt (in centen) */
+    targetCents: integer("target_cents").notNull(),
+    priceAtAddCents: integer("price_at_add_cents").notNull(),
+    /** Anti-spam: laatst gemailde prijs + tijdstip (null = nog niet gemaild) */
+    lastNotifiedCents: integer("last_notified_cents"),
+    lastNotifiedAt: timestamp("last_notified_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("price_alerts_user_idx").on(table.userId),
+    // Eén alert per gebruiker per product
+    uniqueIndex("price_alerts_user_product_idx").on(table.userId, table.productId),
+  ]
+);
+
+export type PriceAlertRow = typeof priceAlerts.$inferSelect;

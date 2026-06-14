@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn, signUp } from "@/lib/auth-client";
 
@@ -95,6 +96,17 @@ export default function InloggenPage() {
                 className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
               />
             </div>
+
+            {mode === "login" && (
+              <div className="-mt-1 text-right">
+                <Link
+                  href="/wachtwoord-vergeten"
+                  className="font-body-sm text-body-sm text-primary hover:underline"
+                >
+                  Wachtwoord vergeten?
+                </Link>
+              </div>
+            )}
 
             {error && (
               <p className="font-body-sm text-body-sm text-error-crimson bg-error-crimson/10 border border-error-crimson/30 rounded-lg px-4 py-3">

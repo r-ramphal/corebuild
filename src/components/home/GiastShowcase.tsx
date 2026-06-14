@@ -14,7 +14,7 @@ export function GiastShowcase() {
             <span className="font-plex text-[11px] uppercase tracking-wider opacity-90">_showcase</span>
           </div>
 
-          <div className="grid md:grid-cols-2">
+          <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="relative min-h-[280px] md:min-h-[360px] bg-gp-ink">
               <Image
                 src="/images/hero/showcase-a.webp"

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Plus } from "lucide-react";
+import { GiastBlueprint } from "@/components/home/GiastBlueprint";
 
 const WORDS = ["GAMEN", "WERKEN", "CREËREN", "STREAMEN"];
 
@@ -20,23 +20,21 @@ export function GiastHero() {
       <div className="gp-grid gp-grid-fade absolute inset-0 pointer-events-none" />
 
       <div className="relative max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x">
-        <div className="grid lg:grid-cols-12 gap-8 pt-28 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-24 sm:pt-28 pb-16 sm:pb-20">
           {/* Tekstkolom */}
-          <div className="lg:col-span-8">
-            <p className="font-plex text-[12px] sm:text-[13px] uppercase tracking-[0.18em] text-gp-ink-soft mb-7">
+          <div className="lg:col-span-8 min-w-0">
+            <p className="font-plex text-[11px] sm:text-[13px] uppercase tracking-[0.14em] sm:tracking-[0.18em] text-gp-ink-soft mb-6 sm:mb-7 break-words">
               <span className="text-gp-orange">_</span>CONFIGURATOR // CoreBuild — PC op maat
             </p>
 
-            <h1 className="font-mont font-extrabold leading-[0.98] tracking-tight text-[44px] sm:text-[64px] lg:text-[80px]">
+            <h1 className="font-mont font-extrabold leading-[1.02] sm:leading-[0.98] tracking-tight break-words text-[28px] sm:text-[52px] lg:text-[80px]">
               <span className="block">Een pc op maat,</span>
-              <span className="block">
-                gebouwd om te{" "}
-                <span
-                  key={i}
-                  className="gp-highlight gp-word-in inline-block uppercase"
-                >
-                  {WORDS[i]}
-                </span>
+              <span className="block">gebouwd om te</span>
+              <span
+                key={i}
+                className="gp-highlight gp-word-in inline-block uppercase mt-1"
+              >
+                {WORDS[i]}
               </span>
             </h1>
 
@@ -48,38 +46,23 @@ export function GiastHero() {
             <div className="flex flex-col sm:flex-row gap-3 mt-10">
               <Link
                 href="/builder"
-                className="group inline-flex items-center justify-center gap-2 bg-gp-orange hover:bg-gp-orange-dark text-white font-plex text-[13px] uppercase tracking-wider px-7 py-4 transition-colors"
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gp-orange hover:bg-gp-orange-dark text-white font-plex text-[13px] uppercase tracking-wider px-7 py-4 transition-colors"
               >
                 Open de PC Builder
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <Link
                 href="/categorie"
-                className="group inline-flex items-center justify-center gap-2 border border-gp-ink hover:bg-gp-ink hover:text-gp-bg text-gp-ink font-plex text-[13px] uppercase tracking-wider px-7 py-4 transition-colors"
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-gp-ink hover:bg-gp-ink hover:text-gp-bg text-gp-ink font-plex text-[13px] uppercase tracking-wider px-7 py-4 transition-colors"
               >
                 <Plus className="w-4 h-4" /> Bekijk onderdelen
               </Link>
             </div>
           </div>
 
-          {/* Featured build — echte foto met technische kaderlijnen */}
-          <div className="hidden lg:block lg:col-span-4 relative">
-            <div className="relative border border-gp-line bg-gp-ink">
-              <Image
-                src="/images/hero/build.webp"
-                alt="CoreBuild-systeem in aanbouw, koeling met oranje verlichting"
-                width={500}
-                height={620}
-                priority
-                className="w-full h-[460px] object-cover"
-              />
-              {/* Technische hoekmarkeringen */}
-              <span className="absolute top-2 left-2 w-3.5 h-3.5 border-t border-l border-gp-orange" />
-              <span className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b border-r border-gp-orange" />
-              <span className="absolute bottom-3 left-3 font-plex text-[11px] uppercase tracking-widest text-white bg-gp-ink/60 backdrop-blur-sm px-2 py-1">
-                _build/ready
-              </span>
-            </div>
+          {/* Modern technisch system-schema (vervangt de hero-foto) */}
+          <div className="hidden lg:flex lg:col-span-4 items-center justify-center">
+            <GiastBlueprint />
           </div>
         </div>
       </div>

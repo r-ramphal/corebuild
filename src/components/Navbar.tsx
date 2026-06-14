@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, Save, LogOut, Menu, X } from "lucide-react";
+import { Save, LogOut, Menu, X, ArrowUpRight, Search } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { SearchSuggest } from "@/components/SearchSuggest";
 import { cn } from "@/lib/utils";
@@ -20,20 +20,19 @@ const NAV_LINKS = [
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
   const { data: session, isPending } = useSession();
 
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!open) return;
     function onOutsideClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setOpen(false);
       }
     }
     function onEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") setMenuOpen(false);
+      if (e.key === "Escape") setOpen(false);
     }
     document.addEventListener("mousedown", onOutsideClick);
     document.addEventListener("keydown", onEscape);
@@ -41,168 +40,152 @@ export function Navbar() {
       document.removeEventListener("mousedown", onOutsideClick);
       document.removeEventListener("keydown", onEscape);
     };
-  }, [menuOpen]);
+  }, [open]);
 
   async function handleSignOut() {
-    setMenuOpen(false);
-    setMobileOpen(false);
+    setOpen(false);
     await signOut();
     router.push("/");
     router.refresh();
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-gp-bg/90 backdrop-blur-sm border-b border-gp-line">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gp-rule-x">
-        <div className="flex items-center gap-8">
+    <header
+      ref={headerRef}
+      className="fixed top-0 left-0 right-0 z-50 bg-gp-bg/90 backdrop-blur-sm border-b border-gp-line"
+    >
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 h-16 grid grid-cols-3 items-center gp-rule-x">
+        {/* Links: menu-knop */}
+        <div className="flex justify-start">
+          <button
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-controls="hoofdmenu"
+            aria-label={open ? "Menu sluiten" : "Menu openen"}
+            className="flex items-center gap-2 px-2 sm:px-3 py-2 border border-transparent hover:border-gp-line text-gp-ink transition-colors"
+          >
+            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <span className="hidden sm:inline font-plex text-[12px] uppercase tracking-wider">
+              {open ? "Sluit" : "Menu"}
+            </span>
+          </button>
+        </div>
+
+        {/* Midden: logo */}
+        <div className="flex justify-center">
           <Link
             href="/"
-            className="font-mont font-extrabold text-[20px] tracking-tight text-gp-ink"
+            className="font-mont font-extrabold text-[19px] sm:text-[21px] tracking-tight text-gp-ink whitespace-nowrap"
           >
             Core<span className="text-gp-orange">Build</span>
           </Link>
-
-          <nav aria-label="Hoofdnavigatie" className="hidden md:flex items-center gap-6">
-            {NAV_LINKS.map(({ href, label }) => {
-              const isActive = pathname === href || pathname.startsWith(href + "/");
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  aria-current={isActive ? "page" : undefined}
-                  className={cn(
-                    "font-plex text-[12px] uppercase tracking-wider transition-colors duration-200",
-                    isActive ? "text-gp-orange" : "text-gp-ink-soft hover:text-gp-orange",
-                  )}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        {/* Rechts: zoeken (desktop, niet op home) + account/inloggen */}
+        <div className="flex items-center justify-end gap-2 sm:gap-3">
           {pathname !== "/" && (
-            <div className="hidden sm:block">
+            <div className="hidden lg:block">
               <SearchSuggest variant="navbar" />
             </div>
           )}
-
           {session ? (
-            <div ref={menuRef} className="relative hidden md:block">
-              <button
-                onClick={() => setMenuOpen((o) => !o)}
-                aria-expanded={menuOpen}
-                aria-haspopup="menu"
-                className="flex items-center gap-2 px-4 py-2 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors"
-              >
-                {session.user.name || session.user.email}
-                <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-
-              {menuOpen && (
-                <div className="absolute right-0 top-full mt-1.5 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg py-2 min-w-[180px] z-50">
-                  <Link
-                    href="/builds"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 w-full px-4 py-2 font-body-sm text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"
-                  >
-                    <Save className="w-4 h-4 text-on-surface-variant" /> Mijn builds
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="flex items-center gap-2 w-full px-4 py-2 font-body-sm text-body-sm text-on-surface hover:bg-surface-container-low transition-colors text-left"
-                  >
-                    <LogOut className="w-4 h-4 text-on-surface-variant" /> Uitloggen
-                  </button>
-                </div>
-              )}
-            </div>
+            <Link
+              href="/builds"
+              className="hidden sm:inline-flex items-center gap-2 px-3 py-2 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors max-w-[180px] truncate"
+            >
+              <Save className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{session.user.name || session.user.email}</span>
+            </Link>
           ) : (
             <Link
               href="/inloggen"
               className={cn(
-                "hidden md:inline-flex items-center bg-gp-orange text-white px-6 py-2 font-plex text-[12px] uppercase tracking-wider transition-colors hover:bg-gp-orange-dark",
+                "inline-flex items-center bg-gp-orange text-white px-4 sm:px-6 py-2 font-plex text-[12px] uppercase tracking-wider transition-colors hover:bg-gp-orange-dark",
                 isPending && "opacity-0",
               )}
             >
               Inloggen
             </Link>
           )}
-
-          {/* Mobiel: hamburger */}
-          <button
-            onClick={() => setMobileOpen((o) => !o)}
-            aria-expanded={mobileOpen}
-            aria-controls="mobiel-menu"
-            aria-label={mobileOpen ? "Menu sluiten" : "Menu openen"}
-            className="md:hidden p-2.5 -mr-1 rounded-lg text-on-surface hover:bg-surface-container-low transition-colors"
-          >
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
       </div>
 
-      {/* Mobiel menu */}
-      {mobileOpen && (
-        <nav
-          id="mobiel-menu"
-          aria-label="Mobiele navigatie"
-          className="md:hidden border-t border-outline-variant bg-surface px-4 pb-4 pt-2 space-y-1"
-        >
-          <div className="py-2 sm:hidden">
-            <SearchSuggest variant="page" onNavigate={() => setMobileOpen(false)} />
-          </div>
+      {/* Uitklapmenu (alle schermen) */}
+      {open && (
+        <div id="hoofdmenu" className="border-t border-gp-line bg-gp-bg/98 backdrop-blur-sm">
+          <div className="max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x py-6">
+            {/* Zoeken (mobiel/tablet) */}
+            <div className="lg:hidden mb-5">
+              <SearchSuggest variant="page" onNavigate={() => setOpen(false)} />
+            </div>
 
-          {NAV_LINKS.map(({ href, label }) => {
-            const isActive = pathname === href || pathname.startsWith(href + "/");
-            return (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMobileOpen(false)}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "block px-3 py-3 rounded-lg font-body-sm text-body-sm transition-colors",
-                  isActive
-                    ? "bg-primary-container/10 text-primary font-semibold"
-                    : "text-on-surface hover:bg-surface-container-low",
-                )}
-              >
-                {label}
-              </Link>
-            );
-          })}
+            <nav aria-label="Hoofdnavigatie" className="grid sm:grid-cols-2 sm:gap-x-10">
+              {NAV_LINKS.map(({ href, label }, i) => {
+                const isActive = pathname === href || pathname.startsWith(href + "/");
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    aria-current={isActive ? "page" : undefined}
+                    className="group flex items-center gap-4 py-3 border-b border-gp-line"
+                  >
+                    <span className="font-plex text-[12px] text-gp-ink-soft">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      className={cn(
+                        "font-mont font-bold text-[20px] sm:text-[22px] flex-1 transition-colors",
+                        isActive ? "text-gp-orange" : "text-gp-ink group-hover:text-gp-orange",
+                      )}
+                    >
+                      {label}
+                    </span>
+                    <ArrowUpRight className="w-4 h-4 text-gp-orange opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                );
+              })}
+            </nav>
 
-          <div className="border-t border-outline-variant pt-2 mt-2">
-            {session ? (
-              <>
-                <Link
-                  href="/builds"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 px-3 py-3 rounded-lg font-body-sm text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"
-                >
-                  <Save className="w-4 h-4 text-on-surface-variant" /> Mijn builds
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2 w-full px-3 py-3 rounded-lg font-body-sm text-body-sm text-on-surface hover:bg-surface-container-low transition-colors text-left"
-                >
-                  <LogOut className="w-4 h-4 text-on-surface-variant" /> Uitloggen
-                </button>
-              </>
-            ) : (
-              <Link
-                href="/inloggen"
-                onClick={() => setMobileOpen(false)}
-                className="block text-center bg-primary text-on-primary px-6 py-3 rounded-lg font-label-technical text-label-technical hover:opacity-90 transition-opacity"
-              >
-                Inloggen
-              </Link>
-            )}
+            {/* Account-acties */}
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              {session ? (
+                <>
+                  <Link
+                    href="/builds"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex items-center gap-2 px-5 py-3 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors"
+                  >
+                    <Save className="w-4 h-4" /> Mijn builds
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="inline-flex items-center gap-2 px-5 py-3 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" /> Uitloggen
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/inloggen"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex items-center bg-gp-orange text-white px-6 py-3 font-plex text-[12px] uppercase tracking-wider hover:bg-gp-orange-dark transition-colors"
+                  >
+                    Inloggen / Registreren
+                  </Link>
+                  <Link
+                    href="/zoeken"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex items-center gap-2 px-5 py-3 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors"
+                  >
+                    <Search className="w-4 h-4" /> Onderdelen zoeken
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
-        </nav>
+        </div>
       )}
     </header>
   );

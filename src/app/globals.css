@@ -297,6 +297,15 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* body is een flexkolom — zonder min-width:0 groeien de secties naar hun
+     min-content-breedte en rekken ze elkaar breder dan de viewport (overflow
+     op mobiel). Dit klemt elke pagina/footer netjes op de schermbreedte. */
+  main,
+  footer {
+    min-width: 0;
+    max-width: 100%;
+  }
+
   /* Zichtbare focus voor toetsenbordgebruikers, zonder muis-focus-ruis */
   :focus-visible {
     outline: 2px solid var(--cb-primary, #0049db);
@@ -541,4 +550,17 @@
     animation: gp-marquee 26s linear infinite;
   }
   .gp-marquee:hover .gp-marquee-track { animation-play-state: paused; }
+}
+
+/* === giastpc-pivot: hero "system blueprint" element === */
+@keyframes gp-sweep-rot { to { transform: rotate(360deg); } }
+@keyframes gp-node-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+@layer utilities {
+  .gp-sweep {
+    transform-box: view-box;
+    transform-origin: 160px 160px;
+    animation: gp-sweep-rot 6s linear infinite;
+  }
+  .gp-node { animation: gp-node-pulse 2.6s ease-in-out infinite; }
 }

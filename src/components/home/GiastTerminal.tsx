@@ -109,9 +109,9 @@ export function GiastTerminal() {
 
   return (
     <section className="bg-gp-bg text-gp-ink border-b border-gp-line">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x py-20 grid lg:grid-cols-12 gap-10 items-center">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x py-14 sm:py-20 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
         {/* Linkertekst */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4 min-w-0">
           <p className="font-plex text-[12px] uppercase tracking-[0.2em] text-gp-ink-soft mb-6">
             <span className="text-gp-orange">_</span>live build
           </p>
@@ -125,8 +125,8 @@ export function GiastTerminal() {
         </div>
 
         {/* Terminal-paneel */}
-        <div className="lg:col-span-8">
-          <div className="border border-gp-line bg-gp-bg-soft">
+        <div className="lg:col-span-8 min-w-0">
+          <div className="border border-gp-line bg-gp-bg-soft overflow-hidden">
             {/* Titelbalk */}
             <div className="gp-bar flex items-center justify-between px-4 py-2">
               <span className="font-pixel text-[15px] leading-none tracking-wide">build.log</span>
@@ -139,7 +139,7 @@ export function GiastTerminal() {
             {/* Body */}
             <div
               ref={rootRef}
-              className="font-plex text-[12px] sm:text-[13px] leading-[1.55] p-4 sm:p-6 h-[360px] overflow-hidden"
+              className="font-plex text-[10px] sm:text-[13px] leading-[1.55] p-3 sm:p-6 h-[320px] sm:h-[360px] overflow-hidden"
               aria-label="Gesimuleerde build-log"
             >
               {shown.map((l, i) => (

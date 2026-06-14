@@ -54,6 +54,34 @@ export type ListingRow = typeof listings.$inferSelect;
 export type NewListing = typeof listings.$inferInsert;
 
 /**
+ * Prijshistorie: één rij per gemeten prijs per aanbieding (retailer + url).
+ * In tegenstelling tot `listings` worden deze rijen nooit overschreven, zodat
+ * we het prijsverloop kunnen tonen. Schrijvers (de TS write-through én de
+ * Python-scrapers) appenden alleen een punt als de prijs is veranderd of het
+ * laatste punt ouder is dan ~20 uur — zo blijft de tabel begrensd.
+ */
+export const priceHistory = pgTable(
+  "price_history",
+  {
+    id: serial("id").primaryKey(),
+    retailer: text("retailer").notNull(),
+    /** Stabiele product-identiteit: de retailer-productpagina-URL */
+    url: text("url").notNull(),
+    name: text("name").notNull(),
+    priceCents: integer("price_cents").notNull(),
+    inStock: boolean("in_stock").notNull().default(true),
+    category: text("category"),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("price_history_url_idx").on(table.url, table.recordedAt),
+    index("price_history_recorded_at_idx").on(table.recordedAt),
+  ]
+);
+
+export type PriceHistoryRow = typeof priceHistory.$inferSelect;
+
+/**
  * Opgeslagen PC-builds. `components` is een JSON-snapshot van het
  * Zustand-buildstore-formaat: Partial<Record<ComponentType, PriceResult>>.
  * `publicId` is de deelbare identifier voor /build/[publicId].

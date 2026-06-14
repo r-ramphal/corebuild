@@ -73,4 +73,37 @@ def save_listings(
                     for item in items
                 ],
             )
+
+            # Prijshistorie (spiegel van src/lib/db/listings.ts): append een
+            # meetpunt per aanbieding, behalve als het laatste punt voor deze
+            # (retailer, url) dezelfde prijs heeft én jonger is dan 20 uur.
+            cur.executemany(
+                """
+                INSERT INTO price_history (retailer, url, name, price_cents, in_stock, category)
+                SELECT %s, %s, %s, %s, %s, %s
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM (
+                        SELECT price_cents, recorded_at FROM price_history
+                        WHERE retailer = %s AND url = %s
+                        ORDER BY recorded_at DESC LIMIT 1
+                    ) last
+                    WHERE last.price_cents = %s
+                      AND last.recorded_at > now() - interval '20 hours'
+                )
+                """,
+                [
+                    (
+                        item["retailer"],
+                        item["url"],
+                        clean_name(item["name"]),
+                        round(item["price_eur"] * 100),
+                        item.get("in_stock", True),
+                        category or infer_category(item["name"]),
+                        item["retailer"],
+                        item["url"],
+                        round(item["price_eur"] * 100),
+                    )
+                    for item in items
+                ],
+            )
     return len(items)

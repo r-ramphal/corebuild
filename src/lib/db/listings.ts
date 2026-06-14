@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, inArray } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, sql } from "drizzle-orm";
 import type { Db } from "./index";
 import { listings, type ListingRow } from "./schema";
 import { inferCategory } from "@/lib/relevance";
@@ -89,24 +89,77 @@ export async function saveListings(
 
   const retailers = [...new Set(results.map((r) => r.retailer))];
 
+  const rows = results.map((r) => ({
+    query,
+    retailer: r.retailer,
+    name: r.name,
+    priceCents: Math.round(r.priceEur * 100),
+    url: r.url,
+    imageUrl: r.imageUrl ?? null,
+    inStock: r.inStock,
+    category: category ?? inferCategory(r.name),
+    mock: r.mock ?? false,
+    source: r.mock ? "mock" : source,
+  }));
+
   await db.transaction(async (tx) => {
     await tx
       .delete(listings)
       .where(and(eq(listings.query, query), inArray(listings.retailer, retailers)));
 
-    await tx.insert(listings).values(
-      results.map((r) => ({
-        query,
-        retailer: r.retailer,
-        name: r.name,
-        priceCents: Math.round(r.priceEur * 100),
-        url: r.url,
-        imageUrl: r.imageUrl ?? null,
-        inStock: r.inStock,
-        category: category ?? inferCategory(r.name),
-        mock: r.mock ?? false,
-        source: r.mock ? "mock" : source,
-      }))
-    );
+    await tx.insert(listings).values(rows);
+
+    // Prijshistorie: append een meetpunt per échte (niet-mock) aanbieding.
+    // We slaan het over als het laatste punt voor deze (retailer, url) dezelfde
+    // prijs heeft én jonger is dan 20 uur — zo blijft de tabel begrensd terwijl
+    // elke prijswijziging wél wordt vastgelegd.
+    for (const row of rows) {
+      if (row.mock) continue;
+      await tx.execute(sql`
+        INSERT INTO price_history (retailer, url, name, price_cents, in_stock, category)
+        SELECT ${row.retailer}, ${row.url}, ${row.name}, ${row.priceCents}, ${row.inStock}, ${row.category}
+        WHERE NOT EXISTS (
+          SELECT 1 FROM (
+            SELECT price_cents, recorded_at FROM price_history
+            WHERE retailer = ${row.retailer} AND url = ${row.url}
+            ORDER BY recorded_at DESC LIMIT 1
+          ) last
+          WHERE last.price_cents = ${row.priceCents}
+            AND last.recorded_at > now() - interval '20 hours'
+        )
+      `);
+    }
   });
+}
+
+export interface PricePoint {
+  /** Dag (YYYY-MM-DD) */
+  day: string;
+  /** Laagste gemeten prijs in centen op die dag, over alle meegegeven urls */
+  priceCents: number;
+}
+
+/**
+ * Prijsverloop voor een product: de laagste prijs per dag over een set
+ * aanbiedings-urls (de retailers die de productpagina toont). Ontdubbeld op dag
+ * zodat de grafiek één lijn "beste prijs over tijd" laat zien.
+ */
+export async function getPriceHistory(
+  db: Db,
+  urls: string[],
+  days: number = 90
+): Promise<PricePoint[]> {
+  if (urls.length === 0) return [];
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const result = await db.execute(sql`
+    SELECT to_char(date_trunc('day', recorded_at), 'YYYY-MM-DD') AS day,
+           min(price_cents)::int AS price_cents
+    FROM price_history
+    WHERE url IN (${sql.join(urls.map((u) => sql`${u}`), sql`, `)})
+      AND recorded_at > ${cutoff}
+    GROUP BY 1
+    ORDER BY 1
+  `);
+  const histRows = result.rows as { day: string; price_cents: number }[];
+  return histRows.map((r) => ({ day: r.day, priceCents: Number(r.price_cents) }));
 }

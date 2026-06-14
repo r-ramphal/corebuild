@@ -9,10 +9,20 @@ export function GiastManifest() {
           <span className="text-gp-orange">_</span>manifest
         </p>
 
-        <p className="font-mont font-bold text-[26px] sm:text-[38px] leading-[1.25] max-w-4xl">
-          Wij geloven niet in <span className="gp-highlight">standaardoplossingen</span>. Elke build wordt
-          samengesteld als <span className="gp-highlight">één geheel</span> — getest op compatibiliteit,
-          vergeleken op prijs, en altijd met de bouwer in het <span className="gp-highlight">middelpunt</span>.
+        <p className="font-plex font-medium text-[22px] sm:text-[32px] leading-[1.4] max-w-4xl text-gp-ink">
+          Wij geloven niet in{" "}
+          <span className="text-gp-orange font-semibold underline decoration-2 underline-offset-[6px]">
+            standaardoplossingen
+          </span>
+          . Elke build wordt samengesteld als{" "}
+          <span className="text-gp-orange font-semibold underline decoration-2 underline-offset-[6px]">
+            één geheel
+          </span>{" "}
+          — getest op compatibiliteit, vergeleken op prijs, en altijd met de bouwer in het{" "}
+          <span className="text-gp-orange font-semibold underline decoration-2 underline-offset-[6px]">
+            middelpunt
+          </span>
+          .
         </p>
 
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 mt-14">

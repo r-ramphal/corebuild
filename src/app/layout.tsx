@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, Inter, IBM_Plex_Mono, Montserrat } from "next/font/google";
+import { Hanken_Grotesk, Inter, IBM_Plex_Mono, Montserrat, Pixelify_Sans } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import "./globals.css";
 
 // Huisstijl (giastpc-pivot): Montserrat (zware koppen) + IBM Plex Mono
@@ -32,6 +33,14 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
   weight: ["600", "700", "800", "900"],
+  display: "swap",
+});
+
+// Pixel-font voor de oranje sectie-/kaartkoppen (retro-technische accent).
+const pixelify = Pixelify_Sans({
+  variable: "--font-pixelify",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
@@ -92,9 +101,10 @@ export default function RootLayout({
   return (
     <html
       lang="nl"
-      className={`${hanken.variable} ${inter.variable} ${plexMono.variable} ${montserrat.variable}`}
+      className={`${hanken.variable} ${inter.variable} ${plexMono.variable} ${montserrat.variable} ${pixelify.variable}`}
     >
       <body>
+        <SmoothScroll />
         <a href="#main-content" className="skip-link">
           Direct naar inhoud
         </a>

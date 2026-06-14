@@ -127,6 +127,7 @@
   --color-gp-tint: var(--gp-tint);
   --font-plex: var(--font-plex-mono);
   --font-mont: var(--font-montserrat);
+  --font-pixel: var(--font-pixelify);
 
   /* Font variables — huisstijl: Hanken (koppen) + Inter (al het andere) */
   --font-heading: var(--font-hanken);
@@ -451,6 +452,12 @@
   }
   .font-plex { font-family: var(--font-plex-mono), ui-monospace, monospace; }
   .font-mont { font-family: var(--font-montserrat), ui-sans-serif, sans-serif; }
+  .font-pixel { font-family: var(--font-pixelify), ui-sans-serif, sans-serif; }
+  /* Oranje sectiekop-balk met pixel-font (giastpc-kaartkoppen) */
+  .gp-bar {
+    background: var(--gp-orange);
+    color: #fff;
+  }
 
   /* Oranje highlight-balk achter een woord (kinetische kop) */
   .gp-highlight {
@@ -464,6 +471,16 @@
     margin-left: 0.05em;
     animation: gp-blink 1.1s step-end infinite;
     color: var(--gp-orange);
+  }
+  /* Knipperende blok-caret voor de terminal */
+  .gp-caret-block {
+    display: inline-block;
+    width: 0.5em;
+    height: 1.05em;
+    background: var(--gp-orange);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: gp-blink 1s step-end infinite;
   }
   .gp-marquee-track {
     display: inline-flex;

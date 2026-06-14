@@ -2,24 +2,37 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
-## ▶ VOLGENDE STAP (gepland 14 juni 2026) — nieuw UI-design via Google Stitch
+## ▶ IN UITVOERING — UI-redesign "Sui" (dark glassmorphism), branch `redesign-stitch`
 
-De **functionaliteit is compleet en live** (alle features hieronder, t/m de e-mail-prijsalerts).
-De volgende stap is een **visuele redesign**: een veel moderner UI, ontworpen in **Google Stitch**.
-Dit wordt in een **aparte sessie** gebouwd (de gebruiker is het Stitch-design nog aan het maken).
+Visuele redesign naar het nieuwe Stitch-design (dark mode, glassmorphism, gradient-accenten).
+**Functionaliteit ongewijzigd.** Werk staat op branch `redesign-stitch` (NIET op master/productie).
+Bron: 4 Stitch-schermen (PC Builder, Homepage, Blog, Componenten) — dark palet primary #adc6ff /
+surface #111317, JetBrains Mono terug, Material-3 tokennamen (zelfde als oud → veel flipt vanzelf).
 
-- **Scope = puur frontend/visueel.** De data- en logicalagen blijven intact: scrapers, Neon +
-  Drizzle, `/api/*`-routes, relevance/specs/clean-name, auth, prijshistorie en de prijsalert-cron
-  zijn af en moeten **niet** worden aangeraakt — alleen de presentatie verandert.
-- **Huidige UI = 1:1 met de óude Stitch-export** ("Technical Precision", bron
-  `C:\Users\Lenovo\Downloads\stitch_corebuild_pc_vergelijker\` + `DESIGN.md`). De nieuwe Stitch-export
-  vervangt dat. Verwacht nieuwe tokens/typografie/kleuren in `globals.css` (`--cb-*` + `@theme inline`)
-  en herwerkte componenten.
-- **Bewaar bij de redesign**: alle bestaande routes/paginastructuur, de Zustand-stores
-  (build + volglijst), `useSyncExternalStore`-hydration-patroon, a11y (skip-link, focus-visible,
-  reduced-motion), en de "geen ongelayerde CSS in globals.css"-gotcha (zie onder).
-- **Aanpak (suggestie voor de bouwsessie)**: net als de eerste keer — Stitch-export downloaden,
-  tokens naar `globals.css`, daarna componenten per pagina herwerken; functionaliteit hergebruiken.
+**Gedaan (commit op de branch):**
+- **Foundation** (`globals.css`): alle `--cb-*` token-waarden → dark palet; nieuwe tokens
+  (surface-card, text-primary/secondary, success-green, danger-red); `glass-panel`/`glass-card`/
+  `glow-hover`/`text-gradient`/`hero-gradient`/`no-scrollbar`-utilities; nieuwe typografie
+  (headline-hero/md, body-md, caption, label-mono) + spacing (gutter/stack-*); `cb-mesh` + skip-link
+  naar dark; `color-scheme: dark`. `layout.tsx`: JetBrains Mono terug + `class="dark"`.
+- **Chrome**: glass-navbar (`bg-surface/80 backdrop-blur`) + donkere footer.
+- **Homepage**: Hero volledig herontworpen (split layout, gradient-kop "Betaal minder", status-badge,
+  twee CTA's, zwevende glas-buildkaart met mockdata) + categoriekaarten glass + glow.
+- **bg-white-lekken** weg (inputs → surface-container-low, productafbeeldingen → surface-container-high)
+  in inloggen/wachtwoord-pagina's, BuilderClient, CategorieClient, SearchSuggest, PriceList, ProductClient.
+- Geverifieerd: `tsc` + `eslint` + **`next build`** groen; screenshots (Chrome headless) van home/
+  builder/categorie/blog = coherent dark. **Let op**: dev-server CSS-cache kan stug zijn na
+  globals-wijziging → `rm -rf .next` + herstart als de kleuren niet flippen.
+
+**Nog te doen voor volledige fidelity (alles erft al het dark-thema; dit is verdere polish):**
+- Builder-rijen → `glass-panel`; rechtersidebar-widgets (3D-view/compat/overzicht) in glas-stijl.
+- Categorie-bento met achtergrondafbeeldingen + compat-tags (design "Componenten Overzicht").
+- Blog-bento (featured-artikel groot + image-grid) i.p.v. de huidige platte lijst.
+- Resterende pagina's nalopen: zoeken, product, volglijst, galerij, vergelijk, builds, over, contact
+  (donker, maar nog niet vol-glas). `ui/`-primitives (button/card/input/badge) checken op dark-contrast.
+- Iconen: bewust **lucide** gehouden (geen Material Symbols-migratie) — visueel equivalent.
+- **Bewaard**: routes/structuur, Zustand-stores, `useSyncExternalStore`-hydration, a11y, de
+  "geen ongelayerde CSS in globals.css"-gotcha (alle nieuwe utilities staan in `@layer utilities`).
 
 ## Status (13 juni 2026)
 

@@ -284,10 +284,29 @@ verstuurd). Dependency-vrij: geen `resend`-package, gewoon de Resend REST API vi
   (`/wachtwoord-vergeten`, `/wachtwoord-herstellen`, `/volglijst`, prijshistorie-endpoint = 200).
   Echte reset-mail = handmatig testen via `/wachtwoord-vergeten` met een bestaand account.
 
-**Open punten:** fase 3 roadmap (officiële API's na KvK);
-**e-mail/push-alerts op de volglijst** = échte feature die nog moet: de volglijst is nu client-side
-(localStorage), voor e-mailalerts moet die server-side (tabel + auth-gated API) + een cron die
-`price_history` op dalingen checkt en via `sendEmail` mailt. De mailer (deel 13) staat er al klaar voor.
+**Nieuw (14 juni 2026, deel 14) — e-mail-prijsalerts:**
+Ingelogde gebruikers krijgen een e-mail zodra een gevolgd product daalt. De client-side volglijst
+blijft; dit is de server-side opt-in erbovenop (account-e-mail, geen losse opt-in/verificatie nodig).
+- **Tabel** `price_alerts` (`drizzle/0005_small_ronan.sql`, **✅ op Neon**): per gebruiker+product
+  (uniek op `user_id`+`product_id`), met `target_cents`, `price_at_add_cents` en anti-spam
+  `last_notified_cents`/`_at`. `product_id` = `watchId` (categorie + genormaliseerde naam).
+- **Repo** `src/lib/db/alerts.ts`: `listUserAlerts`/`upsertAlert`(onConflict)/`deleteAlert`,
+  `findFiredAlerts` (laatste `price_history`-prijs ≤ drempel én < laatst gemaild) + `markAlertNotified`.
+- **API** `/api/alerts` (nodejs, `auth.api.getSession`): GET lijst, POST upsert (max 100/user,
+  http(s)-urlguard, categorie-check), DELETE `?productId=`.
+- **Cron** `/api/cron/price-alerts` (GET, `Authorization: Bearer ${CRON_SECRET}`) → `findFiredAlerts`,
+  groepeert per gebruiker, mailt via `sendEmail` + `priceDropEmail`, zet anti-spam bij. Dagelijks
+  via `vercel.json` (`0 7 * * *`). `CRON_SECRET` staat in `.env.local` + Vercel Production.
+- **UI**: in `/volglijst` per rij een **mail-alert-toggle** (alleen ingelogd; `lib/use-alerts.ts` SWR).
+  Uitgelogd → banner met login-link. Rij verwijderen ruimt ook de server-alert op.
+- **Verificatie**: `tsc` + `eslint` schoon; dev-server → `/volglijst` 200, `/api/alerts` 401 (uitgelogd),
+  cron 401 zonder secret / **200 `{fired:0,sent:0}` mét secret** (tabel + join live tegen Neon, geen
+  fouten). Echte mail (ingelogd → alert → prijsdaling → cron) = handmatig testen met een account.
+- Bewust v1: drempel = de prijs bij aanzetten (mail bij élke daling); per-url-prijs (de gevolgde
+  aanbieding), geen cross-retailer-minimum. Hobby-plan: cron max 1×/dag — daarom dagelijks.
+
+**Open punten:** fase 3 roadmap (officiële API's na KvK); evt. instelbare doelprijs + cross-retailer
+laagste prijs voor alerts; `RESEND_API_KEY`/`CRON_SECRET` ook in Vercel Preview (nu alleen Production).
 
 ## Overzicht
 
@@ -489,7 +508,7 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - [x] **Wachtwoord vergeten** — flow + Resend-mailer (deel 13). ✅ live, `RESEND_API_KEY` gezet in Vercel Production
 - [x] **Compatibiliteitscheck** — socket/DDR/PSU/formfactor + GPU-lengte/koelerhoogte/koeler-socket
   ✅ gebouwd (open-db dimensies, deel 6). Nog open: AIO-radiator vs behuizing (geen open-db-veld)
-- [~] **Prijsalerts** — volglijst v1 ✅ (deel 12, "Volg prijs" + `/volglijst`). Nog open: e-mail/push-melding bij prijsdaling (e-mailprovider nodig)
+- [x] **Prijsalerts** — volglijst (deel 12) + e-mail bij prijsdaling voor ingelogde users (deel 14, Resend + dagelijkse cron)
 
 ---
 

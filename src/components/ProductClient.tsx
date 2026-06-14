@@ -13,6 +13,9 @@ import { ProductDescription } from "@/components/ProductDescription";
 import { inferCategory } from "@/lib/relevance";
 import { useSearch } from "@/lib/use-search";
 import { useProductInfo } from "@/lib/use-product-info";
+import { usePriceHistory } from "@/lib/use-price-history";
+import { PriceHistoryChart } from "@/components/PriceHistoryChart";
+import { WatchButton } from "@/components/WatchButton";
 import { RetailerLogo } from "@/components/RetailerLogo";
 import type { ComponentType } from "@/lib/types";
 
@@ -93,6 +96,10 @@ export function ProductClient() {
     matches.find((m) => m.inStock && !m.mock && SCRAPABLE.includes(m.retailer)) ??
     matches.find((m) => !m.mock && SCRAPABLE.includes(m.retailer));
   const retailerInfo = useProductInfo(infoOffer?.url ?? null);
+
+  // Prijsverloop: laagste prijs per dag over de échte aanbiedings-urls
+  const historyUrls = matches.filter((m) => !m.mock).map((m) => m.url);
+  const pricePoints = usePriceHistory(historyUrls);
 
   function handleAdd(slot: ComponentType) {
     if (!best) return;
@@ -227,6 +234,18 @@ export function ProductClient() {
                       </div>
                     )}
                   </div>
+
+                  {resolvedCat && (
+                    <WatchButton
+                      variant="full"
+                      name={name}
+                      category={resolvedCat}
+                      url={best.url}
+                      retailer={best.retailer}
+                      priceEur={best.priceEur}
+                      imageUrl={best.imageUrl}
+                    />
+                  )}
                 </div>
 
                 {meta && meta.wattage > 0 && (
@@ -253,6 +272,19 @@ export function ProductClient() {
         {/* Productomschrijving uit de specs + retailer-eigen info */}
         {resolvedCat && (
           <ProductDescription name={name} category={resolvedCat} retailerInfo={retailerInfo} />
+        )}
+
+        {/* Prijsverloop (laagste prijs per dag) — verschijnt zodra er genoeg metingen zijn */}
+        {pricePoints.length >= 2 && (
+          <section className="mb-12">
+            <h2 className="font-title-md text-title-md text-on-surface mb-2">
+              Prijsverloop
+            </h2>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mb-6">
+              De laagste prijs die we de afgelopen periode bij de retailers maten.
+            </p>
+            <PriceHistoryChart points={pricePoints} />
+          </section>
         )}
 
         {/* Price comparison table */}

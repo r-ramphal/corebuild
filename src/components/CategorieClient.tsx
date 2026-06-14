@@ -12,6 +12,7 @@ import { formatEur } from "@/lib/format";
 import { productUrl } from "@/lib/product-url";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { RetailerLogo } from "@/components/RetailerLogo";
+import { WatchButton } from "@/components/WatchButton";
 import { bestValueIndex, hasValueMetric } from "@/lib/specs/value";
 import { useSearch } from "@/lib/use-search";
 import type { ComponentType, PriceResult } from "@/lib/types";
@@ -136,6 +137,15 @@ function CategoryResultCard({ item, isBestDeal, isBestValue, componentType, onAd
             </span>
 
             <div className="flex gap-2">
+              <WatchButton
+                variant="icon"
+                name={item.name}
+                category={componentType}
+                url={item.url}
+                retailer={item.retailer}
+                priceEur={item.priceEur}
+                imageUrl={item.imageUrl}
+              />
               <Link
                 href={productUrl(item, componentType)}
                 className="px-4 py-2 border border-outline-variant rounded-lg font-label-technical text-label-technical hover:bg-surface-container transition-colors"
@@ -172,13 +182,19 @@ function CategoryResultCard({ item, isBestDeal, isBestValue, componentType, onAd
             </div>
           </div>
         ) : (
-          <div className="flex justify-end mt-6">
-            <button
-              disabled
-              className="px-6 py-2 bg-surface-container-highest text-on-surface-variant rounded-lg font-label-technical text-label-technical cursor-not-allowed"
-            >
-              Stel Alert In
-            </button>
+          <div className="flex justify-between items-center mt-6 gap-3 flex-wrap">
+            <span className="font-body-sm text-[12px] text-on-surface-variant">
+              Tijdelijk uitverkocht. Volg de prijs om het in de gaten te houden.
+            </span>
+            <WatchButton
+              variant="full"
+              name={item.name}
+              category={componentType}
+              url={item.url}
+              retailer={item.retailer}
+              priceEur={item.priceEur}
+              imageUrl={item.imageUrl}
+            />
           </div>
         )}
       </div>

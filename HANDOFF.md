@@ -278,9 +278,11 @@ verstuurd). Dependency-vrij: geen `resend`-package, gewoon de Resend REST API vi
 - **Verificatie**: `tsc` + `eslint` schoon (bevestigt ook dat de better-auth-API-namen kloppen);
   dev-server → alle 3 pagina's 200, `POST /api/auth/request-password-reset` → neutrale 200 (geen lek).
   Echt mailen + reset met een bestaande user = handmatig testen zodra de key er is (vereiste prod-write).
-- **TODO (jij)**: in Resend een account + (geverifieerd) domein, dan `RESEND_API_KEY` (+ `EMAIL_FROM=
-  "CoreBuild <noreply@corebuildnl.com>"`) zetten in `.env.local` én Vercel. Tot de domeinverificatie
-  rond is verstuurt Resend alleen naar de account-owner (testafzender `onboarding@resend.dev`).
+- **✅ Gedeployd (14-06)**: domein geverifieerd in Resend; `RESEND_API_KEY` (send-only key) +
+  `EMAIL_FROM="CoreBuild <noreply@corebuildnl.com>"` staan in `.env.local` + Vercel **Production**
+  (Preview nog niet — preview-deploys versturen dus geen mail). Productie live geverifieerd
+  (`/wachtwoord-vergeten`, `/wachtwoord-herstellen`, `/volglijst`, prijshistorie-endpoint = 200).
+  Echte reset-mail = handmatig testen via `/wachtwoord-vergeten` met een bestaand account.
 
 **Open punten:** fase 3 roadmap (officiële API's na KvK);
 **e-mail/push-alerts op de volglijst** = échte feature die nog moet: de volglijst is nu client-side
@@ -484,7 +486,7 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 
 ### Nog te bouwen
 - [x] **Prijshistorie** — append-only tabel `price_history` (deel 11). ✅ Migratie op Neon; grafiek op productpagina
-- [~] **Wachtwoord vergeten** — flow gescaffold (deel 13, Resend). Werkt zodra `RESEND_API_KEY` gezet is
+- [x] **Wachtwoord vergeten** — flow + Resend-mailer (deel 13). ✅ live, `RESEND_API_KEY` gezet in Vercel Production
 - [x] **Compatibiliteitscheck** — socket/DDR/PSU/formfactor + GPU-lengte/koelerhoogte/koeler-socket
   ✅ gebouwd (open-db dimensies, deel 6). Nog open: AIO-radiator vs behuizing (geen open-db-veld)
 - [~] **Prijsalerts** — volglijst v1 ✅ (deel 12, "Volg prijs" + `/volglijst`). Nog open: e-mail/push-melding bij prijsdaling (e-mailprovider nodig)

@@ -18,18 +18,23 @@ surface #111317, JetBrains Mono terug, Material-3 tokennamen (zelfde als oud →
 - **Chrome**: glass-navbar (`bg-surface/80 backdrop-blur`) + donkere footer.
 - **Homepage**: Hero volledig herontworpen (split layout, gradient-kop "Betaal minder", status-badge,
   twee CTA's, zwevende glas-buildkaart met mockdata) + categoriekaarten glass + glow.
+- **Builder**: slot-rijen + sidebar + SmartGenerate + BuildSummary naar `glass-panel`/`glow-hover`;
+  primary-hover-tekst → `on-primary` (primary is nu lichtblauw).
+- **Blog**: herwerkt naar **bento** (groot featured-artikel + zijkaarten, mono-tags).
 - **bg-white-lekken** weg (inputs → surface-container-low, productafbeeldingen → surface-container-high)
   in inloggen/wachtwoord-pagina's, BuilderClient, CategorieClient, SearchSuggest, PriceList, ProductClient.
-- Geverifieerd: `tsc` + `eslint` + **`next build`** groen; screenshots (Chrome headless) van home/
-  builder/categorie/blog = coherent dark. **Let op**: dev-server CSS-cache kan stug zijn na
-  globals-wijziging → `rm -rf .next` + herstart als de kleuren niet flippen.
+- Geverifieerd: `tsc` + `eslint` + **`next build`** (53 pagina's) groen; screenshots (Chrome headless)
+  van home/builder/categorie/blog/galerij/zoeken/over/product/inloggen = coherent dark, geen witte
+  vlakken. **Let op**: dev-server Turbopack-CSS-cache lag op nieuwe utility-classes (bv. `md:grid-cols-3`)
+  → `rm -rf .next` + herstart; `next build` heeft het altijd correct.
 
-**Nog te doen voor volledige fidelity (alles erft al het dark-thema; dit is verdere polish):**
-- Builder-rijen → `glass-panel`; rechtersidebar-widgets (3D-view/compat/overzicht) in glas-stijl.
-- Categorie-bento met achtergrondafbeeldingen + compat-tags (design "Componenten Overzicht").
-- Blog-bento (featured-artikel groot + image-grid) i.p.v. de huidige platte lijst.
-- Resterende pagina's nalopen: zoeken, product, volglijst, galerij, vergelijk, builds, over, contact
-  (donker, maar nog niet vol-glas). `ui/`-primitives (button/card/input/badge) checken op dark-contrast.
+**Nog te doen voor 100% Stitch-fidelity (optioneel; alles is al coherent dark):**
+- Categorie-kaarten zijn nu glas-icoongrid; het Stitch-design "Componenten Overzicht" wil grote
+  bento-kaarten **met achtergrondafbeeldingen** + compat-tags (vereist 22 categorie-afbeeldingen).
+- Builder-rechtersidebar heeft nog niet de aparte "3D View"/"Compatibiliteit"/"Overzicht"-widgets
+  exact zoals het Stitch-builderscherm (huidige opzet is functioneel gelijk, andere indeling).
+- Secundaire pagina's (vergelijk/builds/contact/volglijst/wachtwoord/blog-detail-prose) erven het
+  dark-thema en zijn coherent, maar nog niet expliciet "vol-glas" gepolijst.
 - Iconen: bewust **lucide** gehouden (geen Material Symbols-migratie) — visueel equivalent.
 - **Bewaard**: routes/structuur, Zustand-stores, `useSyncExternalStore`-hydration, a11y, de
   "geen ongelayerde CSS in globals.css"-gotcha (alle nieuwe utilities staan in `@layer utilities`).

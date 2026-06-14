@@ -49,3 +49,6 @@ __pycache__/
 
 # Lokale scratch (open-db download voor scripts/build_dimensions.py)
 .bc-scratch/
+
+# lokale redesign-screenshots
+.shots/

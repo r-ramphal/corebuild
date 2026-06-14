@@ -72,7 +72,7 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
 
       {/* Product image: 192x192 */}
       <div
-        className={`w-full sm:w-48 h-48 bg-white rounded-lg flex items-center justify-center p-4 border border-outline-variant overflow-hidden flex-shrink-0 ${
+        className={`w-full sm:w-48 h-48 bg-surface-container-high rounded-lg flex items-center justify-center p-4 border border-outline-variant overflow-hidden flex-shrink-0 ${
           !item.inStock ? "grayscale" : ""
         }`}
       >

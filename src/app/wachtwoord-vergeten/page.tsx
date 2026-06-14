@@ -57,7 +57,7 @@ export default function WachtwoordVergetenPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="naam@voorbeeld.nl"
-                    className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                    className="w-full h-11 px-4 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
                   />
                 </div>
                 <button

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="bg-surface-container-low border-t border-outline-variant">
+    <footer className="bg-surface-container-lowest border-t border-outline-variant/40">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex flex-col gap-1 text-center md:text-left">
           <span className="font-title-md text-title-md font-bold text-on-surface">CoreBuild</span>

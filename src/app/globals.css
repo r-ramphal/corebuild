@@ -3,82 +3,91 @@
 @import "shadcn/tailwind.css";
 
 :root {
-  /* CoreBuild primary palette */
-  --cb-primary: #0049db;
-  --cb-primary-container: #2962ff;
-  --cb-on-primary: #ffffff;
-  --cb-on-primary-container: #f7f5ff;
-  --cb-primary-fixed: #dce1ff;
-  --cb-primary-fixed-dim: #b6c4ff;
-  --cb-on-primary-fixed: #001550;
-  --cb-on-primary-fixed-variant: #003ab3;
+  color-scheme: dark;
 
-  /* CoreBuild secondary palette */
-  --cb-secondary: #4355b9;
-  --cb-secondary-container: #8596ff;
-  --cb-secondary-fixed: #dee0ff;
-  --cb-secondary-fixed-dim: #bac3ff;
-  --cb-on-secondary: #ffffff;
-  --cb-on-secondary-fixed: #00105c;
-  --cb-on-secondary-fixed-variant: #293ca0;
-  --cb-on-secondary-container: #11278e;
+  /* CoreBuild dark palette — Stitch "Sui" redesign (Material-3 tokennamen) */
+  --cb-primary: #adc6ff;
+  --cb-primary-container: #4b8eff;
+  --cb-on-primary: #002e69;
+  --cb-on-primary-container: #00285c;
+  --cb-primary-fixed: #d8e2ff;
+  --cb-primary-fixed-dim: #adc6ff;
+  --cb-on-primary-fixed: #001a41;
+  --cb-on-primary-fixed-variant: #004493;
 
-  /* CoreBuild surface palette */
-  --cb-surface: #faf8ff;
-  --cb-surface-bright: #faf8ff;
-  --cb-surface-dim: #d2d9f4;
-  --cb-surface-container-lowest: #ffffff;
-  --cb-surface-container-low: #f2f3ff;
-  --cb-surface-container: #eaedff;
-  --cb-surface-container-high: #e2e7ff;
-  --cb-surface-container-highest: #dae2fd;
-  --cb-surface-variant: #dae2fd;
-  --cb-surface-tint: #004ee8;
+  /* secondary */
+  --cb-secondary: #a6e6ff;
+  --cb-secondary-container: #14d1ff;
+  --cb-secondary-fixed: #b7eaff;
+  --cb-secondary-fixed-dim: #4cd6ff;
+  --cb-on-secondary: #003543;
+  --cb-on-secondary-fixed: #001f28;
+  --cb-on-secondary-fixed-variant: #004e60;
+  --cb-on-secondary-container: #00566b;
 
-  /* CoreBuild on-surface */
-  --cb-on-surface: #131b2e;
-  --cb-on-surface-variant: #434656;
+  /* surface */
+  --cb-surface: #111317;
+  --cb-surface-bright: #37393e;
+  --cb-surface-dim: #111317;
+  --cb-surface-container-lowest: #0c0e12;
+  --cb-surface-container-low: #1a1c20;
+  --cb-surface-container: #1e2024;
+  --cb-surface-container-high: #282a2e;
+  --cb-surface-container-highest: #333539;
+  --cb-surface-variant: #333539;
+  --cb-surface-tint: #adc6ff;
+  --cb-surface-card: #1a1d23;
 
-  /* CoreBuild background */
-  --cb-background: #faf8ff;
-  --cb-on-background: #131b2e;
+  /* on-surface */
+  --cb-on-surface: #e2e2e8;
+  --cb-on-surface-variant: #c1c6d7;
 
-  /* CoreBuild outline */
-  --cb-outline: #737687;
-  --cb-outline-variant: #c3c5d8;
+  /* background */
+  --cb-background: #111317;
+  --cb-on-background: #e2e2e8;
 
-  /* CoreBuild inverse */
-  --cb-inverse-surface: #283044;
-  --cb-inverse-on-surface: #eef0ff;
-  --cb-inverse-primary: #b6c4ff;
+  /* high-contrast tekst (Stitch text-primary/secondary) */
+  --cb-text-primary: #ffffff;
+  --cb-text-secondary: #94a3b8;
 
-  /* CoreBuild error */
-  --cb-error: #ba1a1a;
-  --cb-error-container: #ffdad6;
-  --cb-on-error: #ffffff;
-  --cb-on-error-container: #93000a;
+  /* outline */
+  --cb-outline: #8b90a0;
+  --cb-outline-variant: #414755;
 
-  /* CoreBuild tertiary */
-  --cb-tertiary: #9e3500;
-  --cb-tertiary-container: #c74500;
-  --cb-tertiary-fixed: #ffdbcf;
-  --cb-tertiary-fixed-dim: #ffb59a;
-  --cb-on-tertiary: #ffffff;
-  --cb-on-tertiary-container: #fff4f1;
-  --cb-on-tertiary-fixed: #380d00;
-  --cb-on-tertiary-fixed-variant: #802a00;
+  /* inverse */
+  --cb-inverse-surface: #e2e2e8;
+  --cb-inverse-on-surface: #2f3035;
+  --cb-inverse-primary: #005bc1;
 
-  /* Status colors */
-  --cb-success-emerald: #10B981;
+  /* error */
+  --cb-error: #ffb4ab;
+  --cb-error-container: #93000a;
+  --cb-on-error: #690005;
+  --cb-on-error-container: #ffdad6;
+
+  /* tertiary */
+  --cb-tertiary: #ffb595;
+  --cb-tertiary-container: #ef6719;
+  --cb-tertiary-fixed: #ffdbcc;
+  --cb-tertiary-fixed-dim: #ffb595;
+  --cb-on-tertiary: #571e00;
+  --cb-on-tertiary-container: #4c1a00;
+  --cb-on-tertiary-fixed: #351000;
+  --cb-on-tertiary-fixed-variant: #7c2e00;
+
+  /* Status colors — helderder zodat ze op dark leesbaar zijn */
+  --cb-success-emerald: #22C55E;
+  --cb-success-green: #22C55E;
   --cb-warning-amber: #F59E0B;
   --cb-error-crimson: #EF4444;
+  --cb-danger-red: #EF4444;
 
-  /* Retailer colors */
+  /* Retailer colors — bol/alternate opgehelderd voor dark-leesbaarheid */
   --cb-retailer-amazon: #FF9900;
-  --cb-retailer-bol: #0000FF;
-  --cb-retailer-megekko: #00A651;
-  --cb-retailer-azerty: #E30613;
-  --cb-retailer-alternate: #00305F;
+  --cb-retailer-bol: #4b8eff;
+  --cb-retailer-megekko: #22C55E;
+  --cb-retailer-azerty: #ff5a5f;
+  --cb-retailer-alternate: #7aa2d6;
 
   /* shadcn compat tokens mapped to CoreBuild values */
   --background: var(--cb-background);
@@ -110,13 +119,26 @@
 
   /* Stitch typography font families */
   --font-display-lg: var(--font-hanken);
+  --font-headline-hero: var(--font-hanken);
+  --font-headline-hero-mobile: var(--font-hanken);
   --font-headline-lg: var(--font-hanken);
   --font-headline-lg-mobile: var(--font-hanken);
+  --font-headline-md: var(--font-hanken);
   --font-title-md: var(--font-hanken);
   --font-body-lg: var(--font-inter);
+  --font-body-md: var(--font-inter);
   --font-body-sm: var(--font-inter);
+  --font-caption: var(--font-inter);
   --font-label-price: var(--font-inter);
   --font-label-technical: var(--font-inter);
+  /* JetBrains Mono terug voor de "technical" mono-labels van de redesign */
+  --font-label-mono: var(--font-jetbrains);
+
+  /* Spacing-tokens uit de Stitch-export (px-gutter, py-stack-md, gap-gutter …) */
+  --spacing-gutter: 24px;
+  --spacing-stack-sm: 8px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-lg: 32px;
 
   /* Shadcn compat */
   --color-background: var(--background);
@@ -149,6 +171,11 @@
   --color-surface: var(--cb-surface);
   --color-surface-bright: var(--cb-surface-bright);
   --color-surface-dim: var(--cb-surface-dim);
+  --color-surface-card: var(--cb-surface-card);
+  --color-text-primary: var(--cb-text-primary);
+  --color-text-secondary: var(--cb-text-secondary);
+  --color-success-green: var(--cb-success-green);
+  --color-danger-red: var(--cb-danger-red);
   --color-surface-container-lowest: var(--cb-surface-container-lowest);
   --color-surface-container-low: var(--cb-surface-container-low);
   --color-surface-container: var(--cb-surface-container);
@@ -232,7 +259,7 @@
     top: 0;
     z-index: 100;
     padding: 0.75rem 1.25rem;
-    background: var(--cb-primary, #0049db);
+    background: var(--cb-primary-container, #4b8eff);
     color: #fff;
     font-size: 0.875rem;
     border-radius: 0 0 0.5rem 0;
@@ -306,6 +333,76 @@
     letter-spacing: 0.02em;
     font-weight: 500;
   }
+
+  /* Redesign-typografie (Stitch "Sui") */
+  .text-headline-hero {
+    font-size: 3rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+  }
+  .text-headline-hero-mobile {
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+  .text-headline-md {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  .text-body-md {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .text-caption {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+  .text-label-mono {
+    font-size: 0.875rem;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  /* Glassmorphism + glow + gradient — de signatuur van het nieuwe design */
+  .glass-panel {
+    background: rgba(26, 29, 35, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(65, 71, 85, 0.3);
+  }
+  .glass-card {
+    background: rgba(26, 29, 35, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--cb-outline-variant);
+  }
+  .glow-hover {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  }
+  .glow-hover:hover {
+    box-shadow: 0 0 20px rgba(173, 198, 255, 0.15);
+    border-color: rgba(173, 198, 255, 0.3);
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #adc6ff 0%, #4b8eff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .hero-gradient {
+    background: linear-gradient(to bottom, rgba(17, 19, 23, 0.2) 0%, rgba(17, 19, 23, 1) 100%);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 /* — Animaties voor build-intelligentie & visuele polish — */
@@ -347,11 +444,11 @@
   }
   /* Mesh-gradient achtergrond voor hero/CTA-vlakken */
   .cb-mesh {
-    background-color: #faf8ff;
+    background-color: #111317;
     background-image:
-      radial-gradient(at 18% 0%, #dce1ff 0px, transparent 55%),
-      radial-gradient(at 82% 12%, #e7e2ff 0px, transparent 50%),
-      radial-gradient(at 50% 100%, #d6e4ff 0px, transparent 55%);
+      radial-gradient(at 18% 0%, rgba(75, 142, 255, 0.14) 0px, transparent 55%),
+      radial-gradient(at 82% 12%, rgba(173, 198, 255, 0.10) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(20, 209, 255, 0.08) 0px, transparent 55%);
   }
   .cb-shimmer {
     background: linear-gradient(

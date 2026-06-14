@@ -85,7 +85,7 @@ export function WachtwoordHerstellenClient() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Minimaal 8 tekens"
-                    className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                    className="w-full h-11 px-4 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
                   />
                 </div>
                 <div>
@@ -99,7 +99,7 @@ export function WachtwoordHerstellenClient() {
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     placeholder="Nogmaals je nieuwe wachtwoord"
-                    className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                    className="w-full h-11 px-4 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
                   />
                 </div>
 

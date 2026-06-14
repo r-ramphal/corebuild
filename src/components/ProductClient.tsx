@@ -131,7 +131,7 @@ export function ProductClient() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mt-4 mb-12">
           {/* Image */}
           <div className="md:col-span-5">
-            <div className="bg-white rounded-xl border border-outline-variant p-8 flex items-center justify-center aspect-square sticky top-24">
+            <div className="bg-surface-container-high rounded-xl border border-outline-variant p-8 flex items-center justify-center aspect-square sticky top-24">
               {loading ? (
                 <div className="w-full h-full rounded-lg bg-surface-container animate-pulse" />
               ) : heroImage ? (

@@ -101,9 +101,9 @@ export function SearchSuggest({
   // Variant-afhankelijke maatvoering
   const inputClass =
     variant === "hero"
-      ? "w-full h-16 pl-16 pr-20 bg-white border border-outline-variant rounded-xl shadow-sm text-on-surface placeholder:text-on-surface-variant font-body-lg text-body-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+      ? "w-full h-16 pl-16 pr-20 bg-surface-container-low border border-outline-variant rounded-xl shadow-sm text-on-surface placeholder:text-on-surface-variant font-body-lg text-body-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
       : variant === "page"
-        ? "w-full h-12 pl-11 pr-4 bg-white border border-outline-variant rounded-lg text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+        ? "w-full h-12 pl-11 pr-4 bg-surface-container-low border border-outline-variant rounded-lg text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
         : "w-full h-10 pl-10 pr-4 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary";
 
   const iconClass =

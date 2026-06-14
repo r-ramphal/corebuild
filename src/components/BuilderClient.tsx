@@ -292,7 +292,7 @@ export function BuilderClient() {
                       onKeyDown={(e) => e.key === "Enter" && handleSave()}
                       placeholder="Naam van je build…"
                       maxLength={80}
-                      className="w-full h-10 px-3 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                      className="w-full h-10 px-3 bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
                     />
                     {saveError && (
                       <p className="font-label-technical text-label-technical text-error-crimson">{saveError}</p>

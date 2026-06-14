@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, Inter } from "next/font/google";
+import { Hanken_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
 
-// Twee lettertypes vormen de hele huisstijl: Hanken Grotesk voor koppen,
-// Inter voor alle tekst, labels en knoppen.
+// Huisstijl van de redesign: Hanken Grotesk (koppen) + Inter (tekst) +
+// JetBrains Mono (technische mono-labels: prijzen, specs, badges).
 const hanken = Hanken_Grotesk({
   variable: "--font-hanken",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "600", "700", "800"],
   display: "swap",
 });
 
@@ -17,6 +17,13 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["500"],
   display: "swap",
 });
 
@@ -77,7 +84,7 @@ export default function RootLayout({
   return (
     <html
       lang="nl"
-      className={`${hanken.variable} ${inter.variable}`}
+      className={`dark ${hanken.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body>
         <a href="#main-content" className="skip-link">

@@ -2,6 +2,28 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ VOLGENDE STAP (gevraagd 15-06): het 3D-model verbeteren
+
+De gebruiker wil als volgende stap de **3D-builder verbeteren**. Startpunt voor de volgende sessie:
+- **Code**: `src/components/builder/BuildPreview3D.tsx` — dependency-vrij **CSS-3D** (geen three.js).
+  Huidige staat (deel 18, stap 5): per-vlak belichting (solide, belichte onderdelen i.p.v. wireframe),
+  open behuizing (zicht op internals), ventilator-schijven op koeler + GPU, grondschaduw, **klikbare
+  legenda** (opent de SlotPicker via `onSelectSlot`) + hover-highlight, reset-knop, sleep-draaien +
+  idle auto-rotate, `prefers-reduced-motion`-veilig. Wrapper `BuildPreview.tsx` heeft de **2.5D↔3D-toggle**
+  (2.5D = default) en geeft `onSelectSlot` door vanuit `BuilderClient`.
+- **Verbeterrichtingen** (bespreek/kies met de gebruiker):
+  1. **Maatvast op échte specs** — de dimensie-datasets bestaan al (`src/lib/specs/data/`:
+     `gpu-lengths.json`, `cases.json`, `coolers.json`). Laat GPU-lengte, koelerhoogte en case-grootte in
+     het 3D-aanzicht de werkelijke maten van de gekozen onderdelen volgen (sluit aan op de compat-checks).
+  2. **Realistischere vormen/materialen** — GPU met backplate + fans aan de juiste kant, case met
+     voorpaneel/glas-zijkant, RGB-accent, betere proporties, evt. kabels; subtielere shading/highlights.
+  3. **Directe interactie in 3D** — klik een onderdeel (of leeg slot) in de scène zelf om te kiezen/
+     wijzigen (nu alleen via de legenda); onderdeel-labels on hover.
+  4. **Kernbeslissing**: CSS-3D houden (dependency-vrij, past bij het project) **vs.** overstappen op
+     **three.js / react-three-fiber** voor échte 3D (zwaardere client-bundle — expliciet afwegen).
+- **Randvoorwaarden**: `prefers-reduced-motion` blijven respecteren; geen grote bundle zonder reden;
+  data/logica (scrapers/Neon/`/api/*`/auth) ongemoeid.
+
 ## ▶ UI-REDESIGN — giastpc-stijl is LIVE op productie (functionaliteit ongewijzigd)
 
 De **giastpc-redesign** (licht/oranje/mono brutalist) is op **14-06 gemerged naar `master`** en draait

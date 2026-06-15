@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { BuildPreview2D } from "./BuildPreview2D";
 import { BuildPreview3D } from "./BuildPreview3D";
 import type { BuildComponents } from "@/lib/store/build";
+import type { ComponentType } from "@/lib/types";
 
 type View = "2d" | "3d";
 const KEY = "corebuild-preview-view";
@@ -38,7 +39,13 @@ function subscribe(cb: () => void) {
  * Wikkelt de buildvisualisatie met een 2.5D↔3D-keuze. 2.5D is de standaard
  * (licht, snel); 3D is een draaibaar CSS-aanzicht. De keuze blijft bewaard.
  */
-export function BuildPreview({ components }: { components: BuildComponents }) {
+export function BuildPreview({
+  components,
+  onSelectSlot,
+}: {
+  components: BuildComponents;
+  onSelectSlot?: (type: ComponentType) => void;
+}) {
   const view = useSyncExternalStore<View>(subscribe, read, () => "2d");
 
   return (
@@ -64,7 +71,7 @@ export function BuildPreview({ components }: { components: BuildComponents }) {
         </div>
       </div>
       {view === "3d" ? (
-        <BuildPreview3D components={components} />
+        <BuildPreview3D components={components} onSelectSlot={onSelectSlot} />
       ) : (
         <BuildPreview2D components={components} />
       )}

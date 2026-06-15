@@ -244,7 +244,7 @@ export function BuilderClient() {
             })}
           </div>
 
-          <BuildPreview components={components} />
+          <BuildPreview components={components} onSelectSlot={setPickerType} />
           <BuildSummary components={components} />
         </div>
 

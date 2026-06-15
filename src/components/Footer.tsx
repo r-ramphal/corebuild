@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const LINKS = [
   { href: "/galerij", label: "Buildgalerij" },
+  { href: "/community", label: "Community" },
   { href: "/volglijst", label: "Volglijst" },
   { href: "/blog", label: "Blog" },
   { href: "/over", label: "Over CoreBuild" },

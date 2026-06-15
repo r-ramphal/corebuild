@@ -148,3 +148,33 @@ export const priceAlerts = pgTable(
 );
 
 export type PriceAlertRow = typeof priceAlerts.$inferSelect;
+
+/**
+ * Reddit-posts (community-feed). Periodiek ingelezen door `/api/cron/reddit` uit
+ * o.a. r/buildapc en opgeslagen, zodat de site uit de database leest i.p.v. live
+ * de Reddit-API te bevragen (rate limits). Uniek op `post_id` (upsert ververst
+ * score/aantal reacties). Geen persoonsdata buiten de publieke auteursnaam.
+ */
+export const redditPosts = pgTable(
+  "reddit_posts",
+  {
+    id: serial("id").primaryKey(),
+    postId: text("post_id").notNull().unique(),
+    subreddit: text("subreddit").notNull(),
+    title: text("title").notNull(),
+    permalink: text("permalink").notNull(),
+    url: text("url"),
+    author: text("author"),
+    score: integer("score").notNull().default(0),
+    numComments: integer("num_comments").notNull().default(0),
+    flair: text("flair"),
+    createdUtc: timestamp("created_utc", { withTimezone: true }),
+    fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("reddit_posts_score_idx").on(table.score),
+    index("reddit_posts_subreddit_idx").on(table.subreddit),
+  ]
+);
+
+export type RedditPostRow = typeof redditPosts.$inferSelect;

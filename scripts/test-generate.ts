@@ -4,6 +4,7 @@
  */
 import { generateBuild, type GenerateInput } from "../src/lib/specs/generate";
 import { detectCpu, detectGpu, detectSocket, detectDdr, detectPsuWatts, detectRamGb } from "../src/lib/specs/detect";
+import { isRecommended } from "../src/lib/specs/recommend";
 import type { PriceResult } from "../src/lib/types";
 
 const p = (name: string, priceEur: number): PriceResult => ({ retailer: "megekko", name, priceEur, url: "https://x.nl", inStock: true });
@@ -70,6 +71,29 @@ function ok(label: string, cond: boolean, extra = "") {
   ok("Opslag ≥1TB", /\b(1|2|4)\s?tb\b/i.test(c.storage?.name ?? ""), `(${c.storage?.name})`);
   ok("Geen losse koeler (65W CPU)", c.cooling == null);
   ok("Binnen budget", !r.overBudget, `(€${r.total})`);
+  ok("Voeding is community-favoriet", isRecommended("psu", c.psu?.name ?? ""), `(${c.psu?.name})`);
+  ok("Behuizing is community-favoriet", isRecommended("case", c.case?.name ?? ""), `(${c.case?.name})`);
+  ok("Community-favorieten-notitie aanwezig", r.notes.some((n) => /community-favoriet/i.test(n)));
+}
+
+// — Test: streaming €2000 (warme CPU → koeler, 32GB RAM, favoriet-koeler) —
+{
+  const r = generateBuild({ budget: 2000, useCase: "streaming", resolution: "1440p", candidates });
+  const c = r.components;
+  console.log("\n[streaming 1440p €2000] total €" + r.total + (r.overBudget ? " (OVER)" : ""));
+  ok("Streaming: RAM ≥32GB", (detectRamGb(c.ram?.name ?? "") ?? 0) >= 32, `(${c.ram?.name})`);
+  ok("Streaming: RAM is DDR5", detectDdr(c.ram?.name ?? "") === "DDR5", `(${c.ram?.name})`);
+  ok("Streaming: koeler gekozen (warme CPU)", c.cooling != null, `(${c.cooling?.name})`);
+  ok("Streaming: koeler is community-favoriet", isRecommended("cooling", c.cooling?.name ?? ""), `(${c.cooling?.name})`);
+}
+
+// — Test: competitive 1080p €1200 (GPU + CPU aanwezig) —
+{
+  const r = generateBuild({ budget: 1200, useCase: "competitive", resolution: "1080p", candidates });
+  const c = r.components;
+  console.log("\n[competitive 1080p €1200] total €" + r.total + (r.overBudget ? " (OVER)" : ""));
+  ok("Competitive: GPU aanwezig", c.gpu != null, `(${c.gpu?.name})`);
+  ok("Competitive: CPU aanwezig", c.cpu != null, `(${c.cpu?.name})`);
 }
 
 // — Test 2: office €800 (iGPU, geen losse GPU) —

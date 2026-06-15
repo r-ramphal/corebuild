@@ -20,7 +20,7 @@ import type { ComponentType, PriceResult } from "@/lib/types";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const USE_CASES: UseCase[] = ["gaming", "creator", "office"];
+const USE_CASES: UseCase[] = ["gaming", "creator", "office", "streaming", "competitive"];
 const RESOLUTIONS: Resolution[] = ["1080p", "1440p", "4k"];
 
 export async function GET(req: NextRequest) {

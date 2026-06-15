@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  WandSparkles, Gamepad2, Clapperboard, Briefcase, LoaderCircle, CircleAlert, RotateCw,
+  WandSparkles, Gamepad2, Clapperboard, Briefcase, Video, Crosshair, LoaderCircle, CircleAlert, RotateCw,
 } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { formatEur } from "@/lib/format";
@@ -10,7 +10,9 @@ import type { UseCase, Resolution, GenerateResult } from "@/lib/specs/generate";
 
 const USE_CASES: { id: UseCase; label: string; icon: React.ComponentType<{ className?: string }>; desc: string }[] = [
   { id: "gaming", label: "Gamen", icon: Gamepad2, desc: "Hoge FPS in games" },
-  { id: "creator", label: "Creator", icon: Clapperboard, desc: "Streamen, editen, renderen" },
+  { id: "competitive", label: "Esports", icon: Crosshair, desc: "Hoogste FPS, 1080p" },
+  { id: "streaming", label: "Streamen", icon: Video, desc: "Gamen + livestream/encode" },
+  { id: "creator", label: "Creator", icon: Clapperboard, desc: "Editen, renderen, 3D" },
   { id: "office", label: "Werk & thuis", icon: Briefcase, desc: "Kantoor, browsen, media" },
 ];
 
@@ -22,7 +24,9 @@ const RESOLUTIONS: { id: Resolution; label: string }[] = [
 
 const TEMPLATES: { label: string; use: UseCase; res: Resolution; budget: number }[] = [
   { label: "Budget 1080p", use: "gaming", res: "1080p", budget: 800 },
+  { label: "Esports 1080p", use: "competitive", res: "1080p", budget: 1100 },
   { label: "1440p gaming", use: "gaming", res: "1440p", budget: 1500 },
+  { label: "Streamer", use: "streaming", res: "1440p", budget: 1800 },
   { label: "4K gaming", use: "gaming", res: "4k", budget: 2500 },
   { label: "Creator", use: "creator", res: "1440p", budget: 2000 },
   { label: "Werk & thuis", use: "office", res: "1080p", budget: 700 },
@@ -102,7 +106,7 @@ export function SmartGenerate() {
           <p className="font-label-technical text-label-technical uppercase tracking-wider text-on-surface-variant mb-2">
             Waarvoor gebruik je de pc?
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {USE_CASES.map((uc) => {
               const active = useCase === uc.id;
               const Icon = uc.icon;

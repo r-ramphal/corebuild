@@ -19,8 +19,9 @@ import type { GpuSpec } from "./gpu-data";
 import {
   detectCpu, detectGpu, detectSocket, detectDdr, detectPsuWatts, detectRamGb,
 } from "./detect";
+import { isRecommended } from "./recommend";
 
-export type UseCase = "gaming" | "creator" | "office";
+export type UseCase = "gaming" | "creator" | "office" | "streaming" | "competitive";
 export type Resolution = "1080p" | "1440p" | "4k";
 
 export interface GenerateRequest {
@@ -50,6 +51,10 @@ const ALLOC: Record<string, Partial<Record<ComponentType, number>>> = {
   "gaming-1440p": { gpu: 0.40, cpu: 0.16, motherboard: 0.10, ram: 0.08, storage: 0.08, psu: 0.07, case: 0.06, cooling: 0.05 },
   "gaming-4k": { gpu: 0.48, cpu: 0.13, motherboard: 0.09, ram: 0.08, storage: 0.07, psu: 0.07, case: 0.05, cooling: 0.03 },
   creator: { gpu: 0.30, cpu: 0.26, motherboard: 0.10, ram: 0.12, storage: 0.08, psu: 0.06, case: 0.05, cooling: 0.03 },
+  // Streamen/content: sterke multicore-CPU (encoden) + 32GB RAM, nog steeds een goede GPU.
+  streaming: { gpu: 0.32, cpu: 0.24, motherboard: 0.10, ram: 0.10, storage: 0.08, psu: 0.06, case: 0.05, cooling: 0.05 },
+  // Competitief/esports: hoge FPS → CPU-zwaar, snelle mid-high GPU, rest sober.
+  competitive: { gpu: 0.34, cpu: 0.25, motherboard: 0.10, ram: 0.08, storage: 0.08, psu: 0.06, case: 0.05, cooling: 0.04 },
   office: { cpu: 0.34, motherboard: 0.16, ram: 0.14, storage: 0.16, psu: 0.08, case: 0.08, cooling: 0.04 },
 };
 
@@ -104,15 +109,28 @@ function pickByIndex<S>(detected: Detected<S>[], cap: number, score: (s: S) => n
   );
 }
 
-/** Goedkoopste kandidaat die aan `ok` voldoet en binnen `cap` valt. */
+/**
+ * Goedkoopste kandidaat die aan `ok` voldoet en binnen `cap` valt. Met `prefer`
+ * krijgt een community-favoriet voorrang: de góédkoopste aanbevolen optie binnen
+ * budget (anders gewoon de goedkoopste). Zo blijft de build budgetvast maar kiest
+ * hij waar mogelijk een onderdeel dat ervaren bouwers zouden aanraden.
+ */
 function pickCheapest(
   cands: PriceResult[],
   cap: number,
-  ok: (c: PriceResult) => boolean = () => true
+  ok: (c: PriceResult) => boolean = () => true,
+  prefer?: (c: PriceResult) => boolean
 ): PriceResult | null {
   const valid = cands.filter(ok); // cands komen al op prijs oplopend binnen
   if (valid.length === 0) return null;
-  return valid.find((c) => c.priceEur <= cap) ?? valid[0];
+  const within = valid.filter((c) => c.priceEur <= cap);
+  // Voorkeur alleen binnen budget toepassen — een favoriet mag de build nooit
+  // verder over budget duwen. Niets binnen budget → puur de goedkoopste.
+  if (prefer && within.length > 0) {
+    const recommended = within.find(prefer); // within is prijs-oplopend → goedkoopste favoriet
+    if (recommended) return recommended;
+  }
+  return (within.length > 0 ? within : valid)[0];
 }
 
 export function generateBuild(input: GenerateInput): GenerateResult {
@@ -137,8 +155,10 @@ export function generateBuild(input: GenerateInput): GenerateResult {
     }
   }
 
-  // 2. CPU — gaming weegt gaming-index, creator/office multicore. Office eist iGPU.
-  const cpuScore = (s: CpuSpec) => (useCase === "gaming" ? s.gamingIndex : s.multiIndex);
+  // 2. CPU — gaming/competitief weegt gaming-index, creator/streaming/office multicore.
+  //    Office eist iGPU.
+  const cpuScore = (s: CpuSpec) =>
+    useCase === "gaming" || useCase === "competitive" ? s.gamingIndex : s.multiIndex;
   let cpuDetected = detectList(get("cpu"), detectCpu);
   if (useCase === "office") cpuDetected = cpuDetected.filter((d) => d.spec.igpu);
   const cpuPick = pickByIndex(cpuDetected, cap("cpu"), cpuScore);
@@ -163,7 +183,7 @@ export function generateBuild(input: GenerateInput): GenerateResult {
       if (ddr && d && d !== ddr && d !== "DDR4/DDR5") return false;
       return true;
     };
-    const mobo = pickCheapest(get("motherboard"), cap("motherboard"), compatible)
+    const mobo = pickCheapest(get("motherboard"), cap("motherboard"), compatible, (c) => isRecommended("motherboard", c.name))
       ?? pickCheapest(get("motherboard"), cap("motherboard"));
     if (mobo) {
       components.motherboard = mobo;
@@ -173,15 +193,15 @@ export function generateBuild(input: GenerateInput): GenerateResult {
     }
   }
 
-  // 4. RAM — juist DDR-type, minimaal 16GB (creator 32GB).
-  const minRam = useCase === "creator" ? 32 : 16;
+  // 4. RAM — juist DDR-type, minimaal 16GB (creator/streaming 32GB).
+  const minRam = useCase === "creator" || useCase === "streaming" ? 32 : 16;
   if (get("ram").length > 0) {
     const okRam = (c: PriceResult) => {
       const d = detectDdr(c.name);
       if (ddr && d && d !== ddr) return false;
       return (detectRamGb(c.name) ?? 0) >= minRam;
     };
-    const ram = pickCheapest(get("ram"), cap("ram"), okRam) ?? pickCheapest(get("ram"), cap("ram"));
+    const ram = pickCheapest(get("ram"), cap("ram"), okRam, (c) => isRecommended("ram", c.name)) ?? pickCheapest(get("ram"), cap("ram"));
     if (ram) {
       components.ram = ram;
       notes.push(`Werkgeheugen: ${detectRamGb(ram.name) ?? "?"}GB${ddr ? ` ${ddr}` : ""}.`);
@@ -194,7 +214,7 @@ export function generateBuild(input: GenerateInput): GenerateResult {
       /\b(ssd|nvme|m\.?2)\b/i.test(c.name) &&
       !/\bhdd\b|harde schijf|hard\s?drive|barracuda|7200|5400/i.test(c.name);
     const storage =
-      pickCheapest(get("storage"), cap("storage"), (c) => isSsd(c) && parseStorageGb(c.name) >= 1000)
+      pickCheapest(get("storage"), cap("storage"), (c) => isSsd(c) && parseStorageGb(c.name) >= 1000, (c) => isRecommended("storage", c.name))
       ?? pickCheapest(get("storage"), cap("storage"), isSsd)
       ?? pickCheapest(get("storage"), cap("storage"), (c) => parseStorageGb(c.name) >= 1000)
       ?? pickCheapest(get("storage"), cap("storage"));
@@ -204,7 +224,7 @@ export function generateBuild(input: GenerateInput): GenerateResult {
   // 6. Voeding — wattage ≥ aanbevolen voor deze CPU+GPU.
   const recPsu = recommendedPsu(cpuSpec, gpuSpec);
   if (get("psu").length > 0) {
-    const psu = pickCheapest(get("psu"), cap("psu"), (c) => (detectPsuWatts(c.name) ?? 0) >= recPsu)
+    const psu = pickCheapest(get("psu"), cap("psu"), (c) => (detectPsuWatts(c.name) ?? 0) >= recPsu, (c) => isRecommended("psu", c.name))
       ?? pickByIndex(detectList(get("psu"), detectPsuWatts), cap("psu"), (w) => w)?.item
       ?? pickCheapest(get("psu"), cap("psu"));
     if (psu) {
@@ -214,8 +234,9 @@ export function generateBuild(input: GenerateInput): GenerateResult {
     }
   }
 
-  // 7. Behuizing — goedkoopste binnen budget.
-  const caseItem = pickCheapest(get("case"), cap("case"));
+  // 7. Behuizing — goedkoopste binnen budget, met voorkeur voor een
+  //    community-favoriet (goede luchtstroom/bouwkwaliteit).
+  const caseItem = pickCheapest(get("case"), cap("case"), () => true, (c) => isRecommended("case", c.name));
   if (caseItem) components.case = caseItem;
 
   // 8. Koeling — alleen bij een warme CPU (X-serie); anders volstaat de boxed koeler.
@@ -224,11 +245,22 @@ export function generateBuild(input: GenerateInput): GenerateResult {
     // Weer accessoires (beugels, koelpasta, pads) die als 'koeling' binnenkwamen.
     const notAccessory = (c: PriceResult) =>
       !/beugel|bracket|\bmount\b|montage|backplate|koelpasta|thermal\s?(paste|pad)|stofkap|sticker|\bkabel\b/i.test(c.name);
-    const cooler = pickCheapest(get("cooling"), cap("cooling"), notAccessory)
+    const cooler = pickCheapest(get("cooling"), cap("cooling"), notAccessory, (c) => isRecommended("cooling", c.name))
       ?? pickCheapest(get("cooling"), cap("cooling"));
     if (cooler) components.cooling = cooler;
   } else if (cpuSpec && (cpuSpec.tdp < 95)) {
     notes.push(`De ${cpuSpec.label} (${cpuSpec.tdp}W) komt meestal met een boxed koeler — losse koeler optioneel.`);
+  }
+
+  // Welke kwaliteitsslots werden een community-favoriet? (transparante toelichting)
+  const FAV_LABEL: Partial<Record<ComponentType, string>> = {
+    psu: "voeding", cooling: "koeler", case: "behuizing", motherboard: "moederbord", ram: "geheugen", storage: "opslag",
+  };
+  const favs = (Object.keys(FAV_LABEL) as ComponentType[])
+    .filter((s) => components[s] && isRecommended(s, components[s]!.name))
+    .map((s) => FAV_LABEL[s]!);
+  if (favs.length >= 2) {
+    notes.push(`Voor ${favs.join(", ")} koos ik community-favorieten — betrouwbare merken die ervaren bouwers aanraden, niet zomaar de goedkoopste.`);
   }
 
   const total = Object.values(components).reduce((sum, c) => sum + (c?.priceEur ?? 0), 0);

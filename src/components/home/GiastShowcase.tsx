@@ -1,8 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { COMPONENT_META } from "@/lib/categories";
+import type { ComponentType } from "@/lib/types";
 
-/** Featured build in het giastpc product-kaart-patroon: oranje pixel-kop + foto. */
+/**
+ * Featured build: een concrete voorbeeld-samenstelling met zichtbare onderdelen.
+ * Elke regel linkt door naar de zoek-/vergelijkpagina voor dat onderdeel, zodat
+ * bezoekers meteen zien waaruit een build bestaat en kunnen doorklikken.
+ */
+const FEATURED: { type: ComponentType; name: string }[] = [
+  { type: "cpu", name: "AMD Ryzen 7 9800X3D" },
+  { type: "gpu", name: "GeForce RTX 5070 Ti" },
+  { type: "motherboard", name: "B650 ATX moederbord" },
+  { type: "ram", name: "32GB DDR5-6000" },
+  { type: "storage", name: "2TB NVMe SSD" },
+  { type: "psu", name: "850W 80+ Gold" },
+  { type: "case", name: "Fractal Design North" },
+  { type: "cooling", name: "Noctua NH-D15" },
+];
+
 export function GiastShowcase() {
   return (
     <section className="bg-gp-bg border-b border-gp-line">
@@ -11,11 +28,11 @@ export function GiastShowcase() {
           {/* Oranje pixel-kopbalk */}
           <div className="gp-bar flex items-center justify-between px-4 py-2">
             <span className="font-pixel text-[16px] tracking-wide leading-none">Featured build</span>
-            <span className="font-plex text-[11px] uppercase tracking-wider opacity-90">_showcase</span>
+            <span className="font-plex text-[11px] uppercase tracking-wider opacity-90">1440p gaming</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className="relative min-h-[280px] md:min-h-[360px] bg-gp-ink">
+            <div className="relative min-h-[280px] md:min-h-full bg-gp-ink">
               <Image
                 src="/images/hero/showcase-a.webp"
                 alt="Complete CoreBuild-samenstelling met videokaart en waterkoeling"
@@ -31,18 +48,35 @@ export function GiastShowcase() {
               <p className="font-plex text-[12px] uppercase tracking-[0.2em] text-gp-ink-soft mb-4">
                 <span className="text-gp-orange">_</span>compatibel &amp; geprijsd
               </p>
-              <h3 className="font-mont font-extrabold text-[24px] sm:text-[30px] leading-tight mb-4">
-                Samengesteld, niet zomaar gekozen.
+              <h3 className="font-mont font-extrabold text-[22px] sm:text-[26px] leading-tight mb-5">
+                Dit zit erin.
               </h3>
-              <p className="font-plex text-[14px] leading-relaxed text-gp-ink-soft mb-7">
-                Elke build wordt automatisch op compatibiliteit gecheckt en op prijs vergeleken bij
-                5 retailers. Jij kiest de onderdelen, wij doen de controle.
-              </p>
+
+              {/* Onderdelenlijst — klik om te bekijken/vergelijken */}
+              <ul className="border-t border-gp-line mb-7">
+                {FEATURED.map(({ type, name }) => (
+                  <li key={type} className="border-b border-gp-line">
+                    <Link
+                      href={`/zoeken?q=${encodeURIComponent(name)}`}
+                      className="flex items-center gap-3 py-2.5 group"
+                    >
+                      <span className="font-plex text-[10px] uppercase tracking-wider text-gp-ink-soft w-16 shrink-0">
+                        {COMPONENT_META[type].shortLabel}
+                      </span>
+                      <span className="font-mont font-bold text-[13px] sm:text-[14px] flex-1 leading-tight group-hover:text-gp-orange transition-colors">
+                        {name}
+                      </span>
+                      <ArrowUpRight className="w-3.5 h-3.5 text-gp-ink-soft group-hover:text-gp-orange transition-colors shrink-0" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
               <Link
                 href="/builder"
                 className="self-start bg-gp-orange hover:bg-gp-orange-dark text-white font-plex text-[13px] uppercase tracking-wider px-7 py-4 inline-flex items-center gap-2 transition-colors"
               >
-                Start je build <ArrowRight className="w-4 h-4" />
+                Stel zelf samen <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>

@@ -479,6 +479,29 @@ featured build + categorie-accenten visueel gecheckt via headless Chrome).
 - **Let op (dev-omgeving)**: poort 3000 was tijdens deze sessie bezet door een **ander project
   (Kamerradar)**, dus CoreBuild `npm run dev` draaide op **3001**. Niet door elkaar halen bij lokaal testen.
 
+**Nieuw (15 juni 2026, deel 20) — UX-fixes + smart generate v2:**
+Zes punten, geverifieerd (`tsc` + `eslint src` + `npm run test` + `next build` 55 pagina's groen;
+homepage + SmartGenerate visueel via headless Chrome).
+- **Modal-scroll** (Lenis hijackte het muiswiel): `data-lenis-prevent=""` op de `SlotPicker`- en
+  `BuildWizard`-overlay → het wiel scrollt nu de modal-inhoud i.p.v. de pagina erachter.
+- **Picker-snelheid**: `Cache-Control` (`s-maxage`+`stale-while-revalidate`) op de **catalogus**- en
+  **database**-responses van `/api/search` → herhaald openen van de picker/categoriepagina is op de
+  CDN bijna instant. (Lokaal/dev blijft de Neon-latency; productie profiteert van de edge-cache.)
+- **Featured build**: koeler was "Noctua NH-D15" (lucht) bij een **waterkoelings-foto** → nu "Arctic
+  Liquid Freezer III 360" (AIO), consistent.
+- **Live build-log** (`GiastTerminal`): body `justify-end` → de nieuwste regels (incl. "build gereed")
+  blijven in beeld i.p.v. onderaan afgeknipt.
+- **Oranje standaard zichtbaar bij onderdelen**: homepage-bento heeft nu oranje nummer-badges, een
+  oranje rand op het label en oranje pijlen (niet alleen op hover); categoriekaarten kregen een
+  persistente oranje rand-accent.
+- **Smart generate v2** (`src/lib/specs/recommend.ts`): de generator geeft nu **community-favorieten**
+  voorrang (PSU-tierlists, r/buildapc, Gamers Nexus/HWUB-consensus: koeler/voeding/behuizing/mobo/RAM/
+  SSD) — maar **alleen binnen budget** (duwt de build nooit verder over budget; cheapste-compatibele
+  fallback blijft), met een toelichtende notitie. **Geen live Reddit/Substack-scraper** (ToS/fragiel/
+  niet te onderhouden) — de consensus is ingebakken in naam-patronen; verversen = patronen bijwerken.
+  Twee nieuwe use-cases: **Esports** (competitive, hoge FPS) + **Streamen** (multicore + 32GB); de
+  SmartGenerate-UI heeft nu 5 profielen + 7 snelstart-templates. `test-generate` uitgebreid.
+
 **Open punten:** fase 3 roadmap (officiële API's na KvK). Optioneel resterend uit de redesign:
 per-categorie hero-foto op `/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
 Nog handmatig te verifiëren (vereist account/inbox/toestel): reset-mail, prijsalert-cron-mail,

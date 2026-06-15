@@ -2,27 +2,52 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
-## ▶ VOLGENDE STAP (gevraagd 15-06): het 3D-model verbeteren
+## ▶ Nieuw (15 juni 2026, deel 22) — echte 3D met three.js (maatvast op specs), 2.5D eruit
 
-De gebruiker wil als volgende stap de **3D-builder verbeteren**. Startpunt voor de volgende sessie:
-- **Code**: `src/components/builder/BuildPreview3D.tsx` — dependency-vrij **CSS-3D** (geen three.js).
-  Huidige staat (deel 18, stap 5): per-vlak belichting (solide, belichte onderdelen i.p.v. wireframe),
-  open behuizing (zicht op internals), ventilator-schijven op koeler + GPU, grondschaduw, **klikbare
-  legenda** (opent de SlotPicker via `onSelectSlot`) + hover-highlight, reset-knop, sleep-draaien +
-  idle auto-rotate, `prefers-reduced-motion`-veilig. Wrapper `BuildPreview.tsx` heeft de **2.5D↔3D-toggle**
-  (2.5D = default) en geeft `onSelectSlot` door vanuit `BuilderClient`.
-- **Verbeterrichtingen** (bespreek/kies met de gebruiker):
-  1. **Maatvast op échte specs** — de dimensie-datasets bestaan al (`src/lib/specs/data/`:
-     `gpu-lengths.json`, `cases.json`, `coolers.json`). Laat GPU-lengte, koelerhoogte en case-grootte in
-     het 3D-aanzicht de werkelijke maten van de gekozen onderdelen volgen (sluit aan op de compat-checks).
-  2. **Realistischere vormen/materialen** — GPU met backplate + fans aan de juiste kant, case met
-     voorpaneel/glas-zijkant, RGB-accent, betere proporties, evt. kabels; subtielere shading/highlights.
-  3. **Directe interactie in 3D** — klik een onderdeel (of leeg slot) in de scène zelf om te kiezen/
-     wijzigen (nu alleen via de legenda); onderdeel-labels on hover.
-  4. **Kernbeslissing**: CSS-3D houden (dependency-vrij, past bij het project) **vs.** overstappen op
-     **three.js / react-three-fiber** voor échte 3D (zwaardere client-bundle — expliciet afwegen).
-- **Randvoorwaarden**: `prefers-reduced-motion` blijven respecteren; geen grote bundle zonder reden;
-  data/logica (scrapers/Neon/`/api/*`/auth) ongemoeid.
+De gebruiker koos: **2.5D weg**, **libraries mogen**, en **maatvast op échte specs met prioriteit op
+een realistische, herkenbare vorm**. Daarmee is de oude dependency-vrije CSS-3D + de 2.5D-toggle
+vervangen door een echte **three.js / react-three-fiber**-scène. Geverifieerd: `tsc` + `eslint src` +
+`npm run test` + `next build` (56 pagina's) groen; runtime via **headless Chrome (swiftshader-WebGL)**
+gecheckt (canvas mount + gevulde build gescreenshot — case, koelertoren+fan, moederbord+PCIe-accent,
+videokaart met fans+RGB, voeding, allemaal zichtbaar).
+- **Libraries** (nieuw in `package.json`): `three@^0.184`, `@react-three/fiber@^9.6` (vereist
+  React ≥19 <19.3 — wij draaien 19.2.4 ✓), `@react-three/drei@^10.7`, dev `@types/three`.
+- **`src/lib/specs/build-model.ts`** (PUUR + getest): zet `components` + `CompatData` om in een
+  **maatvast** model in mm. Harde maten: **GPU-lengte** (open-db `compat.gpu.med`), **koelerhoogte /
+  AIO-radiator** (`compat.cooler`), **behuizing-binnenmaten** afgeleid van de echte clearances
+  (`maxCooler`→breedte, `maxGpu`→diepte, `maxPsu`→PSU-diepte). Standaard-specs: moederbord per
+  form-factor (ATX/mATX/ITX/E-ATX), DIMM, ATX-PSU. `sources`-veld markeert welke maten "real" vs
+  "estimate" zijn → de UI toont onderaan "Op schaal: GPU-lengte, koelerhoogte, behuizing uit de database".
+- **`src/components/builder/BuildScene.tsx`** (`"use client"`, default export): de R3F-`<Canvas>` +
+  scène. Herkenbare solids: open behuizing (stalen tray/achter/bodem/top + slank voorframe + getint
+  glas-zijpaneel), moederbord-PCB met VRM/chipset-heatsinks + oranje PCIe-accent + I/O-shield, CPU,
+  koeler (luchttoren mét fan **of** AIO = pompblok + radiator + fans, top/front-mount), RAM-reepjes met
+  RGB-diffuser, videokaart (shroud + backplate + 2–3 fans op de kijkkant + RGB-streep), 2.5"-SSD,
+  voeding met fan. Ventilatoren draaien via `useFrame` (uit bij reduced-motion). **OrbitControls**
+  (drei) voor sleep-draaien + idle auto-rotate; **ContactShadows** als grondschaduw. Klik een onderdeel
+  in de scène → `onSelectSlot` (sleep-drempel van 7px zodat draaien geen klik triggert); hover ↔ legenda
+  synchroniseren via `hot`-state.
+- **`src/components/builder/BuildPreview.tsx`** (herschreven, zelfde export/props): **geen 2.5D↔3D-toggle
+  meer**. Lui-laadt `BuildScene` via `next/dynamic({ ssr:false })` met skeleton → three.js zit **niet** in
+  de initiële builder-bundle (apart chunk, on-demand). Houdt `useCompat(components)` (deelt SWR-cache met
+  BuildSummary → geen dubbele fetch), de klikbare legenda (nu alle 8 slots incl. behuizing), reset-knop,
+  en `prefers-reduced-motion` via `useSyncExternalStore` (hydration-veilig).
+- **Verwijderd**: `BuildPreview2D.tsx` + de oude CSS-3D `BuildPreview3D.tsx` (+ de localStorage-
+  view-voorkeur). `BuilderClient` importeert nog steeds `BuildPreview` (ongewijzigde call).
+- **Test**: `scripts/test-build-model.ts` (19 cases: échte mm worden gevolgd, onderdelen vallen binnen de
+  kast, AIO/lege-build edge-cases) toegevoegd aan `npm run test`.
+- **Bewust nog open / optioneel**: kabels, AIO-buizen, meer board-detail; per-onderdeel labels on hover in
+  3D; de zwaardere chunk verder afslanken (drei selectief geïmporteerd: alleen OrbitControls/ContactShadows).
+  Data/logica (scrapers/Neon/`/api/*`/auth) bleef ongemoeid.
+- **Vervolg (zelfde sessie) — minder overlap + camera**: layout in `build-model.ts` ruimer gezet zodat
+  onderdelen elkaar niet meer overlappen: RAM korter (92mm) en duidelijk vóór de koelertoren, GPU lager
+  geplaatst (ruime tussenruimte met de koeler) met kleinere, beter gespreide fans, opslag-SSD naar de
+  achterzijde verplaatst (uit de drukke voorzone), koeler-footprint iets kleiner; camera iets verder weg
+  (`[6.6,2.1,5.0]`, fov 31) voor lucht. `test-build-model.ts` bevestigt dat alles binnen de kast valt.
+- **Homepage build-log (`GiastTerminal`) terug naar oud ontwerp**: body van `justify-end` → `justify-start`
+  (regels lopen weer van **boven naar beneden**). Tekst/hoogte zo afgestemd (`text-[9px] sm:text-[11px]`
+  `leading-[1.4]`, `h-[360px] sm:h-[430px]`) dat **alle 24 regels + caret volledig binnen het grijze
+  paneel passen** (geen afknipping meer — de deel-20-reden voor justify-end is daarmee opgelost).
 
 ## ▶ UI-REDESIGN — giastpc-stijl is LIVE op productie (functionaliteit ongewijzigd)
 
@@ -803,6 +828,12 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 - `lucide-react` v1 — nieuwe icoon-namen: `TriangleAlert` / `CircleAlert` / `CircleCheck`
 - **Dubbele env-var namen in `.env.local`** — dotenv pakt de éérste, een lege regel erboven wint dus van een gevulde eronder
 - Vercel CLI is ingelogd (`r-ramphal`); project gelinkt — `npx vercel env ls` werkt
+- **3D-scène (three.js) headless verifiëren** (deel 22): `BuildScene` is client-only (`ssr:false`), dus
+  een `curl`/`--dump-dom` toont pas een `<canvas>` ná client-hydratie. Headless Chrome heeft voor WebGL
+  de vlaggen `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader` nodig (anders blanco
+  canvas). Een gevulde build injecteren kan via een tijdelijke `public/_seed.html` die
+  `localStorage["corebuild-build"]={state:{components:…},version:0}` zet en naar `/builder` redirect
+  (daarna weghalen). De geometrie zelf is los te testen met `npx tsx scripts/test-build-model.ts` (geen browser).
 
 ---
 

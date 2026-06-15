@@ -139,7 +139,7 @@ export function GiastTerminal() {
             {/* Body */}
             <div
               ref={rootRef}
-              className="font-plex text-[10px] sm:text-[13px] leading-[1.55] p-3 sm:p-6 h-[320px] sm:h-[360px] overflow-hidden flex flex-col justify-end"
+              className="font-plex text-[9px] sm:text-[11px] leading-[1.4] p-3 sm:p-5 h-[360px] sm:h-[430px] overflow-hidden flex flex-col justify-start"
               aria-label="Gesimuleerde build-log"
             >
               {shown.map((l, i) => (

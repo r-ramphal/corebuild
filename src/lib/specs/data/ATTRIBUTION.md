@@ -24,3 +24,16 @@ De velden zijn bewust compact gehouden (alleen wat de compat-checks nodig hebben
 - GPU: per chipset de lengte-range `{min,max,med,n}` (mm)
 - Behuizing: `maxGpu`, `maxCooler`, `maxPsu` (mm), `ff`, ondersteunde `mobo`-formfactors
 - Koeler: hoogte `h` (mm), `w` (waterkoeling), `rad` (radiator-mm), `sock` (sockets)
+
+## Moederbord-referentie (`motherboards.json`)
+
+Afgeleid van de **Pawikoski PC-Components** dataset
+(https://github.com/Pawikoski/PC-Components, 2021-snapshot). Feitelijke
+socket/chipset-gegevens, gefilterd op de sockets die de builder herkent
+(`detect.ts`). We tonen vooral de **chipsets** per socket (nog courant als
+zoekterm); 2021-board-SKU's zijn grotendeels EOL. Regenereren:
+
+```sh
+git clone https://github.com/Pawikoski/PC-Components.git
+npx tsx scripts/build_motherboards.ts PC-Components/motherboards.json
+```

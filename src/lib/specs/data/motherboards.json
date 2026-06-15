@@ -1,0 +1,52 @@
+{
+  "_source": "github.com/Pawikoski/PC-Components (2021-snapshot, motherboards.json) — feitelijke socket/chipset-data, gefilterd op door de builder herkende sockets",
+  "sockets": {
+    "AM4": {
+      "chipsets": [
+        "B350",
+        "A320",
+        "B450",
+        "X370",
+        "X570",
+        "X470",
+        "B550"
+      ],
+      "boards": [
+        "Asrock AB350 Pro4",
+        "Asrock A320M",
+        "Asrock B450 Pro4",
+        "Asrock Fatal1ty X370 Gaming K4",
+        "Asrock X570 Aqua",
+        "Asrock Fatal1ty X470 Gaming K4",
+        "Asrock B550 Extreme4",
+        "Asrock AB350M",
+        "Asrock A320M Pro4",
+        "Asrock B450 Steel Legend",
+        "Asrock Fatal1ty X370 Gaming X",
+        "Asrock X570 Creator"
+      ]
+    },
+    "LGA1200": {
+      "chipsets": [
+        "Z490",
+        "B460",
+        "H470",
+        "H410"
+      ],
+      "boards": [
+        "Asrock Z490 Extreme4",
+        "Asrock B460 Phantom Gaming 4",
+        "Asrock H470 Phantom Gaming 4",
+        "Biostar H410MH",
+        "Asrock Z490 PG Velocita",
+        "Asrock B460 Pro4",
+        "Asrock H470 Steel Legend",
+        "Biostar H410MHG",
+        "Asrock Z490 Phantom Gaming 4",
+        "Asrock B460 Steel Legend",
+        "Asrock H470M Pro4",
+        "Asrock Z490 Phantom Gaming 4/2.5G"
+      ]
+    }
+  }
+}

@@ -9,6 +9,8 @@ import { COMPONENT_META } from "@/lib/categories";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { RetailerLogo } from "@/components/RetailerLogo";
 import { useSearch } from "@/lib/use-search";
+import { detectSocket } from "@/lib/specs/detect";
+import { socketChipsets } from "@/lib/specs/motherboards";
 import { formatEur } from "@/lib/format";
 import type { ComponentType, PriceResult } from "@/lib/types";
 
@@ -20,9 +22,16 @@ import type { ComponentType, PriceResult } from "@/lib/types";
  */
 export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: () => void }) {
   const meta = COMPONENT_META[type];
-  const { setComponent } = useBuildStore();
+  const setComponent = useBuildStore((s) => s.setComponent);
+  const buildComponents = useBuildStore((s) => s.components);
   const [query, setQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
+
+  // Moederbord-compatibiliteit: socket van de gekozen CPU → gangbare chipsets
+  // (referentie). Helpt direct een passend bord kiezen zonder de builder te verlaten.
+  const cpu = buildComponents.cpu;
+  const cpuSocket = type === "motherboard" && cpu ? detectSocket(cpu.name) : null;
+  const compatChipsets = cpuSocket ? socketChipsets(cpuSocket) : [];
 
   // Escape sluit de modal
   useEffect(() => {
@@ -119,6 +128,32 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
               </button>
             ))}
           </div>
+
+          {/* Compatibiliteitshint: chipsets die bij de CPU-socket passen */}
+          {type === "motherboard" && cpuSocket && (
+            <div className="rounded-lg border border-primary/30 bg-primary-container/10 px-3 py-2">
+              <p className="font-label-technical text-[11px] text-on-surface-variant mb-1.5">
+                Je CPU <span className="text-on-surface">{cpu!.name}</span> gebruikt socket{" "}
+                <span className="text-primary font-medium">{cpuSocket}</span>.
+                {compatChipsets.length > 0
+                  ? " Compatibele chipsets (klik om te zoeken):"
+                  : " Kies een moederbord met deze socket."}
+              </p>
+              {compatChipsets.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {compatChipsets.map((cs) => (
+                    <button
+                      key={cs}
+                      onClick={() => runTag(cs)}
+                      className="font-label-technical text-[11px] px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary-container hover:text-on-primary transition-all"
+                    >
+                      {cs}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Resultaten */}

@@ -45,7 +45,7 @@ function CategoryResultCard({ item, isBestDeal, isBestValue, componentType, onAd
 
   return (
     <div
-      className={`flex flex-col md:flex-row bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden hover:shadow-sm transition-shadow ${
+      className={`group/card flex flex-col md:flex-row bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden hover:border-primary hover:shadow-sm transition-all ${
         !item.inStock ? "opacity-75 grayscale-[0.5]" : ""
       }`}
     >
@@ -278,7 +278,10 @@ export function CategorieClient() {
           <div className="w-12 h-12 bg-primary-container rounded-xl flex items-center justify-center text-on-primary flex-shrink-0">
             <CategoryIcon className="w-6 h-6" />
           </div>
-          <div>
+          <div className="border-l-2 border-primary pl-4">
+            <span className="font-plex text-[11px] uppercase tracking-[0.2em] text-gp-orange block mb-1">
+              _{meta.shortLabel.toLowerCase()}
+            </span>
             <h1 className="font-headline-lg text-headline-lg text-on-surface">
               {meta.pageTitle}
             </h1>
@@ -411,7 +414,7 @@ export function CategorieClient() {
           {/* Toolbar */}
           <div className="flex justify-between items-center mb-6 px-2">
             <span className="font-body-sm text-body-sm text-on-surface-variant">
-              <span className="font-bold text-on-surface">
+              <span className="font-bold text-primary">
                 {loading ? "…" : filtered.length}
               </span>{" "}
               resultaten gevonden

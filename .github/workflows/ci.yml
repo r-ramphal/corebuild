@@ -32,3 +32,10 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # next build importeert de auth-route, die bij module-load een
+          # DATABASE_URL eist (auth.ts gooit anders). getDb() maakt met deze
+          # placeholder een lazy pg-Pool (localhost → geen TLS, geen connectie
+          # tijdens de build). Productiebuilds op Vercel krijgen de echte waarde.
+          DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+          BETTER_AUTH_SECRET: ci-build-placeholder-not-used-at-runtime

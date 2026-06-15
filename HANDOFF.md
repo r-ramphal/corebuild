@@ -735,6 +735,7 @@ Gebruikers browsen componenten + prijzen, bouwen een PC, slaan builds op en dele
 
 ## Bekende gotchas
 
+- **`next build` eist een `DATABASE_URL`** — `src/lib/auth.ts` instantieert better-auth bij module-load en gooit "Auth vereist een database" als `getDb()` `null` is. Vercel-builds krijgen de echte env; **CI (`ci.yml`) zet daarom een placeholder** `DATABASE_URL=postgres://ci:ci@localhost:5432/ci` (+ `BETTER_AUTH_SECRET`) op de build-stap. `getDb()` maakt daar een lazy pg-Pool van (localhost → geen TLS, geen connectie tijdens de build). Lokaal werkt het omdat `.env.local` de URL heeft. (15-06: dit liet de CI rood staan nadat deel 15 'm op `master` activeerde.)
 - **Geen ongelayerde CSS in `globals.css`** — regels buiten `@layer` winnen van álle Tailwind-utilities (een `* { margin: 0; padding: 0 }` reset sloeg ooit alle `px-*`/`mx-auto`/linkkleuren plat). Custom base-styles altijd in `@layer base` zetten.
 - `kysely` gepinned op `0.28.17` via `overrides` in `package.json` (better-auth gebruikt kysely intern)
 - `lucide-react` v1 — nieuwe icoon-namen: `TriangleAlert` / `CircleAlert` / `CircleCheck`

@@ -213,6 +213,10 @@ export function CategorieClient() {
   const [activeQuery, setActiveQuery] = useState("");
   const [maxPrice, setMaxPrice] = useState(2500);
   const [sortBy, setSortBy] = useState<"asc" | "desc">("asc");
+  // Toon eerst een beperkt aantal kaarten (sneller laden: minder DOM + minder
+  // afbeeldingen tegelijk). "Toon meer" laadt de rest in stappen bij.
+  const PAGE = 24;
+  const [visible, setVisible] = useState(PAGE);
 
   const { setComponent } = useBuildStore();
 
@@ -232,11 +236,13 @@ export function CategorieClient() {
   function handleTagClick(tag: string) {
     setQuery(tag);
     setActiveQuery(tag);
+    setVisible(PAGE);
   }
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
     setActiveQuery(query);
+    setVisible(PAGE);
   }
 
   if (!meta) {
@@ -316,6 +322,7 @@ export function CategorieClient() {
                   setSortBy("asc");
                   setQuery("");
                   setActiveQuery("");
+                  setVisible(PAGE);
                 }}
                 className="text-primary font-label-technical text-label-technical hover:underline"
               >
@@ -335,6 +342,7 @@ export function CategorieClient() {
                   onSubmit={(t) => {
                     setQuery(t);
                     setActiveQuery(t);
+                    setVisible(PAGE);
                   }}
                   category={componentType}
                   placeholder={`Zoek in ${meta.label.toLowerCase()}…`}
@@ -446,7 +454,7 @@ export function CategorieClient() {
           )}
 
           {!loading &&
-            filtered.map((item, i) => (
+            filtered.slice(0, visible).map((item, i) => (
               <CategoryResultCard
                 key={`${item.retailer}-${i}`}
                 item={item}
@@ -456,6 +464,17 @@ export function CategorieClient() {
                 onAddToBuild={(item, slot) => setComponent(slot, item)}
               />
             ))}
+
+          {!loading && filtered.length > visible && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => setVisible((v) => v + PAGE)}
+                className="px-6 py-2.5 border border-outline-variant rounded-lg font-label-technical text-label-technical text-on-surface hover:border-primary hover:text-primary transition-colors"
+              >
+                Toon meer ({filtered.length - visible})
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </main>

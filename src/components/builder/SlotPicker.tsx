@@ -27,6 +27,8 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
   const buildComponents = useBuildStore((s) => s.components);
   const [query, setQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
+  const PAGE = 30;
+  const [visible, setVisible] = useState(PAGE);
 
   // Moederbord-compatibiliteit: socket van de gekozen CPU → gangbare chipsets
   // (referentie). Helpt direct een passend bord kiezen zonder de builder te verlaten.
@@ -59,6 +61,7 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
   function runTag(tag: string) {
     setQuery(tag);
     setActiveQuery(tag);
+    setVisible(PAGE);
   }
 
   return (
@@ -97,6 +100,7 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
             onSubmit={(e) => {
               e.preventDefault();
               setActiveQuery(query);
+              setVisible(PAGE);
             }}
             className="flex gap-2"
           >
@@ -107,6 +111,7 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
                 onSubmit={(t) => {
                   setQuery(t);
                   setActiveQuery(t);
+                  setVisible(PAGE);
                 }}
                 category={type}
                 autoFocus
@@ -175,7 +180,7 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
               Geen resultaten. Probeer een andere zoekterm.
             </p>
           ) : (
-            items.map((item, i) => (
+            items.slice(0, visible).map((item, i) => (
               <div
                 key={`${item.retailer}-${i}`}
                 className={`flex items-center gap-3 p-3 bg-surface-container-lowest border rounded-xl transition-colors ${
@@ -239,6 +244,15 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
                 </div>
               </div>
             ))
+          )}
+
+          {!loading && items.length > visible && (
+            <button
+              onClick={() => setVisible((v) => v + PAGE)}
+              className="w-full py-2.5 rounded-lg border border-outline-variant font-label-technical text-label-technical text-on-surface hover:border-primary hover:text-primary transition-colors"
+            >
+              Toon meer ({items.length - visible})
+            </button>
           )}
         </div>
 

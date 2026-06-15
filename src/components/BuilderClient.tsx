@@ -12,6 +12,7 @@ import { formatEur } from "@/lib/format";
 import { BuildPreview } from "@/components/builder/BuildPreview";
 import { BuildSummary } from "@/components/builder/BuildSummary";
 import { SmartGenerate } from "@/components/builder/SmartGenerate";
+import { SlotPicker } from "@/components/builder/SlotPicker";
 import {
   detectCpu, detectGpu, detectRamGb, detectDdr, detectSocket,
   detectPsuWatts, detectFormFactor,
@@ -62,6 +63,7 @@ export function BuilderClient() {
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [exported, setExported] = useState(false);
+  const [pickerType, setPickerType] = useState<ComponentType | null>(null);
 
   const filledCount = Object.keys(components).length;
   const totalPrice = Object.values(components).reduce(
@@ -185,12 +187,12 @@ export function BuilderClient() {
                               </span>
                             )
                           )}
-                          <Link
-                            href={`/categorie/${type}`}
+                          <button
+                            onClick={() => setPickerType(type)}
                             className="font-label-technical text-[10px] text-on-surface-variant hover:text-primary inline-flex items-center gap-1"
                           >
                             <Pencil className="w-3 h-3" /> wijzig
-                          </Link>
+                          </button>
                         </div>
                       </div>
                       <button
@@ -221,12 +223,12 @@ export function BuilderClient() {
                       <p className="font-body-lg text-body-lg text-on-surface-variant italic">{meta.emptyText}</p>
                     </div>
                   </div>
-                  <Link
-                    href={`/categorie/${type}`}
+                  <button
+                    onClick={() => setPickerType(type)}
                     className="px-4 py-2 border border-primary text-primary font-label-technical text-label-technical rounded-lg hover:bg-primary hover:text-white transition-all flex items-center gap-2 flex-shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" /> Voeg toe
-                  </Link>
+                  </button>
                 </div>
               );
             })}
@@ -382,6 +384,8 @@ export function BuilderClient() {
           </div>
         </aside>
       </div>
+
+      {pickerType && <SlotPicker type={pickerType} onClose={() => setPickerType(null)} />}
     </main>
   );
 }

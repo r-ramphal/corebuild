@@ -8,6 +8,7 @@ import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META } from "@/lib/categories";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { RetailerLogo } from "@/components/RetailerLogo";
+import { SearchBox } from "@/components/SearchBox";
 import { useSearch } from "@/lib/use-search";
 import { detectSocket } from "@/lib/specs/detect";
 import { socketChipsets } from "@/lib/specs/motherboards";
@@ -99,13 +100,20 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
             }}
             className="flex gap-2"
           >
-            <input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={`Zoek in ${meta.label.toLowerCase()}…`}
-              className="flex-1 h-10 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-            />
+            <div className="flex-1">
+              <SearchBox
+                value={query}
+                onChange={setQuery}
+                onSubmit={(t) => {
+                  setQuery(t);
+                  setActiveQuery(t);
+                }}
+                category={type}
+                autoFocus
+                placeholder={`Zoek in ${meta.label.toLowerCase()}…`}
+                inputClassName="w-full h-10 pl-10 pr-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+              />
+            </div>
             <button
               type="submit"
               className="px-5 h-10 bg-primary text-on-primary rounded-lg font-label-technical text-label-technical hover:opacity-90 transition-opacity"

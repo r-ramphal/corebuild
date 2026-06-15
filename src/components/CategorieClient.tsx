@@ -12,6 +12,7 @@ import { formatEur } from "@/lib/format";
 import { productUrl } from "@/lib/product-url";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { RetailerLogo } from "@/components/RetailerLogo";
+import { SearchBox } from "@/components/SearchBox";
 import { WatchButton } from "@/components/WatchButton";
 import { bestValueIndex, hasValueMetric } from "@/lib/specs/value";
 import { useSearch } from "@/lib/use-search";
@@ -328,11 +329,16 @@ export function CategorieClient() {
                 Zoekterm
               </h4>
               <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3">
-                <input
+                <SearchBox
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={setQuery}
+                  onSubmit={(t) => {
+                    setQuery(t);
+                    setActiveQuery(t);
+                  }}
+                  category={componentType}
                   placeholder={`Zoek in ${meta.label.toLowerCase()}…`}
-                  className="w-full h-10 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                  inputClassName="w-full h-10 pl-10 pr-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
                 />
                 <button
                   type="submit"

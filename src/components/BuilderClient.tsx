@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Share, Save, Check, Pencil, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Share, Save, Check, Pencil, ExternalLink, Sparkles } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { useSession } from "@/lib/auth-client";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
@@ -13,6 +13,7 @@ import { BuildPreview } from "@/components/builder/BuildPreview";
 import { BuildSummary } from "@/components/builder/BuildSummary";
 import { SmartGenerate } from "@/components/builder/SmartGenerate";
 import { SlotPicker } from "@/components/builder/SlotPicker";
+import { BuildWizard } from "@/components/builder/BuildWizard";
 import {
   detectCpu, detectGpu, detectRamGb, detectDdr, detectSocket,
   detectPsuWatts, detectFormFactor,
@@ -64,6 +65,7 @@ export function BuilderClient() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [exported, setExported] = useState(false);
   const [pickerType, setPickerType] = useState<ComponentType | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   const filledCount = Object.keys(components).length;
   const totalPrice = Object.values(components).reduce(
@@ -115,11 +117,19 @@ export function BuilderClient() {
 
   return (
     <main className="flex-grow pt-24 pb-16 px-4 sm:px-8 max-w-[1280px] mx-auto w-full min-h-screen">
-      <div className="mb-6">
-        <h1 className="font-headline-lg text-headline-lg text-on-surface">PC Builder</h1>
-        <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-          Kies je onderdelen en zie meteen of alles bij elkaar past, met een visuele weergave van je pc.
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="font-headline-lg text-headline-lg text-on-surface">PC Builder</h1>
+          <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            Kies je onderdelen en zie meteen of alles bij elkaar past, met een visuele weergave van je pc.
+          </p>
+        </div>
+        <button
+          onClick={() => setWizardOpen(true)}
+          className="px-4 py-2.5 rounded-lg bg-primary text-on-primary font-label-technical text-label-technical hover:opacity-90 transition-opacity inline-flex items-center gap-2 shrink-0"
+        >
+          <Sparkles className="w-4 h-4" /> Begeleid samenstellen
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
@@ -386,6 +396,7 @@ export function BuilderClient() {
       </div>
 
       {pickerType && <SlotPicker type={pickerType} onClose={() => setPickerType(null)} />}
+      {wizardOpen && <BuildWizard onClose={() => setWizardOpen(false)} />}
     </main>
   );
 }

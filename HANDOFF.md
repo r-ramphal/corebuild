@@ -398,9 +398,30 @@ Hygiëne + vindbaarheid; data/logica ongemoeid. Alles geverifieerd: `tsc` + `esl
   mail (ingelogd → volglijst-alert → prijsdaling → dagelijkse cron), (3) mobiele weergave op een
   echt toestel (headless-Chrome mobiel is onbetrouwbaar, zie redesign-notities).
 
-**Open punten:** fase 3 roadmap (officiële API's na KvK); evt. instelbare doelprijs + cross-retailer
-laagste prijs voor alerts. Optioneel resterend uit de redesign: per-categorie hero-foto op
-`/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
+**Nieuw (15 juni 2026, deel 17) — prijsalerts v2 (doelprijs + cross-retailer):**
+- **Instelbare doelprijs**: elke `/volglijst`-rij heeft nu per alert een doelprijs-veld
+  ("Mail zodra de laagste prijs ≤ €X" + Bewaar). De API ondersteunde `targetEur` al; de UI
+  exposet het nu (default zonder waarde = bij elke daling). `use-alerts.ts` geeft naast `alertIds`
+  ook `alertById` (incl. `targetCents`) terug. Wijzigen reset de anti-spam (nieuwe drempel → mag
+  weer mailen, via de bestaande upsert-reset).
+- **Cross-retailer laagste prijs**: `findFiredAlerts` vergelijkt de drempel nu met de **laagste
+  actuele prijs over álle retailers** voor het product, niet alleen de gevolgde url. Per alert
+  worden zuster-urls afgeleid uit `listings` (zelfde categorie + naam bevat de genormaliseerde
+  productnaam, ≥6 tekens; de eigen url telt altijd mee), de laatste `price_history`-prijs per url
+  opgehaald en het minimum genomen. Degradeert naar de gevolgde url als er geen zusters matchen
+  (nooit slechter dan v1). **Geen schema-/migratiewijziging.**
+- **Pure helpers + tests**: `siblingUrls` / `lowestPrice` / `alertFires` in `src/lib/db/alerts.ts`
+  zijn los testbaar; `scripts/test-alerts.ts` (11 cases) zit nu in `npm run test`. `tsc` + `eslint`
+  + `next build` (55 pagina's) groen; `/volglijst` 200, `/api/alerts` 401 uitgelogd, geen runtime-fouten.
+- **Bekende heuristiek-grens**: substring-matching kan een specifieker model meepakken
+  (bv. "RTX 5060" ⊂ "RTX 5060 Ti"); de min-selectie + de productpagina-link beperken de impact.
+  Échte e2e (ingelogd → alert → prijsdaling → dagelijkse cron-mail) blijft handmatig (vereist
+  `price_history`-data + een sessie).
+
+**Open punten:** fase 3 roadmap (officiële API's na KvK). Optioneel resterend uit de redesign:
+per-categorie hero-foto op `/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
+Nog handmatig te verifiëren (vereist account/inbox/toestel): reset-mail, prijsalert-cron-mail,
+mobiele weergave. Analytics nog aanzetten in het Vercel-dashboard (deel 16).
 
 ## Overzicht
 

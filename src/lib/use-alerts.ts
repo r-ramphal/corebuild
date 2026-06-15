@@ -20,12 +20,15 @@ async function fetcher(url: string): Promise<AlertRow[]> {
 /**
  * Server-side prijsalerts van de ingelogde gebruiker. Alleen ophalen wanneer
  * `enabled` (= ingelogd); anders geen request. `alertIds` bevat de productId's
- * (= `watchId`) waarvoor een e-mailalert aanstaat.
+ * (= `watchId`) waarvoor een e-mailalert aanstaat; `alertById` geeft de volledige
+ * rij (incl. `targetCents`) per productId zodat de UI de drempel kan tonen/wijzigen.
  */
 export function useAlerts(enabled: boolean) {
   const { data, mutate } = useSWR(enabled ? "/api/alerts" : null, fetcher, {
     revalidateOnFocus: false,
   });
-  const alertIds = new Set((data ?? []).map((a) => a.productId));
-  return { alertIds, mutate };
+  const rows = data ?? [];
+  const alertIds = new Set(rows.map((a) => a.productId));
+  const alertById = new Map(rows.map((a) => [a.productId, a]));
+  return { alertIds, alertById, mutate };
 }

@@ -22,11 +22,20 @@ interface WatchRowProps {
   onRemove: (id: string) => void;
   loggedIn: boolean;
   hasAlert: boolean;
+  alertTargetCents?: number;
   alertBusy: boolean;
-  onToggleAlert: (item: WatchItem, priceEur: number, enable: boolean) => void;
+  onToggleAlert: (item: WatchItem, priceEur: number, enable: boolean, targetEur?: number) => void;
 }
 
-function WatchRow({ item, onRemove, loggedIn, hasAlert, alertBusy, onToggleAlert }: WatchRowProps) {
+function WatchRow({
+  item,
+  onRemove,
+  loggedIn,
+  hasAlert,
+  alertTargetCents,
+  alertBusy,
+  onToggleAlert,
+}: WatchRowProps) {
   // Actuele prijs ≈ het laatste meetpunt voor deze aanbieding (uit price_history)
   const points = usePriceHistory([item.url]);
   const currentCents = points.length > 0 ? points[points.length - 1].priceCents : null;
@@ -34,8 +43,19 @@ function WatchRow({ item, onRemove, loggedIn, hasAlert, alertBusy, onToggleAlert
   const delta = currentCents !== null ? currentCents - addedCents : 0;
   const alertPriceEur = (currentCents ?? addedCents) / 100;
 
+  // Bewerkbare doelprijs (alleen relevant als de alert aanstaat)
+  const [targetDraft, setTargetDraft] = useState(
+    ((alertTargetCents ?? Math.round(alertPriceEur * 100)) / 100).toFixed(2)
+  );
+  const parsedTarget = parseFloat(targetDraft.replace(",", "."));
+  const targetValid = isFinite(parsedTarget) && parsedTarget > 0 && parsedTarget < 1_000_000;
+  // Opslaan kan zodra de invoer geldig is én afwijkt van de opgeslagen drempel
+  const canSaveTarget =
+    targetValid && (alertTargetCents == null || Math.round(parsedTarget * 100) !== alertTargetCents);
+
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 bg-surface-container-lowest border border-outline-variant rounded-xl hover:border-primary transition-colors">
+    <div className="flex flex-col gap-4 p-5 bg-surface-container-lowest border border-outline-variant rounded-xl hover:border-primary transition-colors">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
       <div className="w-16 h-16 rounded-lg bg-surface-container-low flex items-center justify-center shrink-0 overflow-hidden">
         {item.imageUrl ? (
           <Image
@@ -122,7 +142,39 @@ function WatchRow({ item, onRemove, loggedIn, hasAlert, alertBusy, onToggleAlert
         >
           <Trash2 className="w-4 h-4" />
         </button>
+        </div>
       </div>
+
+      {loggedIn && hasAlert && (
+        <div className="pt-3 border-t border-outline-variant/50 flex items-center gap-2 flex-wrap">
+          <span className="font-label-technical text-label-technical text-on-surface-variant">
+            Mail zodra de laagste prijs (alle winkels) ≤
+          </span>
+          <div className="flex items-center gap-1 border border-outline-variant rounded-lg px-2 py-1 focus-within:border-primary">
+            <span className="text-on-surface-variant">€</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.01"
+              min="0"
+              value={targetDraft}
+              onChange={(e) => setTargetDraft(e.target.value)}
+              aria-label={`Doelprijs voor ${item.name}`}
+              className="w-20 bg-transparent outline-none font-label-price text-on-surface"
+            />
+          </div>
+          <button
+            onClick={() => canSaveTarget && onToggleAlert(item, alertPriceEur, true, parsedTarget)}
+            disabled={alertBusy || !canSaveTarget}
+            className="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-technical text-label-technical disabled:opacity-40 hover:opacity-90 transition-opacity"
+          >
+            Bewaar
+          </button>
+          <span className="font-label-technical text-[11px] text-on-surface-variant">
+            standaard: bij elke daling
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -137,10 +189,10 @@ export function VolglijstClient() {
 
   const { data: session } = useSession();
   const loggedIn = !!session;
-  const { alertIds, mutate: mutateAlerts } = useAlerts(loggedIn);
+  const { alertIds, alertById, mutate: mutateAlerts } = useAlerts(loggedIn);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  async function toggleAlert(item: WatchItem, priceEur: number, enable: boolean) {
+  async function toggleAlert(item: WatchItem, priceEur: number, enable: boolean, targetEur?: number) {
     setBusyId(item.id);
     try {
       if (enable) {
@@ -154,6 +206,7 @@ export function VolglijstClient() {
             retailer: item.retailer,
             imageUrl: item.imageUrl,
             priceEur,
+            ...(targetEur !== undefined ? { targetEur } : {}),
           }),
         });
       } else {
@@ -240,6 +293,7 @@ export function VolglijstClient() {
                 onRemove={handleRemove}
                 loggedIn={loggedIn}
                 hasAlert={alertIds.has(item.id)}
+                alertTargetCents={alertById.get(item.id)?.targetCents}
                 alertBusy={busyId === item.id}
                 onToggleAlert={toggleAlert}
               />

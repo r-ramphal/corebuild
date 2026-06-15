@@ -418,10 +418,21 @@ Hygiëne + vindbaarheid; data/logica ongemoeid. Alles geverifieerd: `tsc` + `esl
   Échte e2e (ingelogd → alert → prijsdaling → dagelijkse cron-mail) blijft handmatig (vereist
   `price_history`-data + een sessie).
 
+**Live-geverifieerd op productie (15 juni 2026, na deploy `cb827ee`):**
+- **SEO live** op https://corebuildnl.com (met `curl` gecontroleerd): homepage levert de
+  `Organization` + `WebSite` + `SearchAction` JSON-LD; `/opengraph-image` geeft **HTTP 200
+  image/png (66 KB, giastpc-kaart)**; productpagina levert `BreadcrumbList` + `ListItem`.
+- **Vercel Web Analytics**: in het dashboard **aangezet** → verzamelt nu data.
+- **Google Search Console**: domein **geverifieerd** via DNS-TXT-record
+  `google-site-verification=PIVZzSPpYqXnbt2uKUlZ6mcTl_NzZV1sn1johf_bP80` (in de DNS van
+  corebuildnl.com). Hiermee kun je de sitemap (`/sitemap.xml`) indienen en de Rich Results- /
+  URL-inspectie draaien op een productpagina om de structured data te bevestigen.
+  (DNS-methode = los van de app; geen `metadata.verification.google`-metatag nodig.)
+
 **Open punten:** fase 3 roadmap (officiële API's na KvK). Optioneel resterend uit de redesign:
 per-categorie hero-foto op `/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
 Nog handmatig te verifiëren (vereist account/inbox/toestel): reset-mail, prijsalert-cron-mail,
-mobiele weergave. Analytics nog aanzetten in het Vercel-dashboard (deel 16).
+mobiele weergave. Search Console-vervolg: sitemap indienen + Rich Results-test op een productpagina.
 
 ## Overzicht
 

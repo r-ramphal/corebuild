@@ -456,6 +456,29 @@ groen; de modals én het 3D-aanzicht zijn **runtime gecheckt via headless Chrome
   `onSelectSlot` loopt via de `BuildPreview`-wrapper. Drag/auto-rotate/reduced-motion behouden.
 - **Niets vereist een migratie**; data/logica (scrapers, Neon, `/api/*`, auth) ongemoeid.
 
+**Nieuw (15 juni 2026, deel 19) — UX-ronde: zoeksuggesties, laad-indicator, featured build, perf, oranje:**
+Vijf stappen, allemaal geverifieerd (`tsc` + `eslint src` + `npm run test` + `next build` 55 pagina's groen;
+featured build + categorie-accenten visueel gecheckt via headless Chrome).
+- **Zoeksuggesties op alle zoekvelden** (stap 1): nieuwe `components/SearchBox.tsx` (input + typeahead-
+  dropdown) in de **categoriepagina** en de **builder-picker** — lokaal filteren i.p.v. wegnavigeren.
+  `getSuggestions(query, limit, category?)` filtert nu op categorie (CPU-veld toont geen GPU's). Prefix-
+  dan-bevat-matches (letters in dezelfde volgorde). Navbar + `/zoeken` hadden `SearchSuggest` al.
+- **Laad-indicator bij navigatie** (stap 2): route-niveau `loading.tsx` voor de data-zware paginas
+  (categorie/[type], product/[slug], zoeken, builder, galerij, builds, vergelijk, volglijst) tonen
+  direct `components/PageLoading.tsx` (oranje spinner + skeleton) zodra je klikt. Reduced-motion-veilig.
+- **Featured build toont de onderdelen** (stap 3): `GiastShowcase` toont nu een concrete voorbeeldbuild
+  (1440p gaming) met de volledige onderdelenlijst; elke regel linkt naar de zoek-/vergelijkpagina.
+- **Performance** (stap 4): de categoriepagina rendert nog maar **24 kaarten** i.p.v. alle ~100 (+ "Toon
+  meer"), de picker **30** i.p.v. ~100 → veel minder DOM + minder gelijktijdige afbeeldingsverzoeken op
+  de zware onderdelen-pagina's (de echte oorzaak van de lange laadtijden). Ongebruikte `feature-pc.png`
+  (396KB) verwijderd. (Turbopack-build toont geen size-tabel; gemeten via `.next/static/chunks`.)
+- **Oranje accenten in de onderdelen-sectie** (stap 5): categoriepagina kreeg de giastpc-oranje identiteit
+  — mono `_kicker` + oranje accentbalk op de header, oranje resultaatteller, oranje hover-rand op de
+  resultaatkaarten. **Interpretatie = de parts-browsing (/categorie)**; als je de homepage-bento of de
+  builder bedoelde, makkelijk uit te breiden.
+- **Let op (dev-omgeving)**: poort 3000 was tijdens deze sessie bezet door een **ander project
+  (Kamerradar)**, dus CoreBuild `npm run dev` draaide op **3001**. Niet door elkaar halen bij lokaal testen.
+
 **Open punten:** fase 3 roadmap (officiële API's na KvK). Optioneel resterend uit de redesign:
 per-categorie hero-foto op `/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
 Nog handmatig te verifiëren (vereist account/inbox/toestel): reset-mail, prijsalert-cron-mail,

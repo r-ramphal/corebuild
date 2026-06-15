@@ -385,10 +385,22 @@ Hygiëne + vindbaarheid; data/logica ongemoeid. Alles geverifieerd: `tsc` + `esl
   `npx vercel env add RESEND_API_KEY preview` (idem `EMAIL_FROM`, `CRON_SECRET`, `BETTER_AUTH_SECRET`;
   waarden staan in `.env.local`).
 
+**Nieuw (15 juni 2026, deel 16) — privacy-vriendelijke analytics:**
+- **Vercel Web Analytics** toegevoegd: `@vercel/analytics` (v2) + `<Analytics />` (import
+  `@vercel/analytics/next`) in `src/app/layout.tsx`. **Cookieloos/GDPR-vriendelijk** (geen
+  consent-banner nodig), past op het Hobby-plan (gratis tier). `tsc` + `eslint` + `next build`
+  (55 pagina's) groen.
+- **⚠️ Handmatige stap (verplicht om data te zien)**: zet Web Analytics **aan** in het Vercel-
+  dashboard (project CoreBuild → tab *Analytics* → *Enable*). Zonder dat stuurt `<Analytics />`
+  niets. Alternatief als je weg wilt van Vercel: Plausible (betaald/self-host).
+- **Nog handmatig (kan ik niet autonoom)**: échte verificatie met een account/apparaat —
+  (1) wachtwoord-reset-mail via `/wachtwoord-vergeten` met een bestaand account, (2) prijsalert-
+  mail (ingelogd → volglijst-alert → prijsdaling → dagelijkse cron), (3) mobiele weergave op een
+  echt toestel (headless-Chrome mobiel is onbetrouwbaar, zie redesign-notities).
+
 **Open punten:** fase 3 roadmap (officiële API's na KvK); evt. instelbare doelprijs + cross-retailer
 laagste prijs voor alerts. Optioneel resterend uit de redesign: per-categorie hero-foto op
-`/categorie/[type]`-headers, preassembled-productkaarten, blog-bento. Mogelijke volgende SEO/groei-stap:
-privacy-vriendelijke analytics + échte mobiele/mail-verificatie met een account.
+`/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
 
 ## Overzicht
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, Inter, IBM_Plex_Mono, Montserrat, Pixelify_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
@@ -106,6 +107,10 @@ export default function RootLayout({
           {children}
         </div>
         <Footer />
+        {/* Cookieloze, GDPR-vriendelijke bezoekersstatistieken (Vercel Web
+            Analytics). Stuurt alleen data wanneer Analytics in het Vercel-
+            dashboard aanstaat; geen consent-banner nodig. */}
+        <Analytics />
       </body>
     </html>
   );

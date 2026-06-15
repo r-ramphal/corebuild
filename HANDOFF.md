@@ -502,34 +502,27 @@ homepage + SmartGenerate visueel via headless Chrome).
   Twee nieuwe use-cases: **Esports** (competitive, hoge FPS) + **Streamen** (multicore + 32GB); de
   SmartGenerate-UI heeft nu 5 profielen + 7 snelstart-templates. `test-generate` uitgebreid.
 
-**Nieuw (15 juni 2026, deel 21) — Reddit-koppeling + community-feed (fase 1):**
-Doel: de r/buildapc-doelgroep aanspreken. Database-first, net als de prijs-scraper (geen live
-Reddit-call per bezoeker → rate limits). Werkt zodra de keys gezet zijn; degradeert netjes zonder.
-- **Client** `src/lib/reddit.ts`: app-only OAuth (`client_credentials`), pure `normalizePosts`-parser
-  (weert sticky/NSFW, bouwt permalink, splitst externe link-url). Beschrijvende `User-Agent` verplicht.
-  Zonder `REDDIT_CLIENT_ID`/`REDDIT_CLIENT_SECRET` → lege lijst (graceful).
-- **Opslag**: tabel `reddit_posts` (migratie `drizzle/0006_fuzzy_winter_soldier.sql`, **nog NIET op
-  Neon toegepast**) + repo `src/lib/db/reddit.ts` (upsert op `post_id`, `getTopRedditPosts`).
-- **Ingestie**: `/api/cron/reddit` (GET, `Bearer CRON_SECRET`) leest buildapc/buildapcsales/pcmasterrace
-  in → Neon. **Dagelijks** via `vercel.json` (`0 5 * * *`, naast de prijsalert-cron). Geverifieerd:
-  401 zonder secret, mét secret → `{fetched:0,saved:0,reason:"geen Reddit-credentials"}` (graceful).
-- **UI** `/community` (ISR, revalidate 600s): leest uit de DB, toont posts (score/flair/reacties) die
-  naar Reddit doorlinken + bronvermelding. Navbar/footer/sitemap + `loading.tsx`. Lege staat tot de
-  import draait. `scripts/test-reddit.ts` (parser) zit in `npm run test`. `tsc`+`eslint`+`build` (57 pag.) groen.
-- **⚠️ Setup vereist om het te activeren** (3 stappen): (1) registreer een app op
-  **reddit.com/prefs/apps** (type "web"/"script") → `REDDIT_CLIENT_ID` + `REDDIT_CLIENT_SECRET`
-  (optioneel `REDDIT_USER_AGENT`) in `.env.local` + Vercel; (2) pas de migratie toe: **`npm run db:push`**
-  (additief, alleen `reddit_posts`); (3) eerste vulling: cron afwachten of handmatig
-  `curl -H "Authorization: Bearer $CRON_SECRET" .../api/cron/reddit`. **ToS:** lees Reddit's Developer
-  Terms (commercieel gebruik); we tonen alleen-lezen publieke posts mét bronvermelding.
-- **Fase 2 (later)**: onderdeel-mentions uit de Reddit-posts aggregeren → voedt
-  `recommend.ts`/de generator met data-gedreven populariteit i.p.v. de huidige hardgecodeerde patronen.
+**Nieuw (15 juni 2026, deel 21) — community-hub (Reddit Data-API bewust NIET gebruikt):**
+Doel: de r/buildapc-doelgroep aanspreken. **Eerst** een volledige Reddit Data-API-koppeling gebouwd
+(app-only OAuth-client + `reddit_posts`-tabel + dagelijkse cron + DB-feed), maar na het lezen van
+Reddit's **Responsible Builder Policy / Developer Terms** teruggedraaid: commercieel gebruik/opslag van
+Reddit-content vereist (mogelijk) schriftelijke goedkeuring, en data als input voor aanbevelingen
+(onze "fase 2") is verboden zonder toestemming. Voor een commerciële site (affiliate) te riskant.
+- **Compliant pivot**: `/community` is nu een **statische hub** die naar de relevante subreddits
+  **linkt** (r/buildapc, r/buildapcforme, r/buildapcsales, r/pcmasterrace — linken mag altijd) en
+  uitlegt hoe de **smart generate de community-consensus verwerkt** (link naar de builder). **Geen
+  Reddit-content opgeslagen of getoond.** Bronvermelding onderaan. Navbar/footer/sitemap + `loading.tsx`.
+- **Verwijderd** (in commit `d25bcff`): `src/lib/reddit.ts`, `src/lib/db/reddit.ts`, `/api/cron/reddit`,
+  tabel `reddit_posts` (migratie 0006 + schema teruggedraaid, `_journal` hersteld t/m 0005),
+  `scripts/test-reddit.ts`, de Reddit-cron uit `vercel.json`. **Geen `REDDIT_*`-env-vars nodig.**
+- `tsc` + `eslint src` + `npm run test` + `next build` (56 pagina's) groen; `/community` visueel bevestigd.
+- **Mocht je later toch de Data API willen**: het zit in de git-historie (commit `fde43d1`). Dan eerst
+  Reddit's commerciële goedkeuring regelen + deletion-compliance (verwijderde posts niet meer tonen).
 
-**Open punten:** Reddit fase 2 (mentions → generator). Fase 3 roadmap (officiële API's na KvK).
-Optioneel resterend uit de redesign: per-categorie hero-foto op `/categorie/[type]`-headers,
-preassembled-productkaarten, blog-bento. Nog handmatig te verifiëren (vereist account/inbox/toestel):
-reset-mail, prijsalert-cron-mail, mobiele weergave, **échte Reddit-import met keys**. Search
-Console-vervolg: sitemap indienen + Rich Results-test op een productpagina.
+**Open punten:** fase 3 roadmap (officiële API's na KvK). Optioneel resterend uit de redesign:
+per-categorie hero-foto op `/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
+Nog handmatig te verifiëren (vereist account/inbox/toestel): reset-mail, prijsalert-cron-mail,
+mobiele weergave. Search Console-vervolg: sitemap indienen + Rich Results-test op een productpagina.
 
 ## Overzicht
 

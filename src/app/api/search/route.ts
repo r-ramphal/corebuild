@@ -108,7 +108,12 @@ export async function GET(req: NextRequest) {
         if (catalog.length > 0) {
           const body: SearchResults = { query: "", results: catalog, errors: [] };
           return NextResponse.json(body, {
-            headers: { "x-corebuild-source": "catalog" },
+            headers: {
+              "x-corebuild-source": "catalog",
+              // Catalogus verandert hooguit elke 6 uur (scraper). Edge-cachen zodat
+              // herhaald openen (builder-picker, categoriepagina) bijna instant is.
+              "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+            },
           });
         }
       } catch (err) {
@@ -133,7 +138,10 @@ export async function GET(req: NextRequest) {
       if (cached.length > 0 && cached.some((r) => !r.mock)) {
         const body: SearchResults = { query, results: cached, errors: [] };
         return NextResponse.json(body, {
-          headers: { "x-corebuild-source": "database" },
+          headers: {
+            "x-corebuild-source": "database",
+            "Cache-Control": "public, s-maxage=120, stale-while-revalidate=1800",
+          },
         });
       }
     } catch (err) {

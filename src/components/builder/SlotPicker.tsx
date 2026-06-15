@@ -65,7 +65,10 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+    <div
+      data-lenis-prevent=""
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4"
+    >
       <button
         aria-label="Sluiten"
         onClick={onClose}

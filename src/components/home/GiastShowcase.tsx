@@ -17,7 +17,7 @@ const FEATURED: { type: ComponentType; name: string }[] = [
   { type: "storage", name: "2TB NVMe SSD" },
   { type: "psu", name: "850W 80+ Gold" },
   { type: "case", name: "Fractal Design North" },
-  { type: "cooling", name: "Noctua NH-D15" },
+  { type: "cooling", name: "Arctic Liquid Freezer III 360" },
 ];
 
 export function GiastShowcase() {

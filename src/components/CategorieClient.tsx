@@ -45,7 +45,7 @@ function CategoryResultCard({ item, isBestDeal, isBestValue, componentType, onAd
 
   return (
     <div
-      className={`group/card flex flex-col md:flex-row bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden hover:border-primary hover:shadow-sm transition-all ${
+      className={`group/card flex flex-col md:flex-row bg-surface-container-lowest border border-outline-variant border-l-[3px] border-l-primary rounded-xl overflow-hidden hover:border-primary hover:shadow-sm transition-all ${
         !item.inStock ? "opacity-75 grayscale-[0.5]" : ""
       }`}
     >

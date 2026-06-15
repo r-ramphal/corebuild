@@ -50,15 +50,15 @@ export function GiastCategories() {
                       className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
                     />
                   )}
-                  <span className="absolute top-2.5 left-2.5 font-plex text-[11px] bg-gp-bg/90 px-1.5 py-0.5 text-gp-ink-soft">
+                  <span className="absolute top-2.5 left-2.5 font-plex text-[11px] bg-gp-bg/90 px-1.5 py-0.5 text-gp-orange font-bold">
                     {String(idx + 1).padStart(2, "0")}
                   </span>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 border-t border-gp-line group-hover:bg-gp-orange transition-colors duration-200">
+                <div className="flex items-center justify-between px-4 py-3 border-t-2 border-gp-orange group-hover:bg-gp-orange transition-colors duration-200">
                   <span className="font-mont font-bold text-[16px] group-hover:text-white transition-colors">
                     {COMPONENT_META[type].shortLabel}
                   </span>
-                  <ArrowUpRight className="w-4 h-4 text-gp-ink-soft group-hover:text-white transition-colors" />
+                  <ArrowUpRight className="w-4 h-4 text-gp-orange group-hover:text-white transition-colors" />
                 </div>
               </Link>
             );

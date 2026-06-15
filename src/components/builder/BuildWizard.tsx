@@ -78,7 +78,10 @@ export function BuildWizard({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center sm:p-4">
+    <div
+      data-lenis-prevent=""
+      className="fixed inset-0 z-40 flex items-end sm:items-center justify-center sm:p-4"
+    >
       <button aria-label="Sluiten" onClick={onClose} className="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" />
       <div
         role="dialog"

@@ -502,10 +502,34 @@ homepage + SmartGenerate visueel via headless Chrome).
   Twee nieuwe use-cases: **Esports** (competitive, hoge FPS) + **Streamen** (multicore + 32GB); de
   SmartGenerate-UI heeft nu 5 profielen + 7 snelstart-templates. `test-generate` uitgebreid.
 
-**Open punten:** fase 3 roadmap (officiële API's na KvK). Optioneel resterend uit de redesign:
-per-categorie hero-foto op `/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
-Nog handmatig te verifiëren (vereist account/inbox/toestel): reset-mail, prijsalert-cron-mail,
-mobiele weergave. Search Console-vervolg: sitemap indienen + Rich Results-test op een productpagina.
+**Nieuw (15 juni 2026, deel 21) — Reddit-koppeling + community-feed (fase 1):**
+Doel: de r/buildapc-doelgroep aanspreken. Database-first, net als de prijs-scraper (geen live
+Reddit-call per bezoeker → rate limits). Werkt zodra de keys gezet zijn; degradeert netjes zonder.
+- **Client** `src/lib/reddit.ts`: app-only OAuth (`client_credentials`), pure `normalizePosts`-parser
+  (weert sticky/NSFW, bouwt permalink, splitst externe link-url). Beschrijvende `User-Agent` verplicht.
+  Zonder `REDDIT_CLIENT_ID`/`REDDIT_CLIENT_SECRET` → lege lijst (graceful).
+- **Opslag**: tabel `reddit_posts` (migratie `drizzle/0006_fuzzy_winter_soldier.sql`, **nog NIET op
+  Neon toegepast**) + repo `src/lib/db/reddit.ts` (upsert op `post_id`, `getTopRedditPosts`).
+- **Ingestie**: `/api/cron/reddit` (GET, `Bearer CRON_SECRET`) leest buildapc/buildapcsales/pcmasterrace
+  in → Neon. **Dagelijks** via `vercel.json` (`0 5 * * *`, naast de prijsalert-cron). Geverifieerd:
+  401 zonder secret, mét secret → `{fetched:0,saved:0,reason:"geen Reddit-credentials"}` (graceful).
+- **UI** `/community` (ISR, revalidate 600s): leest uit de DB, toont posts (score/flair/reacties) die
+  naar Reddit doorlinken + bronvermelding. Navbar/footer/sitemap + `loading.tsx`. Lege staat tot de
+  import draait. `scripts/test-reddit.ts` (parser) zit in `npm run test`. `tsc`+`eslint`+`build` (57 pag.) groen.
+- **⚠️ Setup vereist om het te activeren** (3 stappen): (1) registreer een app op
+  **reddit.com/prefs/apps** (type "web"/"script") → `REDDIT_CLIENT_ID` + `REDDIT_CLIENT_SECRET`
+  (optioneel `REDDIT_USER_AGENT`) in `.env.local` + Vercel; (2) pas de migratie toe: **`npm run db:push`**
+  (additief, alleen `reddit_posts`); (3) eerste vulling: cron afwachten of handmatig
+  `curl -H "Authorization: Bearer $CRON_SECRET" .../api/cron/reddit`. **ToS:** lees Reddit's Developer
+  Terms (commercieel gebruik); we tonen alleen-lezen publieke posts mét bronvermelding.
+- **Fase 2 (later)**: onderdeel-mentions uit de Reddit-posts aggregeren → voedt
+  `recommend.ts`/de generator met data-gedreven populariteit i.p.v. de huidige hardgecodeerde patronen.
+
+**Open punten:** Reddit fase 2 (mentions → generator). Fase 3 roadmap (officiële API's na KvK).
+Optioneel resterend uit de redesign: per-categorie hero-foto op `/categorie/[type]`-headers,
+preassembled-productkaarten, blog-bento. Nog handmatig te verifiëren (vereist account/inbox/toestel):
+reset-mail, prijsalert-cron-mail, mobiele weergave, **échte Reddit-import met keys**. Search
+Console-vervolg: sitemap indienen + Rich Results-test op een productpagina.
 
 ## Overzicht
 

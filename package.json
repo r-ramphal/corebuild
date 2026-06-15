@@ -12,6 +12,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed-db.ts",
+    "test": "tsx scripts/test-relevance.ts && tsx scripts/test-dimensions.ts && tsx scripts/test-build-analysis.ts && tsx scripts/test-generate.ts",
     "test:scrapers": "tsx scripts/test-scrapers.ts"
   },
   "dependencies": {

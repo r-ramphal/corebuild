@@ -43,7 +43,8 @@ De data/logica-laag is overal ongemoeid (scrapers, Neon+Drizzle, `/api/*`, auth,
   (alleen door RotatingShowcase gebruikt). `home/` bevat nu enkel de `Giast*`-componenten. `CategoryGrid`
   blijft (gebruikt door `/categorie`); `promo-gpu.png` + `feature-pc.png` (OG) blijven.
 - **Nog open/optioneel**: per-categorie hero-foto op de `/categorie/[type]`-headers; preassembled-product-
-  kaarten op een aparte pagina; blog-bento; OG-image (`feature-pc.png`) is nog de oude lichte stijl.
+  kaarten op een aparte pagina; blog-bento. (OG-image is 15-06 vervangen door een gegenereerde
+  giastpc-kaart — zie deel 15.)
   **Bewaard**: routes/stores/`useSyncExternalStore`/a11y/de "geen ongelayerde CSS"-gotcha (utilities in `@layer`).
 - **Gotcha (deze sessie)**: de lokale `.shots/`-screenshotmap (Chrome-profielen) wordt door Tailwind v4
   én `eslint .` mee-gescand → vreemde extensie-CSS/124 lint-errors. `.shots*` staat in `.gitignore`;
@@ -355,8 +356,39 @@ blijft; dit is de server-side opt-in erbovenop (account-e-mail, geen losse opt-i
 - Bewust v1: drempel = de prijs bij aanzetten (mail bij élke daling); per-url-prijs (de gevolgde
   aanbieding), geen cross-retailer-minimum. Hobby-plan: cron max 1×/dag — daarom dagelijks.
 
+**Nieuw (15 juni 2026, deel 15) — A-quickwins + SEO (JSON-LD):**
+Hygiëne + vindbaarheid; data/logica ongemoeid. Alles geverifieerd: `tsc` + `eslint src` schoon,
+`npm run test` groen (relevance/dimensions/build-analysis/generate), **`next build` (53 pagina's) groen**.
+- **CI weer levend**: `.github/workflows/ci.yml` triggerde op `main`/`develop` maar de repo draait op
+  **`master`** → lint/typecheck/build liepen nooit. Triggers nu `master`; **nieuwe `npm run test`-stap**
+  (de 4 offline test-scripts) toegevoegd vóór de build. Script `"test"` staat in `package.json`.
+- **OG-image in giastpc-huisstijl**: nieuwe `src/lib/og.tsx` (gedeelde `next/og`/satori-kaart: wit
+  canvas, oranje #FF8800, scherpe hoeken, component-chips, `corebuildnl.com`-balk) + route-bestanden
+  `src/app/opengraph-image.tsx` + `twitter-image.tsx` → site-breed, 1200×630, statisch geprerenderd.
+  De oude lichte `images: feature-pc.png` is uit `layout.tsx` gehaald (file-conventie levert nu og/twitter).
+  Dependency- en asset-vrij (geen design-bestanden, geen font-fetch). `feature-pc.png` is nu ongebruikt.
+- **JSON-LD structured data** (Rich Results voor een vergelijker):
+  - `src/components/JsonLd.tsx` — herbruikbare `<script type="application/ld+json">` met `<`→unicode-escape
+    (Next-aanbeveling, XSS-veilig), geen hooks → server- én client-bruikbaar.
+  - **BreadcrumbList** server-gerenderd in `product/[slug]/page.tsx` (Home › Categorie › Product; leest
+    `cat`/`q` uit de URL → zichtbaar zónder JS). Page is nu `async`.
+  - **Product + AggregateOffer** client-side in `ProductClient.tsx` zodra de prijzen geladen zijn —
+    laagste/hoogste prijs + `offerCount` + per-aanbieder `Offer` (prijs/voorraad/url/seller). **Alleen
+    échte aanbiedingen** (`!mock`) → geen nepprijzen in structured data; geen echte rij → geen Product-LD.
+  - Valideren: Google Rich Results Test / validator.schema.org op een live productpagina.
+- **Branch-opruiming**: `redesign-giastpc` (volledig in master gemerged) verwijderd lokaal + op origin.
+  **`redesign-stitch`** (dark glassmorphism, 5 commits vooruit) bewust **behouden** als alternatief.
+- **Vercel Preview-env — bewuste keuze (15-06): Production-only laten.** `RESEND_API_KEY`/`EMAIL_FROM`/
+  `CRON_SECRET` blijven alleen Production zodat **preview-deploys geen échte mail naar echte gebruikers
+  sturen**. Ook `BETTER_AUTH_SECRET` ontbreekt in Preview (alleen Dev+Prod) → auth-flows op preview-URL's
+  werken niet; acceptabel zolang er niet op preview getest wordt. Wil je het later wél:
+  `npx vercel env add RESEND_API_KEY preview` (idem `EMAIL_FROM`, `CRON_SECRET`, `BETTER_AUTH_SECRET`;
+  waarden staan in `.env.local`).
+
 **Open punten:** fase 3 roadmap (officiële API's na KvK); evt. instelbare doelprijs + cross-retailer
-laagste prijs voor alerts; `RESEND_API_KEY`/`CRON_SECRET` ook in Vercel Preview (nu alleen Production).
+laagste prijs voor alerts. Optioneel resterend uit de redesign: per-categorie hero-foto op
+`/categorie/[type]`-headers, preassembled-productkaarten, blog-bento. Mogelijke volgende SEO/groei-stap:
+privacy-vriendelijke analytics + échte mobiele/mail-verificatie met een account.
 
 ## Overzicht
 

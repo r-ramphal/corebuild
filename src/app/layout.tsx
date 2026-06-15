@@ -71,21 +71,14 @@ export const metadata: Metadata = {
     title: "CoreBuild: optimaliseer je build, verfijn je budget",
     description:
       "Stel je pc samen met een automatische compatibiliteitscheck en een visuele build, en vergelijk live de prijzen van de grootste Nederlandse retailers per onderdeel.",
-    images: [
-      {
-        url: "/images/feature-pc.png",
-        width: 960,
-        height: 640,
-        alt: "CoreBuild, de PC-componenten prijsvergelijker",
-      },
-    ],
+    // og:image komt uit src/app/opengraph-image.tsx (giastpc-huisstijl, gegenereerd)
   },
   twitter: {
     card: "summary_large_image",
     title: "CoreBuild: optimaliseer je build, verfijn je budget",
     description:
       "Vergelijk real-time prijzen van de grootste tech-retailers en bouw de ultieme setup.",
-    images: ["/images/feature-pc.png"],
+    // twitter:image komt uit src/app/twitter-image.tsx
   },
   robots: {
     index: true,

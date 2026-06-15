@@ -2,9 +2,9 @@ name: CoreBuild CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [master]
   pull_request:
-    branches: [main, develop]
+    branches: [master]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -26,6 +26,9 @@ jobs:
       - run: npm run lint
 
       - run: npm run type-check
+
+      - name: Unit tests (relevance, dimensions, build-analysis, generate)
+        run: npm run test
 
       - name: Build
         run: npm run build

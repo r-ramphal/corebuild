@@ -17,6 +17,7 @@ import { usePriceHistory } from "@/lib/use-price-history";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { WatchButton } from "@/components/WatchButton";
 import { RetailerLogo } from "@/components/RetailerLogo";
+import { JsonLd } from "@/components/JsonLd";
 import type { ComponentType } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
@@ -89,6 +90,44 @@ export function ProductClient() {
   const best = matches.find((m) => m.inStock) ?? matches[0];
   const heroImage = matches.find((m) => m.imageUrl)?.imageUrl;
 
+  // Product/AggregateOffer structured data (schema.org) — alleen op échte
+  // aanbiedingen (geen demo/mock-rijen) zodat we geen nepprijzen aan Google geven.
+  // Toont de laagste/hoogste prijs + aanbieders, passend bij een vergelijkpagina.
+  const realOffers = matches.filter((m) => !m.mock);
+  const productLd =
+    !loading && realOffers.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name,
+          ...(heroImage ? { image: heroImage } : {}),
+          ...(meta ? { category: meta.label } : {}),
+          offers: {
+            "@type": "AggregateOffer",
+            priceCurrency: "EUR",
+            lowPrice: Math.min(...realOffers.map((o) => o.priceEur)).toFixed(2),
+            highPrice: Math.max(...realOffers.map((o) => o.priceEur)).toFixed(2),
+            offerCount: realOffers.length,
+            availability: realOffers.some((o) => o.inStock)
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+            offers: realOffers.map((o) => ({
+              "@type": "Offer",
+              price: o.priceEur.toFixed(2),
+              priceCurrency: "EUR",
+              availability: o.inStock
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+              url: o.url,
+              seller: {
+                "@type": "Organization",
+                name: RETAILER_LABEL[o.retailer] ?? o.retailer,
+              },
+            })),
+          },
+        }
+      : null;
+
   // Retailer-eigen omschrijving ophalen van de goedkoopste scrapebare aanbieding
   // (Bol/Amazon blokkeren datacenter-IP's, dus die slaan we over voor de info-fetch)
   const SCRAPABLE = ["megekko", "azerty", "alternate"];
@@ -111,6 +150,7 @@ export function ProductClient() {
 
   return (
     <main className="pt-16 min-h-screen">
+      {productLd && <JsonLd data={productLd} />}
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-8 pb-16">
         {/* Breadcrumb */}
         <div className="py-4 font-body-sm text-body-sm text-on-surface-variant">

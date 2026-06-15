@@ -429,6 +429,33 @@ Hygiëne + vindbaarheid; data/logica ongemoeid. Alles geverifieerd: `tsc` + `esl
   URL-inspectie draaien op een productpagina om de structured data te bevestigen.
   (DNS-methode = los van de app; geen `metadata.verification.google`-metatag nodig.)
 
+**Nieuw (15 juni 2026, deel 18) — builder-upgrades + wizard + repo-data + 3D:**
+Vijf stappen, allemaal geverifieerd: `tsc` + `eslint src` + `npm run test` + `next build` (55 pagina's)
+groen; de modals én het 3D-aanzicht zijn **runtime gecheckt via headless Chrome (CDP)**.
+- **Retailer-links in de builder** (stap 1): elk gevuld slot toont een klikbare retailer-chip naar de
+  winkel + een Bekijk-link in het build-overzicht. Mock/demo zonder dode link.
+- **Inline onderdeel-kiezer** (stap 2): `components/builder/SlotPicker.tsx` — modal met zoek +
+  populaire tags + catalogusresultaten (zelfde `/api/search?cat=`-flow als de categoriepagina), per
+  resultaat een Bekijk- + Kies-knop. 'Voeg toe'/'wijzig' openen nu deze modal i.p.v. naar `/categorie`
+  te navigeren (link naar de volledige pagina blijft onderaan).
+- **Moederbord-referentie uit de Pawikoski-repo** (stap 3 — scope op jouw verzoek = alléén moederborden):
+  `scripts/build_motherboards.ts` → `src/lib/specs/data/motherboards.json` (socket↔chipset, gefilterd op
+  de sockets die `detect.ts` kent: **AM4 + LGA1200**; 2021-data, dus geen AM5/LGA1700). Helper
+  `src/lib/specs/motherboards.ts`. In de SlotPicker toont het moederbord-slot **compatibele chipsets**
+  (B550, X570, …) voor de socket van de gekozen CPU als klikbare zoekchips. Bron + herbouwstappen in
+  `data/ATTRIBUTION.md`. De GPU/CPU-namenlijsten uit de repo zijn **bewust niet** gebruikt (te stale;
+  onze eigen `cpu-data`/`gpu-data` zijn moderner). Scrapers blijven de bron van koopbare onderdelen/prijzen.
+- **Begeleide wizard** (stap 4): `components/builder/BuildWizard.tsx` — knop 'Begeleid samenstellen'
+  loopt de onderdelen in bouwvolgorde langs (CPU → moederbord → RAM → GPU → …), legt per stap uit waarom
+  het telt, opent de inline picker en toont compatibiliteitshints (socket, DDR-generatie) op basis van
+  eerdere keuzes.
+- **Realistischer + interactief 3D** (stap 5): `BuildPreview3D` herzien — per-vlak belichting (solide,
+  belichte onderdelen i.p.v. platte wireframe), open behuizing (zicht op de internals), ventilator-
+  schijven op koeler + videokaart, grondschaduw. **Optimaler in gebruik**: de legenda is nu klikbaar
+  (opent de picker voor dat slot) met hover-highlight, plus een 'aanzicht herstellen'-knop.
+  `onSelectSlot` loopt via de `BuildPreview`-wrapper. Drag/auto-rotate/reduced-motion behouden.
+- **Niets vereist een migratie**; data/logica (scrapers, Neon, `/api/*`, auth) ongemoeid.
+
 **Open punten:** fase 3 roadmap (officiële API's na KvK). Optioneel resterend uit de redesign:
 per-categorie hero-foto op `/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
 Nog handmatig te verifiëren (vereist account/inbox/toestel): reset-mail, prijsalert-cron-mail,

@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Share, Save, Check, Pencil } from "lucide-react";
+import { Plus, Trash2, Share, Save, Check, Pencil, ExternalLink } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { useSession } from "@/lib/auth-client";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { CATEGORY_ICONS as ICONS } from "@/lib/category-icons";
+import { RetailerLogo } from "@/components/RetailerLogo";
 import { formatEur } from "@/lib/format";
 import { BuildPreview } from "@/components/builder/BuildPreview";
 import { BuildSummary } from "@/components/builder/BuildSummary";
@@ -165,12 +166,32 @@ export function BuilderClient() {
                         <span className="font-label-price text-label-price text-primary block">
                           {formatEur(item.priceEur)}
                         </span>
-                        <Link
-                          href={`/categorie/${type}`}
-                          className="font-label-technical text-[10px] text-on-surface-variant hover:text-primary inline-flex items-center gap-1"
-                        >
-                          <Pencil className="w-3 h-3" /> wijzig
-                        </Link>
+                        <div className="flex items-center gap-2 justify-end mt-1">
+                          {item.url && !item.mock ? (
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title={`Bekijk bij ${item.retailer}`}
+                              className="inline-flex items-center gap-1 hover:opacity-80 transition-opacity"
+                            >
+                              <RetailerLogo retailer={item.retailer} size="sm" />
+                              <ExternalLink className="w-3 h-3 text-on-surface-variant" />
+                            </a>
+                          ) : (
+                            item.mock && (
+                              <span className="font-label-technical text-[10px] text-on-surface-variant">
+                                demo
+                              </span>
+                            )
+                          )}
+                          <Link
+                            href={`/categorie/${type}`}
+                            className="font-label-technical text-[10px] text-on-surface-variant hover:text-primary inline-flex items-center gap-1"
+                          >
+                            <Pencil className="w-3 h-3" /> wijzig
+                          </Link>
+                        </div>
                       </div>
                       <button
                         onClick={() => removeComponent(type)}
@@ -236,17 +257,30 @@ export function BuilderClient() {
 
             {filledCount > 0 && (
               <ul className="space-y-3 mb-5">
-                {COMPONENT_TYPES.filter((t) => components[t]).map((type) => (
-                  <li key={type} className="flex justify-between items-start text-sm">
-                    <div className="flex flex-col min-w-0 pr-2">
-                      <span className="font-bold text-on-surface truncate">{components[type]!.name}</span>
-                      <span className="text-xs text-on-surface-variant">{COMPONENT_META[type].shortLabel}</span>
-                    </div>
-                    <span className="font-label-technical text-label-technical flex-shrink-0">
-                      {formatEur(components[type]!.priceEur)}
-                    </span>
-                  </li>
-                ))}
+                {COMPONENT_TYPES.filter((t) => components[t]).map((type) => {
+                  const c = components[type]!;
+                  return (
+                    <li key={type} className="flex justify-between items-start text-sm">
+                      <div className="flex flex-col min-w-0 pr-2">
+                        <span className="font-bold text-on-surface truncate">{c.name}</span>
+                        <span className="text-xs text-on-surface-variant">{COMPONENT_META[type].shortLabel}</span>
+                        {c.url && !c.mock && (
+                          <a
+                            href={c.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-label-technical text-[10px] text-primary hover:underline inline-flex items-center gap-1 mt-0.5 w-fit"
+                          >
+                            Bekijk bij {c.retailer} <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                      </div>
+                      <span className="font-label-technical text-label-technical flex-shrink-0">
+                        {formatEur(c.priceEur)}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
             )}
 

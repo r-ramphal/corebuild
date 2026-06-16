@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: BASE_URL, changeFrequency: "daily", priority: 1 },
     { url: `${BASE_URL}/zoeken`, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE_URL}/builder`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/voorbeeldbuilds`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE_URL}/galerij`, changeFrequency: "daily", priority: 0.7 },
     { url: `${BASE_URL}/community`, changeFrequency: "daily", priority: 0.6 },
     { url: `${BASE_URL}/categorie`, changeFrequency: "weekly", priority: 0.7 },

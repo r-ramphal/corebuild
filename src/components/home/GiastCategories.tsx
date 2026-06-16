@@ -2,19 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { COMPONENT_TYPES, COMPONENT_META } from "@/lib/categories";
-import type { ComponentType } from "@/lib/types";
-
-/** Echte product-foto per kerncategorie (geoptimaliseerd, public/images/cat). */
-const CAT_IMG: Partial<Record<ComponentType, string>> = {
-  cpu: "/images/cat/cpu.webp",
-  gpu: "/images/cat/gpu.webp",
-  motherboard: "/images/cat/motherboard.webp",
-  ram: "/images/cat/ram.webp",
-  storage: "/images/cat/storage.webp",
-  psu: "/images/cat/psu.webp",
-  case: "/images/cat/case.webp",
-  cooling: "/images/cat/cooling.webp",
-};
+import { CATEGORY_IMAGES } from "@/lib/category-images";
 
 /** Categorie-bento met echte foto's: grayscale → kleur op hover, witte label-footer. */
 export function GiastCategories() {
@@ -33,7 +21,7 @@ export function GiastCategories() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {COMPONENT_TYPES.map((type, idx) => {
-            const img = CAT_IMG[type];
+            const img = CATEGORY_IMAGES[type];
             return (
               <Link
                 key={type}

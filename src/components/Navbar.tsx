@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Save, LogOut, Menu, X, ArrowUpRight, Search } from "lucide-react";
+import { Save, LogOut, Menu, X, ArrowUpRight, Search, ChevronDown } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { SearchSuggest } from "@/components/SearchSuggest";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { href: "/zoeken", label: "Zoeken" },
   { href: "/builder", label: "Builder" },
+  { href: "/voorbeeldbuilds", label: "Voorbeeldbuilds" },
   { href: "/categorie", label: "Categorieën" },
   { href: "/galerij", label: "Galerij" },
   { href: "/community", label: "Community" },
@@ -22,7 +23,9 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+  const accountRef = useRef<HTMLDivElement>(null);
   const { data: session, isPending } = useSession();
 
   useEffect(() => {
@@ -43,8 +46,28 @@ export function Navbar() {
     };
   }, [open]);
 
+  // Sluit het account-dropdown bij klik buiten of Escape.
+  useEffect(() => {
+    if (!accountOpen) return;
+    function onOutsideClick(e: MouseEvent) {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false);
+      }
+    }
+    function onEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setAccountOpen(false);
+    }
+    document.addEventListener("mousedown", onOutsideClick);
+    document.addEventListener("keydown", onEscape);
+    return () => {
+      document.removeEventListener("mousedown", onOutsideClick);
+      document.removeEventListener("keydown", onEscape);
+    };
+  }, [accountOpen]);
+
   async function handleSignOut() {
     setOpen(false);
+    setAccountOpen(false);
     await signOut();
     router.push("/");
     router.refresh();
@@ -90,13 +113,47 @@ export function Navbar() {
             </div>
           )}
           {session ? (
-            <Link
-              href="/builds"
-              className="hidden sm:inline-flex items-center gap-2 px-3 py-2 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors max-w-[180px] truncate"
-            >
-              <Save className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">{session.user.name || session.user.email}</span>
-            </Link>
+            <div className="relative hidden sm:block" ref={accountRef}>
+              <button
+                onClick={() => setAccountOpen((o) => !o)}
+                aria-expanded={accountOpen}
+                aria-haspopup="menu"
+                className="inline-flex items-center gap-2 px-3 py-2 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors max-w-[200px]"
+              >
+                <Save className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate max-w-[110px]">{session.user.name || session.user.email}</span>
+                <ChevronDown
+                  className={cn("w-3.5 h-3.5 shrink-0 transition-transform", accountOpen && "rotate-180")}
+                />
+              </button>
+              {accountOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 mt-1 w-52 border border-gp-line bg-gp-bg shadow-lg"
+                >
+                  <div className="px-4 py-2.5 border-b border-gp-line">
+                    <p className="font-plex text-[11px] text-gp-ink-soft truncate">
+                      {session.user.email}
+                    </p>
+                  </div>
+                  <Link
+                    href="/builds"
+                    role="menuitem"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex items-center gap-2 px-4 py-3 font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:bg-gp-bg-soft hover:text-gp-orange transition-colors"
+                  >
+                    <Save className="w-4 h-4" /> Mijn builds
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    role="menuitem"
+                    className="w-full flex items-center gap-2 px-4 py-3 border-t border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:bg-gp-bg-soft hover:text-gp-orange transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" /> Uitloggen
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <Link
               href="/inloggen"

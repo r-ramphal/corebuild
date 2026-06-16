@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const LINKS = [
+  { href: "/voorbeeldbuilds", label: "Voorbeeldbuilds" },
   { href: "/galerij", label: "Buildgalerij" },
   { href: "/community", label: "Community" },
   { href: "/volglijst", label: "Volglijst" },

@@ -8,6 +8,7 @@ import { HardDrive, TrendingUp, Check, ExternalLink } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META } from "@/lib/categories";
 import { CATEGORY_ICONS } from "@/lib/category-icons";
+import { CATEGORY_IMAGES } from "@/lib/category-images";
 import { formatEur } from "@/lib/format";
 import { productUrl } from "@/lib/product-url";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
@@ -259,6 +260,7 @@ export function CategorieClient() {
   }
 
   const CategoryIcon = CATEGORY_ICONS[componentType] ?? HardDrive;
+  const heroImg = CATEGORY_IMAGES[componentType];
 
   const filtered = (results?.results ?? [])
     .filter((i) => maxPrice >= 2500 || i.priceEur <= maxPrice)
@@ -274,21 +276,42 @@ export function CategorieClient() {
     <main className="mt-16 max-w-[1280px] mx-auto px-4 sm:px-8 py-8 min-h-screen">
       {/* Category Header */}
       <section className="mb-12">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-12 h-12 bg-primary-container rounded-xl flex items-center justify-center text-on-primary flex-shrink-0">
-            <CategoryIcon className="w-6 h-6" />
+        <div
+          className={`border border-gp-line bg-gp-bg-soft overflow-hidden grid grid-cols-1 ${
+            heroImg ? "md:grid-cols-[minmax(0,1fr)_320px]" : ""
+          }`}
+        >
+          <div className="flex items-center gap-4 p-6 sm:p-8">
+            <div className="w-12 h-12 bg-primary-container rounded-xl flex items-center justify-center text-on-primary flex-shrink-0">
+              <CategoryIcon className="w-6 h-6" />
+            </div>
+            <div className="border-l-2 border-primary pl-4">
+              <span className="font-plex text-[11px] uppercase tracking-[0.2em] text-gp-orange block mb-1">
+                _{meta.shortLabel.toLowerCase()}
+              </span>
+              <h1 className="font-headline-lg text-headline-lg text-on-surface">
+                {meta.pageTitle}
+              </h1>
+              <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                {meta.description}
+              </p>
+            </div>
           </div>
-          <div className="border-l-2 border-primary pl-4">
-            <span className="font-plex text-[11px] uppercase tracking-[0.2em] text-gp-orange block mb-1">
-              _{meta.shortLabel.toLowerCase()}
-            </span>
-            <h1 className="font-headline-lg text-headline-lg text-on-surface">
-              {meta.pageTitle}
-            </h1>
-            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-              {meta.description}
-            </p>
-          </div>
+
+          {/* Hero-foto (alleen kerncategorieën; giastpc blueprint-hoeken) */}
+          {heroImg && (
+            <div className="relative hidden md:block bg-gp-ink min-h-[200px] border-l border-gp-line">
+              <Image
+                src={heroImg}
+                alt={`${meta.label} vergelijken bij CoreBuild`}
+                fill
+                sizes="320px"
+                className="object-cover grayscale-[0.35]"
+              />
+              <span className="absolute top-2 left-2 w-3.5 h-3.5 border-t border-l border-gp-orange" />
+              <span className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b border-r border-gp-orange" />
+            </div>
+          )}
         </div>
 
         {/* Popular tags */}

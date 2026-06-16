@@ -2,6 +2,39 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (16 juni 2026, deel 23) — redesign-restpunten: categorie-hero-foto's + voorbeeldbuilds-pagina + blog-bento
+
+De drie codeerbare open punten uit de redesign afgerond. **Fase 3 (officiële API's) bewust NIET** —
+voldoet nog niet aan de eisen (KvK). Data/logica (scrapers, Neon, `/api/*`, auth, prijshistorie, alerts)
+volledig ongemoeid; puur frontend/visueel. Geverifieerd: `tsc --noEmit` + `eslint src` + `npm run test`
++ `next build` (**57 pagina's**) allemaal groen.
+- **Per-categorie hero-foto** op `/categorie/[type]`: nieuwe `src/lib/category-images.ts`
+  (`CATEGORY_IMAGES`, gecentraliseerd) — `home/GiastCategories.tsx` hergebruikt deze map nu (lokale
+  `CAT_IMG` verwijderd). De categorie-header in `components/CategorieClient.tsx` is nu een giastpc-banner
+  (`border-gp-line` + `bg-gp-bg-soft`) met de foto in een rechterkolom (320px, `grayscale-[0.35]`,
+  blueprint-oranje hoekaccenten), `hidden md:block` zodat mobiel compact blijft. **Alleen de 8
+  kerncategorieën** hebben een foto; randapparatuur/accessoires vallen netjes terug op de icon-only
+  header (grid wordt dan 1-koloms via de conditionele `md:grid-cols-[...]`).
+- **Voorbeeldbuilds-pagina** (curated, statisch — bewuste keuze i.p.v. live catalogus, op gebruikersverzoek):
+  `src/lib/example-builds.ts` (6 builds: Budget gamer ~€800, Esports ~€1100, 1440p gamer ~€1500,
+  Streamer ~€1800, Creator ~€2000, 4K powerhouse ~€2500; elk 8 kernonderdelen). Nieuwe route
+  `src/app/voorbeeldbuilds/page.tsx` (server, statisch geprerendered): kaarten met oranje pixel-kopbalk,
+  onderdelenlijst (elk onderdeel linkt naar `/zoeken?q=`), richtprijs + "Stel samen"-CTA, en een
+  smart-generate-CTA onderaan. Toegevoegd aan navbar + footer + sitemap; `home/GiastShowcase.tsx` kreeg
+  een "Meer voorbeeldbuilds"-link. **Geen API/DB**; richtprijzen indicatief, onderdeelnamen sluiten aan op
+  `cpu-data`/`gpu-data` + de FEATURED-build. Bijwerken = een rij in `example-builds.ts` aanpassen.
+- **Blog-bento** op `/blog`: platte lijst → giastpc-bento-grid (`src/app/blog/page.tsx`). Eerste post
+  uitgelicht (`md:col-span-2 md:row-span-2`, oranje "Uitgelicht"-badge + pixelnummer `01`), overige posts
+  als genummerde kaarten in de rechterkolom; oranje hover-rand, datum + leesduur. Metadata ongewijzigd.
+- **Conventies bewaard**: em-dashes uit body-copy (deel 3); gp-tokens/utilities; geen ongelayerde CSS.
+- **Runtime-verificatie**: `/voorbeeldbuilds` + `/blog` als statische pagina geprerendered, alle 22
+  `/categorie/[type]` als SSG geprerendered → het render-pad (incl. de gewijzigde header) draait
+  server-side zonder fouten. (Lokale dev-smoketest via `next dev` is hier niet gebruikt: PowerShell-
+  achtergrondjobs overleven niet tussen tool-calls; de build-prerender dekt het render-pad al af.)
+- **Nog open** (ongewijzigd, vereist account/inbox/toestel/dashboard, kan niet autonoom): reset-mail +
+  prijsalert-cron-mail + mobiele weergave handmatig verifiëren; sitemap indienen in Search Console +
+  Rich Results-test. Fase 3 (Bol/Awin/Amazon-API's) wacht op KvK.
+
 ## ▶ Nieuw (15 juni 2026, deel 22) — echte 3D met three.js (maatvast op specs), 2.5D eruit
 
 De gebruiker koos: **2.5D weg**, **libraries mogen**, en **maatvast op échte specs met prioriteit op
@@ -89,9 +122,9 @@ De data/logica-laag is overal ongemoeid (scrapers, Neon+Drizzle, `/api/*`, auth,
   `home/CompatCheck`, `home/RotatingShowcase`, `home/Snelkoppelingen` + de 9 `public/images/build/*.jpg`
   (alleen door RotatingShowcase gebruikt). `home/` bevat nu enkel de `Giast*`-componenten. `CategoryGrid`
   blijft (gebruikt door `/categorie`); `promo-gpu.png` + `feature-pc.png` (OG) blijven.
-- **Nog open/optioneel**: per-categorie hero-foto op de `/categorie/[type]`-headers; preassembled-product-
-  kaarten op een aparte pagina; blog-bento. (OG-image is 15-06 vervangen door een gegenereerde
-  giastpc-kaart — zie deel 15.)
+- **Nog open/optioneel**: ~~per-categorie hero-foto op de `/categorie/[type]`-headers; preassembled-
+  productkaarten op een aparte pagina; blog-bento~~ → **alle drie afgerond in deel 23.** (OG-image is
+  15-06 vervangen door een gegenereerde giastpc-kaart — zie deel 15.)
   **Bewaard**: routes/stores/`useSyncExternalStore`/a11y/de "geen ongelayerde CSS"-gotcha (utilities in `@layer`).
 - **Gotcha (deze sessie)**: de lokale `.shots/`-screenshotmap (Chrome-profielen) wordt door Tailwind v4
   én `eslint .` mee-gescand → vreemde extensie-CSS/124 lint-errors. `.shots*` staat in `.gitignore`;
@@ -566,10 +599,10 @@ Reddit-content vereist (mogelijk) schriftelijke goedkeuring, en data als input v
 - **Mocht je later toch de Data API willen**: het zit in de git-historie (commit `fde43d1`). Dan eerst
   Reddit's commerciële goedkeuring regelen + deletion-compliance (verwijderde posts niet meer tonen).
 
-**Open punten:** fase 3 roadmap (officiële API's na KvK). Optioneel resterend uit de redesign:
-per-categorie hero-foto op `/categorie/[type]`-headers, preassembled-productkaarten, blog-bento.
-Nog handmatig te verifiëren (vereist account/inbox/toestel): reset-mail, prijsalert-cron-mail,
-mobiele weergave. Search Console-vervolg: sitemap indienen + Rich Results-test op een productpagina.
+**Open punten:** fase 3 roadmap (officiële API's na KvK — voldoet nog niet aan de eisen). De optionele
+redesign-restpunten (per-categorie hero-foto, preassembled-productkaarten = `/voorbeeldbuilds`, blog-bento)
+zijn **afgerond in deel 23**. Nog handmatig te verifiëren (vereist account/inbox/toestel): reset-mail,
+prijsalert-cron-mail, mobiele weergave. Search Console-vervolg: sitemap indienen + Rich Results-test op een productpagina.
 
 ## Overzicht
 

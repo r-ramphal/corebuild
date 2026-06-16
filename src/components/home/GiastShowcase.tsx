@@ -72,12 +72,20 @@ export function GiastShowcase() {
                 ))}
               </ul>
 
-              <Link
-                href="/builder"
-                className="self-start bg-gp-orange hover:bg-gp-orange-dark text-white font-plex text-[13px] uppercase tracking-wider px-7 py-4 inline-flex items-center gap-2 transition-colors"
-              >
-                Stel zelf samen <ArrowRight className="w-4 h-4" />
-              </Link>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                <Link
+                  href="/builder"
+                  className="bg-gp-orange hover:bg-gp-orange-dark text-white font-plex text-[13px] uppercase tracking-wider px-7 py-4 inline-flex items-center gap-2 transition-colors"
+                >
+                  Stel zelf samen <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/voorbeeldbuilds"
+                  className="font-plex text-[12px] uppercase tracking-wider text-gp-ink-soft hover:text-gp-orange transition-colors inline-flex items-center gap-1.5"
+                >
+                  Meer voorbeeldbuilds <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

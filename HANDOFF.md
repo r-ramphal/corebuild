@@ -2,6 +2,24 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (16 juni 2026, deel 28) — model-precieze zoekfilter (5070 ≠ 5070 Ti)
+
+Zoeken op een specifiek model gaf soms een ander model terug (bv. een gewone RTX 5070 in een
+"RTX 5070 Ti"-zoektocht — die kon zelfs de "beste deal" worden). Opgelost in de zoeklaag.
+- **`src/lib/search-rank.ts`** — nieuwe pure `filterByQueryModel(results, query)`: noemt de zoekterm één
+  specifiek CPU/GPU-model (via `detectGpu`/`detectCpu`), dan vallen resultaten van een **ander** specifiek
+  model in dezelfde familie weg (symmetrisch: "5070 Ti" weert de 5070, "5070" weert de 5070 Ti; werkt ook
+  voor CPU's, bv. 9800X3D ≠ 9700X, en voor Super-varianten). **Vangnetten**: alleen strikt filteren als er
+  écht exacte treffers tussen zitten (anders blijft alles staan → geen lege lijst), en generieke/onbekende
+  namen blijven altijd staan (niet aantoonbaar verkeerd). GPU wint van CPU bij twijfel.
+- **`src/app/api/search/route.ts`**: toegepast in het cache- én live-pad, **vóór** `rankResults`, alleen bij
+  een echte `q`. Catalogusmodus (geen `q`, `/categorie/[type]`) blijft de hele familie tonen — daar wil je
+  juist alles vergelijken.
+- **Tests**: `scripts/test-search-rank.ts` uitgebreid (nu 15 cases: 5070 Ti/5070 beide richtingen,
+  geen-exacte-treffer-vangnet, generieke zoekterm, CPU-variant).
+- Verificatie: `tsc` + `eslint src` + `npm run test` + `next build` (57 pagina's) groen.
+- Effect o.a.: de voorbeeldbuild-links (`/zoeken?q=GeForce RTX 5070 Ti`) tonen nu alleen écht 5070 Ti.
+
 ## ▶ Nieuw (16 juni 2026, deel 27) — voorbeeldbuilds: eerlijke prijzen (geen valse beloftes)
 
 De `budgetEur`-bedragen op `/voorbeeldbuilds` (deel 23) waren te optimistisch — met de huidige hoge

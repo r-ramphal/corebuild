@@ -79,3 +79,33 @@ export function rankResults(results: PriceResult[], query: string): PriceResult[
     })
     .map((x) => x.item);
 }
+
+/**
+ * Model-precieze filter: noemt de zoekterm één specifiek CPU/GPU-model, dan
+ * vallen resultaten van een ÁNDER specifiek model in dezelfde familie weg
+ * (bv. "RTX 5070 Ti" → geen gewone RTX 5070, en omgekeerd). Belangrijk: alleen
+ * strikt filteren als er échte exacte treffers zijn; staan er geen exacte
+ * matches tussen, dan blijft alles staan (liever een familie tonen dan niets).
+ * Niet-herkende (generieke) namen blijven ook altijd staan — die zijn niet
+ * aantoonbaar verkeerd. Zonder model in de zoekterm verandert er niets.
+ */
+export function filterByQueryModel(results: PriceResult[], query: string): PriceResult[] {
+  const qGpu = detectGpu(query);
+  const qCpu = qGpu ? null : detectCpu(query);
+  if (!qGpu && !qCpu) return results;
+
+  const targetLabel = (qGpu ?? qCpu)!.label;
+  const detect = qGpu ? detectGpu : detectCpu;
+
+  const same: PriceResult[] = [];
+  const unknown: PriceResult[] = [];
+  for (const r of results) {
+    const m = detect(r.name);
+    if (!m) unknown.push(r);
+    else if (m.label === targetLabel) same.push(r);
+    // m van een ander model → kandidaat om weg te laten
+  }
+
+  if (same.length === 0) return results; // geen exacte treffers → niets strippen
+  return [...same, ...unknown];
+}

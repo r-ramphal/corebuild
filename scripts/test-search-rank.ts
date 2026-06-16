@@ -2,7 +2,7 @@
  * Unit-test voor de relevantie-ranking (src/lib/search-rank.ts).
  * Gebruik: npx tsx scripts/test-search-rank.ts
  */
-import { rankResults } from "../src/lib/search-rank";
+import { rankResults, filterByQueryModel } from "../src/lib/search-rank";
 import type { PriceResult } from "../src/lib/types";
 
 function part(name: string, priceEur: number, inStock = true): PriceResult {
@@ -63,6 +63,52 @@ function expect(label: string, cond: boolean) {
   const before = items.map((i) => i.name).join("|");
   rankResults(items, "rtx 4070");
   expect("Input-array blijft ongewijzigd", items.map((i) => i.name).join("|") === before);
+}
+
+// — Model-precieze filter: 5070 Ti ≠ 5070 —
+{
+  const list = [
+    part("MSI GeForce RTX 5070 Ti 16G Ventus 2X OC", 880),
+    part("Palit GeForce RTX 5070 Infinity 12G", 600),
+    part("Gaming videokaart (onbekend model)", 500),
+  ];
+  const out = filterByQueryModel(list, "GeForce RTX 5070 Ti");
+  expect("5070 Ti-zoekterm houdt de 5070 Ti", out.some((r) => r.name.includes("Ventus")));
+  expect("5070 Ti-zoekterm weert de gewone 5070", !out.some((r) => r.name.includes("Infinity")));
+  expect("onbekend model blijft staan (niet aantoonbaar verkeerd)", out.some((r) => r.name.includes("onbekend")));
+}
+
+// — Omgekeerd: 5070-zoekterm weert de 5070 Ti —
+{
+  const list = [
+    part("MSI GeForce RTX 5070 Ti 16G Ventus", 880),
+    part("Palit GeForce RTX 5070 Infinity 12G", 600),
+  ];
+  const out = filterByQueryModel(list, "GeForce RTX 5070");
+  expect("5070-zoekterm weert de 5070 Ti", !out.some((r) => r.name.includes("Ventus")));
+  expect("5070-zoekterm houdt de gewone 5070", out.some((r) => r.name.includes("Infinity")));
+}
+
+// — Geen exacte treffer → niets strippen (geen lege lijst) —
+{
+  const list = [part("Palit GeForce RTX 5070 Infinity", 600), part("ASUS GeForce RTX 5060", 300)];
+  const out = filterByQueryModel(list, "GeForce RTX 5070 Ti");
+  expect("zonder exacte 5070 Ti blijft alles staan", out.length === 2);
+}
+
+// — Zonder model in de zoekterm verandert er niets —
+{
+  const list = [part("ASUS RTX 5070", 600), part("MSI RTX 5060", 300)];
+  const out = filterByQueryModel(list, "videokaart");
+  expect("generieke zoekterm laat de lijst ongemoeid", out.length === 2);
+}
+
+// — Werkt ook voor CPU's (9800X3D ≠ 9700X) —
+{
+  const list = [part("AMD Ryzen 7 9800X3D Processor", 480), part("AMD Ryzen 7 9700X", 320)];
+  const out = filterByQueryModel(list, "Ryzen 7 9800X3D");
+  expect("9800X3D-zoekterm weert de 9700X", !out.some((r) => r.name.includes("9700X")));
+  expect("9800X3D-zoekterm houdt de 9800X3D", out.some((r) => r.name.includes("9800X3D")));
 }
 
 console.log(`\n${failed === 0 ? "ALLE" : failed + " GEFAALDE"} cases — ${failed === 0 ? "OK" : "zie hierboven"}`);

@@ -8,7 +8,7 @@ import { searchMock } from "@/lib/mock/catalog";
 import { getDb, normalizeQuery } from "@/lib/db";
 import { getFreshListings, getCatalogListings, saveListings } from "@/lib/db/listings";
 import { isJunk, matchesCategory, isComponentType } from "@/lib/relevance";
-import { rankResults } from "@/lib/search-rank";
+import { rankResults, filterByQueryModel } from "@/lib/search-rank";
 import { cleanName } from "@/lib/clean-name";
 import { COMPONENT_META } from "@/lib/categories";
 import type { ComponentType, PriceResult, Retailer, SearchResults } from "@/lib/types";
@@ -137,9 +137,10 @@ export async function GET(req: NextRequest) {
     try {
       const cached = applyRelevance(await getFreshListings(db, nq), cat);
       if (cached.length > 0 && cached.some((r) => !r.mock)) {
-        // Bij een echte zoekterm op relevantie ordenen; anders prijs asc.
+        // Bij een echte zoekterm: ander-model-resultaten weren (RTX 5070 ≠ 5070 Ti)
+        // en op relevantie ordenen; anders prijs asc.
         const ordered = rawQuery
-          ? rankResults(cached, rawQuery)
+          ? rankResults(filterByQueryModel(cached, rawQuery), rawQuery)
           : [...cached].sort((a, b) => a.priceEur - b.priceEur);
         const body: SearchResults = { query, results: ordered, errors: [] };
         return NextResponse.json(body, {
@@ -179,9 +180,10 @@ export async function GET(req: NextRequest) {
       .flatMap((s) => s.outcome.value),
     cat
   );
-  // Bij een echte zoekterm op relevantie ordenen; anders (categorie-fallback) prijs asc.
+  // Bij een echte zoekterm: ander-model-resultaten weren + op relevantie ordenen;
+  // anders (categorie-fallback) prijs asc.
   const results = rawQuery
-    ? rankResults(filtered, rawQuery)
+    ? rankResults(filterByQueryModel(filtered, rawQuery), rawQuery)
     : filtered.sort((a, b) => a.priceEur - b.priceEur);
 
   const errors = sources

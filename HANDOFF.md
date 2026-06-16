@@ -2,6 +2,32 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ VOLGENDE SESSIE — open punten / TODO (genoteerd 16 juni 2026)
+
+Optioneel, in volgorde van waarde:
+1. **Catalogus-verversingscron (Pro).** Nu Pro vaker cron toestaat: een Vercel-cron die de catalogus tussen
+   de 6-uurs GitHub-Action-runs door verst houdt voor de Vercel-scrapebare retailers (megekko/azerty/
+   alternate) → actuelere prijzen. **Scope-keuze nodig**: welke zoektermen (bv. alleen de 8 kern-categorieën),
+   cadans (bv. elke 2–3 uur), en een runtime-/retailer-belastingsbudget. Bewust nog niet gebouwd — raakt de
+   scraping-architectuur (bol/amazon blijven via GitHub Actions, residentieel IP).
+2. **Voorbeeldbuild-prijzen herijken.** De bedragen in `src/lib/example-builds.ts` zijn een momentopname
+   (deel 27); DDR5 is grillig. Periodiek opnieuw kalibreren met de eenmalige read-only catalogusquery uit
+   deel 27 (vereist toestemming voor een prod-read).
+3. **Skew Protection aanzetten.** Vercel-dashboard → Project → Settings → Advanced. Geen code; voorkomt fouten
+   bij een oude clientversie mid-deploy. **Alleen de gebruiker kan dit (dashboard).**
+
+**Op productie verifiëren (deze sessie gedeployd — kan ik niet autonoom):**
+- **Cron (deel 26)**: Vercel → Cron Jobs draait elke 6 uur; échte mail testen (ingelogd → volglijst-alert →
+  prijsdaling → cron). Handmatig: `GET /api/cron/price-alerts` met `Authorization: Bearer $CRON_SECRET`.
+- **Afbeeldingen (deel 25)**: Vercel → Usage → Image Optimization (quotum); check dat een categorie-/zoek-
+  pagina retailer-images als webp serveert; bij een blokkerende retailer-CDN valt `RetailerImage` terug op
+  directe load.
+- **Builder-UX (deel 24) + model-filter (deel 28)** op een **echt mobiel toestel**: compat-chips in de picker,
+  prefetch-snelheid, "bedoelde je…?", en dat "RTX 5070 Ti" geen gewone 5070 meer toont.
+
+Eerder al open (vereist account/inbox/toestel): reset-mail + mobiele weergave handmatig; Search Console
+sitemap indienen + Rich Results-test.
+
 ## ▶ Nieuw (16 juni 2026, deel 28) — model-precieze zoekfilter (5070 ≠ 5070 Ti)
 
 Zoeken op een specifiek model gaf soms een ander model terug (bv. een gewone RTX 5070 in een

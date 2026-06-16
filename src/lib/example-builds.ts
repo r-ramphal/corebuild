@@ -4,10 +4,13 @@ import type { ComponentType } from "./types";
  * Curated voorbeeldbuilds — vaste, met de hand samengestelde complete pc's per
  * budget/gebruik. Bewust statisch (geen live catalogus): stabiel tegen voorraad,
  * makkelijk te onderhouden. Elk onderdeel linkt door naar /zoeken zodat de
- * bezoeker de actuele prijs vergelijkt; de budgetindicatie is een richtprijs.
+ * bezoeker de ACTUELE prijs vergelijkt.
  *
- * De onderdeelnamen sluiten aan op cpu-data/gpu-data en de FEATURED-build op de
- * homepage. Bijwerken = een rij aanpassen; de detectie/compat-laag leest de naam.
+ * `budgetEur` is een **indicatie**, geen belofte: de echte prijs schommelt met de
+ * dagprijzen (vooral geheugen en videokaart). De bedragen zijn bewust iets
+ * conservatief geschat zodat we niet te laag beloven; controleer ze periodiek
+ * tegen de markt. De onderdeelnamen sluiten aan op cpu-data/gpu-data en de
+ * FEATURED-build op de homepage. Bijwerken = een rij aanpassen.
  */
 export interface ExampleBuildPart {
   type: ComponentType;
@@ -23,7 +26,7 @@ export interface ExampleBuild {
   tagline: string;
   /** Gebruiksprofiel-label, bv. "1080p gaming". */
   useCase: string;
-  /** Richtprijs in hele euro's (indicatief, geen live totaal). */
+  /** Indicatieve richtprijs in hele euro's — schommelt met de dagprijzen, geen belofte. */
   budgetEur: number;
   /** Acht kernonderdelen in bouwvolgorde. */
   parts: ExampleBuildPart[];
@@ -35,7 +38,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "Budget gamer",
     tagline: "Vlot 1080p gamen zonder te veel uit te geven.",
     useCase: "1080p gaming",
-    budgetEur: 800,
+    budgetEur: 1050,
     parts: [
       { type: "cpu", name: "AMD Ryzen 5 7600" },
       { type: "gpu", name: "GeForce RTX 5060" },
@@ -52,7 +55,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "Esports 1080p",
     tagline: "Hoge framerates voor competitieve shooters.",
     useCase: "1080p high-FPS",
-    budgetEur: 1100,
+    budgetEur: 1400,
     parts: [
       { type: "cpu", name: "AMD Ryzen 7 7700" },
       { type: "gpu", name: "GeForce RTX 5060 Ti" },
@@ -69,7 +72,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "1440p gamer",
     tagline: "De sweet spot: vloeiend gamen op 1440p ultra.",
     useCase: "1440p gaming",
-    budgetEur: 1500,
+    budgetEur: 1900,
     parts: [
       { type: "cpu", name: "AMD Ryzen 7 9800X3D" },
       { type: "gpu", name: "GeForce RTX 5070" },
@@ -86,7 +89,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "Streamer",
     tagline: "Gamen én livestreamen tegelijk, met multicore-power.",
     useCase: "gamen + streamen",
-    budgetEur: 1800,
+    budgetEur: 2100,
     parts: [
       { type: "cpu", name: "AMD Ryzen 9 7900X" },
       { type: "gpu", name: "GeForce RTX 5070 Ti" },
@@ -103,7 +106,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "Creator",
     tagline: "Editen, renderen en 3D-werk met veel geheugen en cores.",
     useCase: "creator / workstation",
-    budgetEur: 2000,
+    budgetEur: 2800,
     parts: [
       { type: "cpu", name: "AMD Ryzen 9 9900X" },
       { type: "gpu", name: "GeForce RTX 5070 Ti" },
@@ -120,7 +123,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "4K powerhouse",
     tagline: "Maximale beeldkwaliteit op 4K, alles op ultra.",
     useCase: "4K gaming",
-    budgetEur: 2500,
+    budgetEur: 2850,
     parts: [
       { type: "cpu", name: "AMD Ryzen 7 9800X3D" },
       { type: "gpu", name: "GeForce RTX 5080" },

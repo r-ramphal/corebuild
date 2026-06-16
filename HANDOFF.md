@@ -2,6 +2,47 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (16 juni 2026, deel 27) — voorbeeldbuilds: eerlijke prijzen (geen valse beloftes)
+
+De `budgetEur`-bedragen op `/voorbeeldbuilds` (deel 23) waren te optimistisch — met de huidige hoge
+DDR5-prijzen paste o.a. "Budget gamer ~€800" niet. Op verzoek (geen valse beloftes): bedragen naar
+haalbare, bewust iets **conservatieve** niveaus + framing van een ondergrens-belofte naar een indicatie.
+- **`src/lib/example-builds.ts`**: budgetten **gekalibreerd tegen de live catalogus** (eenmalige read-only
+  query, goedkoopste in-stock prijs per onderdeel, met toestemming): Budget gamer 800→**1050**,
+  Esports 1100→**1400**, 1440p 1500→**1900**, Streamer 1800→**2100**, Creator 2000→**2800**, 4K 2500→**2850**.
+  DDR5-prijspiek bevestigd (goedkoopste in-stock: 16GB **€199** / 32GB **€369** / 64GB **€769**). Een paar
+  foutieve catalogus-matches (junk-listing "X670E LGA1150" €52; een RTX 5070 in een 5070 Ti-slot) zijn
+  conservatief naar boven gecorrigeerd (= niet te laag beloven). Comment bij `budgetEur` benadrukt
+  "indicatie, schommelt met dagprijzen, geen belofte".
+- **`src/app/voorbeeldbuilds/page.tsx`**: kaartlabel **"Richtprijs / vanaf €X" → "Indicatie / ~€X"** +
+  subtekst "schommelt met dagprijzen"; header-disclaimer aangescherpt (schommelt met dagprijzen, vooral
+  geheugen/GPU; actuele prijs per onderdeel staat op elke regel). De per-onderdeel-links naar `/zoeken`
+  dragen de échte live prijzen.
+- Verificatie: `tsc` + `eslint src` + `next build` (57 pagina's) groen; pagina prerendert statisch.
+- **Open**: prijzen schommelen (vooral DDR5) — de bedragen periodiek opnieuw tegen de catalogus kalibreren
+  (de query-aanpak hierboven). Een volledig live totaal op de pagina was de overwogen alternatieve aanpak
+  maar bewust niet gekozen (matching-onzekerheid + zwaarder); de huidige aanpak blijft statisch + eerlijk
+  gekaderd.
+
+## ▶ Nieuw (16 juni 2026, deel 26) — Vercel Pro: prijsalert-cron vaker
+
+De gebruiker is geüpgraded naar **Vercel Pro**. Eerste benutting daarvan in code:
+- **Prijsalert-cron van 1×/dag → elke 6 uur** (`vercel.json`: `0 7 * * *` → **`0 1,7,13,19 * * *`**).
+  Hobby stond cron alleen op dag-granulariteit toe (vandaar deel 14 "max 1×/dag"); Pro heft dat op.
+  Bewust **2 uur na elke scrape** gepland (scrapes draaien `0 5,11,17,23` UTC via `scrape.yml`), zodat de
+  cron steeds verse `price_history`-data ziet. Gebruikers worden nu binnen ~6 uur na een daling gemaild
+  i.p.v. tot 24 uur. Veilig: de route vuurt alleen bij een nieuwe lagere prijs (anti-spam via
+  `markAlertNotified`), dus vaker draaien geeft geen dubbele mails. Routedoc bijgewerkt ("Periodieke").
+- **Overige Pro-voordelen zijn operationeel (geen code)**: commerciële-gebruikslicentie (affiliate = ok op
+  Pro), meer image-optimization-quotum (deel 25 profiteert), meer bandbreedte/analytics-retentie, ruimere
+  functie-timeouts. **Skew Protection** is een dashboard-toggle (Project → Advanced), geen code.
+- **Mogelijke vervolgstap (niet gedaan, vereist scope-keuze)**: een Vercel-cron die de catalogus tussen de
+  6-uurs GitHub-Action-runs door verst houdt voor de Vercel-scrapebare retailers (megekko/azerty/alternate)
+  → nóg actuelere prijzen. Bewust niet unilateraal gebouwd: scraping zit nu in GitHub Actions (bol/amazon
+  vereisen residentieel IP) en dit raakt runtime-budget/retailer-belasting.
+- Verificatie: `vercel.json` valide JSON, `tsc` groen. (Cron-effect is pas op productie na deploy zichtbaar;
+  handmatig te testen: `GET /api/cron/price-alerts` met `Authorization: Bearer $CRON_SECRET`.)
+
 ## ▶ Nieuw (16 juni 2026, deel 25) — afbeeldingsoptimalisatie (retailer-images via de Next-optimizer)
 
 Vervolg op de site-brede snelheid: retailer-**productafbeeldingen** gaan nu door de Next-optimizer (webp,

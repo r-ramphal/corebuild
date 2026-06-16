@@ -7,9 +7,11 @@ import { productUrl } from "@/lib/product-url";
 import type { ComponentType } from "@/lib/types";
 
 /**
- * Dagelijkse prijsalert-check (Vercel Cron, zie vercel.json). Vergelijkt de
- * laatste price_history-prijs met de drempel per alert en mailt de eigenaar
- * via Resend. Beveiligd met CRON_SECRET (Vercel stuurt die als Bearer mee).
+ * Periodieke prijsalert-check (Vercel Cron, zie vercel.json — elke 6 uur, ~2 uur
+ * na elke scrape). Vergelijkt de laatste price_history-prijs met de drempel per
+ * alert en mailt de eigenaar via Resend. Beveiligd met CRON_SECRET (Vercel stuurt
+ * die als Bearer mee). Veilig om vaker te draaien: een alert vuurt alleen bij een
+ * nieuwe lagere prijs (anti-spam via markAlertNotified), dus geen dubbele mails.
  */
 export const runtime = "nodejs";
 export const maxDuration = 60;

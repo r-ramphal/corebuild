@@ -32,9 +32,10 @@ export default function VoorbeeldbuildsPage() {
             Complete pc&apos;s per budget
           </h1>
           <p className="font-plex text-[14px] text-gp-ink-soft max-w-2xl leading-relaxed">
-            Met de hand samengestelde voorbeeld-pc&apos;s voor elk budget en gebruik. Bekijk per onderdeel
-            de actuele prijs, of neem een build als startpunt en pas hem aan in de builder. Richtprijzen
-            zijn indicatief.
+            Met de hand samengestelde voorbeeld-pc&apos;s voor elk budget en gebruik. Neem een build als
+            startpunt en pas hem aan in de builder. De bedragen zijn een <strong className="text-gp-ink">indicatie</strong> en
+            schommelen met de dagprijzen (vooral geheugen en videokaart). De actuele prijs per
+            onderdeel staat op elke regel.
           </p>
         </div>
       </section>
@@ -80,10 +81,13 @@ export default function VoorbeeldbuildsPage() {
                 <div className="mt-auto flex items-end justify-between gap-4">
                   <div>
                     <span className="font-plex text-[11px] uppercase tracking-wider text-gp-ink-soft block mb-1">
-                      Richtprijs
+                      Indicatie
                     </span>
                     <span className="font-mont font-extrabold text-[24px] leading-none">
-                      vanaf {eur(build.budgetEur)}
+                      ~{eur(build.budgetEur)}
+                    </span>
+                    <span className="font-plex text-[10px] text-gp-ink-soft block mt-1">
+                      schommelt met dagprijzen
                     </span>
                   </div>
                   <Link

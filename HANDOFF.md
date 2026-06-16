@@ -5,10 +5,12 @@
 ## ▶ VOLGENDE SESSIE — open punten / TODO (genoteerd 16 juni 2026)
 
 Optioneel, in volgorde van waarde:
-1. **Skew Protection aanzetten.** Vercel-dashboard → Project → Settings → Advanced. Geen code; voorkomt fouten
-   bij een oude clientversie mid-deploy. **Alleen de gebruiker kan dit (dashboard).**
-2. **Voorbeeldbuild-prijzen periodiek herdraaien.** Bijgesteld in deel 30; DDR5/GPU schommelen, dus af en toe
+1. **Voorbeeldbuild-prijzen periodiek herdraaien.** Bijgesteld in deel 30; DDR5/GPU schommelen, dus af en toe
    `npx tsx scripts/calibrate-example-builds.ts` draaien en de bedragen opnieuw kalibreren.
+
+**Skew Protection**: ✅ al aangezet in het Vercel-dashboard (bevestigd 16 juni 2026). Geen code nodig — Vercel
+regelt de Next.js `deploymentId` automatisch (geverifieerd in de Next 16-docs); niet handmatig in
+`next.config.ts` zetten. Afgehandeld.
 
 _(Catalogus-verversingscron → deel 29; voorbeeldbuild-prijzen herijkt → deel 30. Beide hieronder.)_
 

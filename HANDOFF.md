@@ -5,13 +5,12 @@
 ## ▶ VOLGENDE SESSIE — open punten / TODO (genoteerd 16 juni 2026)
 
 Optioneel, in volgorde van waarde:
-1. **Voorbeeldbuild-prijzen herijken.** De bedragen in `src/lib/example-builds.ts` zijn een momentopname
-   (deel 27); DDR5 is grillig. Periodiek opnieuw kalibreren met de eenmalige read-only catalogusquery uit
-   deel 27 (vereist toestemming voor een prod-read).
-2. **Skew Protection aanzetten.** Vercel-dashboard → Project → Settings → Advanced. Geen code; voorkomt fouten
+1. **Skew Protection aanzetten.** Vercel-dashboard → Project → Settings → Advanced. Geen code; voorkomt fouten
    bij een oude clientversie mid-deploy. **Alleen de gebruiker kan dit (dashboard).**
+2. **Voorbeeldbuild-prijzen periodiek herdraaien.** Bijgesteld in deel 30; DDR5/GPU schommelen, dus af en toe
+   `npx tsx scripts/calibrate-example-builds.ts` draaien en de bedragen opnieuw kalibreren.
 
-_(De catalogus-verversingscron die hier eerder als punt 1 stond, is in deel 29 gebouwd — zie hieronder.)_
+_(Catalogus-verversingscron → deel 29; voorbeeldbuild-prijzen herijkt → deel 30. Beide hieronder.)_
 
 **Op productie verifiëren (deze sessie gedeployd — kan ik niet autonoom):**
 - **Catalogus-cron (deel 29)**: Vercel → Cron Jobs toont nu óók `/api/cron/refresh-catalog` (02/08/14/20 UTC).
@@ -28,6 +27,28 @@ _(De catalogus-verversingscron die hier eerder als punt 1 stond, is in deel 29 g
 
 Eerder al open (vereist account/inbox/toestel): reset-mail + mobiele weergave handmatig; Search Console
 sitemap indienen + Rich Results-test.
+
+## ▶ Nieuw (16 juni 2026, deel 30) — voorbeeldbuild-prijzen herijkt tegen de live catalogus
+
+Tweede TODO-item van deze sessie: de `budgetEur`-richtprijzen op `/voorbeeldbuilds` opnieuw gekalibreerd
+tegen de live catalogus (met toestemming, één **read-only** query — alleen SELECT, niets geschreven).
+- **Nieuw read-only hulpmiddel `scripts/calibrate-example-builds.ts`**: toont per onderdeel de goedkoopste
+  in-stock kandidaten uit `listings` (ge-AND ILIKE-match per onderdeel), zodat je met oordeel een
+  representatieve, legit prijs kiest (geen junk / HDD-i.p.v.-NVMe / verkeerd model). Bewust **niet** in
+  `npm run test` (raakt de prod-DB); draaien met `npx tsx scripts/calibrate-example-builds.ts`
+  (vereist `DATABASE_URL` in `.env.local`).
+- **`src/lib/example-builds.ts`**: budgetten bijgesteld op basis van de catalogus-som (conservatief
+  afgerond): Budget gamer 1050→**1150** (was te optimistisch — RAM €210 + GPU €299 alleen al), 1440p
+  1900→**1950**, Streamer 2100→**2200**, Creator 2800→**2750**, 4K 2850→**2800**; Esports blijft **1400**.
+  Doc-comment kreeg een kalibratiedatum + scriptverwijzing.
+- **Oordeel/transparantie**: een paar onderdelen zaten niet in de catalogus en zijn conservatief op
+  marktprijs geschat — **RTX 5070 Ti** (~€900; bleek afwezig: de "ti"-match ving het woord "ven**ti**latoren",
+  alle treffers waren gewone 5070's), **Montech AIR 903**, de specifieke **Thermalright-koelers**, en de
+  full-size **O11 Dynamic**. Junk-listing genegeerd ("X670E … LGA 1150 … B85" €52). Storage: goedkoopste
+  échte NVMe gekozen i.p.v. de goedkopere HDD/SATA-rijen. Daardoor liggen sommige budgetten bewust boven de
+  pure catalogus-som.
+- **Verificatie**: `tsc` + `eslint` (src + script) + `next build` (58 pagina's; `/voorbeeldbuilds` prerendert
+  statisch met de nieuwe bedragen) groen.
 
 ## ▶ Nieuw (16 juni 2026, deel 29) — catalogus-verversingscron (Vercel Pro, megekko/azerty/alternate)
 

@@ -11,6 +11,12 @@ import type { ComponentType } from "./types";
  * conservatief geschat zodat we niet te laag beloven; controleer ze periodiek
  * tegen de markt. De onderdeelnamen sluiten aan op cpu-data/gpu-data en de
  * FEATURED-build op de homepage. Bijwerken = een rij aanpassen.
+ *
+ * Laatst gekalibreerd 16 juni 2026 tegen de live catalogus (goedkoopste in-stock,
+ * echte NVMe/legit listings) met `npx tsx scripts/calibrate-example-builds.ts`.
+ * Onderdelen die toen niet in de catalogus zaten (RTX 5070 Ti, Montech AIR 903,
+ * de specifieke Thermalright-koelers, full-size O11 Dynamic) zijn conservatief op
+ * marktprijs geschat — vandaar dat sommige budgetten boven de pure catalogus-som liggen.
  */
 export interface ExampleBuildPart {
   type: ComponentType;
@@ -38,7 +44,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "Budget gamer",
     tagline: "Vlot 1080p gamen zonder te veel uit te geven.",
     useCase: "1080p gaming",
-    budgetEur: 1050,
+    budgetEur: 1150,
     parts: [
       { type: "cpu", name: "AMD Ryzen 5 7600" },
       { type: "gpu", name: "GeForce RTX 5060" },
@@ -72,7 +78,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "1440p gamer",
     tagline: "De sweet spot: vloeiend gamen op 1440p ultra.",
     useCase: "1440p gaming",
-    budgetEur: 1900,
+    budgetEur: 1950,
     parts: [
       { type: "cpu", name: "AMD Ryzen 7 9800X3D" },
       { type: "gpu", name: "GeForce RTX 5070" },
@@ -89,7 +95,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "Streamer",
     tagline: "Gamen én livestreamen tegelijk, met multicore-power.",
     useCase: "gamen + streamen",
-    budgetEur: 2100,
+    budgetEur: 2200,
     parts: [
       { type: "cpu", name: "AMD Ryzen 9 7900X" },
       { type: "gpu", name: "GeForce RTX 5070 Ti" },
@@ -106,7 +112,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "Creator",
     tagline: "Editen, renderen en 3D-werk met veel geheugen en cores.",
     useCase: "creator / workstation",
-    budgetEur: 2800,
+    budgetEur: 2750,
     parts: [
       { type: "cpu", name: "AMD Ryzen 9 9900X" },
       { type: "gpu", name: "GeForce RTX 5070 Ti" },
@@ -123,7 +129,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "4K powerhouse",
     tagline: "Maximale beeldkwaliteit op 4K, alles op ultra.",
     useCase: "4K gaming",
-    budgetEur: 2850,
+    budgetEur: 2800,
     parts: [
       { type: "cpu", name: "AMD Ryzen 7 9800X3D" },
       { type: "gpu", name: "GeForce RTX 5080" },

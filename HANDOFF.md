@@ -5,18 +5,19 @@
 ## ▶ VOLGENDE SESSIE — open punten / TODO (genoteerd 16 juni 2026)
 
 Optioneel, in volgorde van waarde:
-1. **Catalogus-verversingscron (Pro).** Nu Pro vaker cron toestaat: een Vercel-cron die de catalogus tussen
-   de 6-uurs GitHub-Action-runs door verst houdt voor de Vercel-scrapebare retailers (megekko/azerty/
-   alternate) → actuelere prijzen. **Scope-keuze nodig**: welke zoektermen (bv. alleen de 8 kern-categorieën),
-   cadans (bv. elke 2–3 uur), en een runtime-/retailer-belastingsbudget. Bewust nog niet gebouwd — raakt de
-   scraping-architectuur (bol/amazon blijven via GitHub Actions, residentieel IP).
-2. **Voorbeeldbuild-prijzen herijken.** De bedragen in `src/lib/example-builds.ts` zijn een momentopname
+1. **Voorbeeldbuild-prijzen herijken.** De bedragen in `src/lib/example-builds.ts` zijn een momentopname
    (deel 27); DDR5 is grillig. Periodiek opnieuw kalibreren met de eenmalige read-only catalogusquery uit
    deel 27 (vereist toestemming voor een prod-read).
-3. **Skew Protection aanzetten.** Vercel-dashboard → Project → Settings → Advanced. Geen code; voorkomt fouten
+2. **Skew Protection aanzetten.** Vercel-dashboard → Project → Settings → Advanced. Geen code; voorkomt fouten
    bij een oude clientversie mid-deploy. **Alleen de gebruiker kan dit (dashboard).**
 
+_(De catalogus-verversingscron die hier eerder als punt 1 stond, is in deel 29 gebouwd — zie hieronder.)_
+
 **Op productie verifiëren (deze sessie gedeployd — kan ik niet autonoom):**
+- **Catalogus-cron (deel 29)**: Vercel → Cron Jobs toont nu óók `/api/cron/refresh-catalog` (02/08/14/20 UTC).
+  Handmatig: `GET /api/cron/refresh-catalog` met `Authorization: Bearer $CRON_SECRET` → JSON
+  `{saved, perCategory, ms, errors}`; daarna een categoriepagina (bv. `/categorie/cpu`) op verse
+  megekko/azerty/alternate-prijzen checken (responseheader `x-corebuild-source: catalog`).
 - **Cron (deel 26)**: Vercel → Cron Jobs draait elke 6 uur; échte mail testen (ingelogd → volglijst-alert →
   prijsdaling → cron). Handmatig: `GET /api/cron/price-alerts` met `Authorization: Bearer $CRON_SECRET`.
 - **Afbeeldingen (deel 25)**: Vercel → Usage → Image Optimization (quotum); check dat een categorie-/zoek-
@@ -27,6 +28,31 @@ Optioneel, in volgorde van waarde:
 
 Eerder al open (vereist account/inbox/toestel): reset-mail + mobiele weergave handmatig; Search Console
 sitemap indienen + Rich Results-test.
+
+## ▶ Nieuw (16 juni 2026, deel 29) — catalogus-verversingscron (Vercel Pro, megekko/azerty/alternate)
+
+Eerste TODO-item uit deze sessie gebouwd: een Vercel-cron die de catalogus-prijzen tussen de 6-uurs
+GitHub-Action-runs door vers houdt voor de 3 datacenter-IP-vriendelijke retailers. Scope vooraf met de
+gebruiker afgestemd: **8 kern-categorieën (hoofdterm)** + cadans **`0 2,8,14,20` UTC** (3u verschoven t.o.v.
+de Action op 05/11/17/23 → gecombineerd ~elke 3u verse prijzen). Raakt data/logica, **géén** frontend.
+- **`src/app/api/cron/refresh-catalog/route.ts`** (nodejs, `maxDuration=300`): zelfde CRON_SECRET-Bearer-auth
+  als `/api/cron/price-alerts`. Loopt over de 8 `COMPONENT_TYPES`, scrapet per categorie de hoofd-`searchTerm`
+  bij megekko/azerty/alternate (3 parallel via `Promise.allSettled`, termen **serieel** met 800ms pauze = geen
+  burst per retailer), filtert met `cleanName` + `matchesCategory` (precies zoals de catalogusmodus van
+  `/api/search`) en schrijft via `saveListings(db, normalizeQuery(term), filtered, "cron", cat)` — dezelfde
+  write-through naar `listings` + append naar `price_history`. Antwoordt met
+  `{categories, retailers, saved, perCategory, errors, ms}` (handig voor de handmatige test).
+- **`vercel.json`**: tweede cron-entry toegevoegd (`/api/cron/refresh-catalog`, `0 2,8,14,20 * * *`). Pro staat
+  >2 crons + sub-dagelijkse granulariteit toe (Hobby niet — dat was de deel-14/26-beperking).
+- **Bewuste keuzes**: dezelfde 3 retailers als de Action (Bol/Amazon vereisen residentieel IP, blijven buiten);
+  alleen de 8 hoofdtermen (model-specifieke tag-queries blijven op de Action-cadans / live-fallback);
+  `saveListings` laat een retailer die dit keer niets teruggaf ongemoeid (oude rij verdwijnt via TTL), dus een
+  falende retailer wist niets. `source="cron"` onderscheidt deze rijen van de Action (`"scraper"`).
+- **Verificatie**: `tsc` + `eslint src` + `next build` groen; de route compileert als dynamische functie
+  (`.next/server/app/api/cron/refresh-catalog/route.js`); `vercel.json` valide JSON. Het cron-effect is pas op
+  productie zichtbaar (Vercel → Cron Jobs) — zie de productie-verificatielijst bovenaan.
+- **Open/optioneel**: dekking later uitbreiden naar de `popularTags` of randcategorieën als de belasting het
+  toelaat; eventueel aantal-`saved`/`ms` monitoren via de JSON-respons om de cadans bij te stellen.
 
 ## ▶ Nieuw (16 juni 2026, deel 28) — model-precieze zoekfilter (5070 ≠ 5070 Ti)
 

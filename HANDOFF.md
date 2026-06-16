@@ -2,6 +2,59 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (16 juni 2026, deel 24) — builder-UX (zoeken slimmer/sneller) + site-brede snelheid
+
+**Fase 1** van een UX-traject voor de builder (plan: zoeken slimmer + sneller, dan site-brede snelheid).
+Puur frontend/intelligentie; scrapers/Neon/auth/relevance ongemoeid. Alles geverifieerd: `tsc` + `eslint src`
++ `npm run test` (nu **9 scripts**) + `next build` (57 pagina's) groen.
+- **Stap 1 — relevantie-ranking** (`src/lib/search-rank.ts`, puur + getest): `rankResults(results, query)`
+  scoort op token-overlap + exacte modeltreffer (hergebruikt `detectCpu/detectGpu`) + op-voorraad, prijs
+  als tiebreaker. Toegepast in `/api/search` **alleen bij een echte `q`** (catalogusmodus houdt prijs/
+  catalogus-volgorde); ranking is deterministisch → edge-cache per (q+cat) blijft geldig. Hierdoor werkt
+  ook de "Relevantie"-sorteerknop op `/zoeken` nu echt (die hield de API-volgorde aan).
+- **Stap 2 — typefout-opvang** (`src/lib/fuzzy.ts`, puur + getest): Damerau-Levenshtein + `fuzzyTokenMatch`
+  + `closestTerm`. **Cijfers (modelnummers) moeten exact** ("5070" ≠ "5080"); alleen alfawoorden krijgen
+  tolerantie. `getSuggestions` (search-suggestions.ts) heeft nu een fuzzy-fallback → de typeahead in
+  `SearchBox` toont correcties terwijl je typt. "Bedoelde je …?" in de lege staat van `ZoekenClient` en
+  `SlotPicker` (één klik corrigeert).
+- **Stap 3 — compat per optie + community-link** (`src/lib/specs/slot-compat.ts`, puur + getest):
+  `slotCompat(type, optionName, components, analysis)` geeft een **naam-only** oordeel per resultaatrij
+  (instant, geen fetch per optie) — socket, DDR, wattage, formfactor — t.o.v. de al gekozen onderdelen.
+  Getoond als groene/amber/rode chip in de `SlotPicker`. Maten die per exact product verschillen
+  (GPU-lengte/koelerhoogte) blijven in `BuildSummary` (daar is wél één `/api/compat`-fetch). Nieuw
+  `detectBoardSocket()` in `detect.ts` (chipset→socket-map, bv. B650→AM5) zodat de socket-check ook werkt
+  als de naam alleen de chipset noemt; de bestaande moederbord-hint gebruikt nu `analysis.cpu.socket`
+  (betrouwbaarder). **Community-verwijzing** (`src/lib/community-links.ts`): per categorie een
+  r/buildapc-zoeklink in de picker-footer — **alleen linken**, geen Reddit-content (conform deel 21).
+- **Stap 4 — snellere builder** (`BuilderClient.tsx`): `SlotPicker`, `BuildWizard` (modal-only) en
+  `SmartGenerate` via `next/dynamic` → kleinere initiële bundle (zoals `BuildPreview` three.js al doet).
+  **Prefetch op hover/focus** van de Voeg toe/wijzig-knoppen: `preload('/api/search?cat=…', searchFetcher)`
+  warmt de SWR-cache (zelfde key/fetcher; `searchFetcher` nu geëxporteerd uit `use-search.ts`) → de picker
+  opent in productie bijna instant (warme edge-cache).
+- **Tests**: `scripts/test-search-rank.ts` (6), `test-fuzzy.ts` (10), `test-slot-compat.ts` (14) toegevoegd
+  aan `npm run test`.
+- **Verificatie**: build-prerender draait `/zoeken`, `/builder` etc. server-side uit zonder fouten;
+  ranking/fuzzy/slot-compat los unit-getest. **Mobiele/echte-klik-check op corebuildnl.com aanbevolen.**
+**Fase 2 — site-brede laadtijden** (gemeten via `next build`-chunks; puur frontend):
+- **Twee ongebruikte fonts verwijderd** (`layout.tsx`): Hanken Grotesk + Inter. Na de redesign mappen
+  álle `--font-*`-tokens in `globals.css` naar Montserrat/Plex-Mono/Pixelify, dus Hanken/Inter werden
+  nergens meer gebruikt maar laadden wél op elke pagina (geverifieerd: geen `--font-hanken`/`--font-inter`-
+  referenties). Scheelt 2 font-families (≈7 weights) aan downloads site-breed.
+- **GSAP + Lenis uit het kritieke pad** (`components/motion/SmoothScroll.tsx`): Lenis/GSAP/ScrollTrigger
+  worden nu **dynamisch geïmporteerd binnen het effect** (ná hydratie, en helemaal niet bij reduced-motion)
+  i.p.v. als top-level import in de root-layout. Op pagina's zonder scroll-animaties zit dit zware JS niet
+  meer in de initiële bundle. (De grootste chunk blijft three.js ~888KB, maar die is al lui/alleen-builder.)
+- **CDN-caching op `/api/compat`**: `s-maxage=86400` + `stale-while-revalidate` toegevoegd (maten zijn een
+  pure functie van de namen + statische datasets) → herhaalde builder-checks raken de server niet meer.
+- **Bewust niet**: retailer-product-images blijven `unoptimized` (proxyen via `images.remotePatterns` over
+  veel wisselende retailer-CDN's is onbetrouwbaar/duur; payload is al beperkt door de 24-kaart-cap uit
+  deel 19 + native lazy-loading van `next/image`).
+- Verificatie: `tsc` + `eslint src` + `npm run test` + `next build` (57 pagina's) groen.
+
+**Nog handmatig** (kan ik niet autonoom): mobiele weergave + echte-klik-flow van de builder (picker-compat-
+chips, prefetch-snelheid, "bedoelde je") op een echt toestel/corebuildnl.com; Lighthouse vóór/na voor harde
+cijfers.
+
 ## ▶ Nieuw (16 juni 2026, deel 23) — redesign-restpunten: categorie-hero-foto's + voorbeeldbuilds-pagina + blog-bento
 
 De drie codeerbare open punten uit de redesign afgerond. **Fase 3 (officiële API's) bewust NIET** —

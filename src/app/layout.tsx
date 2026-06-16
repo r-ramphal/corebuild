@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, Inter, IBM_Plex_Mono, Montserrat, Pixelify_Sans } from "next/font/google";
+import { IBM_Plex_Mono, Montserrat, Pixelify_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -7,22 +7,9 @@ import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import "./globals.css";
 
 // Huisstijl (giastpc-pivot): Montserrat (zware koppen) + IBM Plex Mono
-// (technische/terminal-tekst & labels). Hanken + Inter blijven nog voor de
-// nog-niet-omgezette pagina's.
-const hanken = Hanken_Grotesk({
-  variable: "--font-hanken",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  display: "swap",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
+// (technische/terminal-tekst & labels) + Pixelify (oranje pixel-koppen).
+// De oude Hanken + Inter zijn verwijderd: na de redesign mappen alle tokens
+// naar Montserrat/Plex-Mono, dus die twee fonts werden nergens meer gebruikt.
 const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
   subsets: ["latin"],
@@ -95,7 +82,7 @@ export default function RootLayout({
   return (
     <html
       lang="nl"
-      className={`${hanken.variable} ${inter.variable} ${plexMono.variable} ${montserrat.variable} ${pixelify.variable}`}
+      className={`${plexMono.variable} ${montserrat.variable} ${pixelify.variable}`}
     >
       <body>
         <SmoothScroll />

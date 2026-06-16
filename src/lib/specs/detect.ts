@@ -63,6 +63,25 @@ export function detectSocket(name: string): Socket | null {
   return null;
 }
 
+/**
+ * Chipset → socket. Moederbordnamen noemen vaak alleen de chipset (B650, Z790)
+ * en niet de socket. Deze mapping vult dat gat zodat de socket-check ook zonder
+ * expliciete "AM5"/"LGA1700" in de naam werkt.
+ */
+const CHIPSET_SOCKET: { re: RegExp; socket: Socket }[] = [
+  { re: /\b(x870e|x870|b850|b840)\b/i, socket: "AM5" },
+  { re: /\b(x670e|x670|b650e|b650|a620)\b/i, socket: "AM5" },
+  { re: /\b(x570|b550|a520|b450|x470|b350|a320)\b/i, socket: "AM4" },
+  { re: /\b(z890|b860|h810)\b/i, socket: "LGA1851" },
+  { re: /\b(z790|z690|b760|b660|h770|h670|h610)\b/i, socket: "LGA1700" },
+  { re: /\b(z590|z490|b560|b460|h510|h470)\b/i, socket: "LGA1200" },
+];
+
+/** Socket van een moederbord: eerst de expliciete socket, anders via de chipset. */
+export function detectBoardSocket(name: string): Socket | null {
+  return detectSocket(name) ?? CHIPSET_SOCKET.find(({ re }) => re.test(name))?.socket ?? null;
+}
+
 /** DDR-generatie uit een moederbord- of RAM-naam. */
 export function detectDdr(name: string): DdrGen | null {
   const ddr4 = /\bddr4\b/i.test(name);

@@ -1,19 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { X, Check, ExternalLink, Package, TrendingUp } from "lucide-react";
+import {
+  X, Check, ExternalLink, Package, TrendingUp, MessagesSquare,
+  CircleCheck, TriangleAlert, CircleAlert,
+} from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META } from "@/lib/categories";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { RetailerLogo } from "@/components/RetailerLogo";
 import { SearchBox } from "@/components/SearchBox";
+import { getSuggestions } from "@/lib/search-suggestions";
+import { communityLink } from "@/lib/community-links";
 import { useSearch } from "@/lib/use-search";
-import { detectSocket } from "@/lib/specs/detect";
+import { analyzeBuild } from "@/lib/specs/build-analysis";
+import { slotCompat, type SlotCompatStatus } from "@/lib/specs/slot-compat";
 import { socketChipsets } from "@/lib/specs/motherboards";
 import { formatEur } from "@/lib/format";
 import type { ComponentType, PriceResult } from "@/lib/types";
+
+const COMPAT_CHIP: Record<
+  SlotCompatStatus,
+  { cls: string; Icon: React.ComponentType<{ className?: string }> }
+> = {
+  ok: { cls: "text-success-emerald bg-success-emerald/10", Icon: CircleCheck },
+  warn: { cls: "text-warning-amber bg-warning-amber/10", Icon: TriangleAlert },
+  bad: { cls: "text-error-crimson bg-error-crimson/10", Icon: CircleAlert },
+};
 
 /**
  * Inline onderdeel-kiezer voor de builder: kies of wijzig een component zonder
@@ -30,10 +45,14 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
   const PAGE = 30;
   const [visible, setVisible] = useState(PAGE);
 
-  // Moederbord-compatibiliteit: socket van de gekozen CPU → gangbare chipsets
-  // (referentie). Helpt direct een passend bord kiezen zonder de builder te verlaten.
+  // Eén analyse van de huidige build → per optie een naam-only compat-oordeel.
+  const analysis = useMemo(() => analyzeBuild(buildComponents), [buildComponents]);
+  const community = communityLink(type);
+
+  // Moederbord-compatibiliteit: socket van de gekozen CPU (uit de spec-database,
+  // betrouwbaarder dan de losse productnaam) → gangbare chipsets als zoekchips.
   const cpu = buildComponents.cpu;
-  const cpuSocket = type === "motherboard" && cpu ? detectSocket(cpu.name) : null;
+  const cpuSocket = type === "motherboard" ? analysis.cpu?.socket ?? null : null;
   const compatChipsets = cpuSocket ? socketChipsets(cpuSocket) : [];
 
   // Escape sluit de modal
@@ -52,6 +71,14 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
 
   const items = [...(results?.results ?? [])].sort((a, b) => a.priceEur - b.priceEur);
   const cheapest = items.find((i) => i.inStock)?.priceEur ?? items[0]?.priceEur;
+
+  // Typefout-correctie voor de lege staat ("bedoelde je…?")
+  const correction = (() => {
+    const q = activeQuery.trim();
+    if (q.length < 2) return null;
+    const top = getSuggestions(q, 1, type)[0]?.label;
+    return top && top.toLowerCase() !== q.toLowerCase() ? top : null;
+  })();
 
   function choose(item: PriceResult) {
     setComponent(type, item);
@@ -179,11 +206,24 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
               <div key={i} className="h-20 rounded-xl bg-surface-container animate-pulse" />
             ))
           ) : items.length === 0 ? (
-            <p className="text-center font-body-sm text-body-sm text-on-surface-variant py-12">
-              Geen resultaten. Probeer een andere zoekterm.
-            </p>
+            <div className="text-center py-12">
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                Geen resultaten{activeQuery ? ` voor "${activeQuery}"` : ""}. Probeer een andere zoekterm.
+              </p>
+              {correction && (
+                <button
+                  onClick={() => runTag(correction)}
+                  className="mt-2 font-body-sm text-body-sm text-primary hover:underline"
+                >
+                  Bedoelde je {correction}?
+                </button>
+              )}
+            </div>
           ) : (
-            items.slice(0, visible).map((item, i) => (
+            items.slice(0, visible).map((item, i) => {
+              const verdict = slotCompat(type, item.name, buildComponents, analysis);
+              const chip = verdict ? COMPAT_CHIP[verdict.status] : null;
+              return (
               <div
                 key={`${item.retailer}-${i}`}
                 className={`flex items-center gap-3 p-3 bg-surface-container-lowest border rounded-xl transition-colors ${
@@ -219,6 +259,14 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
                   </div>
                   <p className="font-body-sm text-[13px] text-on-surface truncate">{item.name}</p>
                   <ComponentSpecs name={item.name} category={type} className="mt-1" />
+                  {verdict && chip && (
+                    <span
+                      className={`inline-flex items-center gap-1 mt-1.5 font-label-technical text-[10px] px-1.5 py-0.5 rounded ${chip.cls}`}
+                    >
+                      <chip.Icon className="w-3 h-3" />
+                      {verdict.label}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -246,7 +294,8 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
                   </div>
                 </div>
               </div>
-            ))
+              );
+            })
           )}
 
           {!loading && items.length > visible && (
@@ -259,8 +308,8 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
           )}
         </div>
 
-        {/* Footer: volledige pagina */}
-        <div className="p-3 border-t border-outline-variant text-center">
+        {/* Footer: volledige pagina + community-verwijzing */}
+        <div className="p-3 border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-2 text-center">
           <Link
             href={`/categorie/${type}`}
             onClick={onClose}
@@ -268,6 +317,15 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
           >
             Open de volledige {meta.label}-pagina (filters, prijs-prestatie) →
           </Link>
+          <a
+            href={community.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Twijfel je over compatibiliteit? Lees mee op r/buildapc"
+            className="inline-flex items-center gap-1.5 font-label-technical text-label-technical text-on-surface-variant hover:text-primary"
+          >
+            <MessagesSquare className="w-3.5 h-3.5" /> {community.label} →
+          </a>
         </div>
       </div>
     </div>

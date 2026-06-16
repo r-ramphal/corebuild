@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { PriceList } from "./PriceList";
 import { SearchSuggest } from "@/components/SearchSuggest";
 import { useBuildStore } from "@/lib/store/build";
 import { useSearch } from "@/lib/use-search";
+import { getSuggestions } from "@/lib/search-suggestions";
 import type { SearchResults, Retailer, ComponentType } from "@/lib/types";
 
 const ALL_RETAILERS: Retailer[] = ["amazon", "bol", "megekko", "azerty", "alternate"];
@@ -72,6 +74,16 @@ export function ZoekenClient() {
     { mode: "desc", label: "Hoogste prijs" },
     { mode: "relevance", label: "Relevantie" },
   ];
+
+  // Typefout-correctie voor de lege staat ("bedoelde je…?")
+  const correction = useMemo(() => {
+    const q = query.trim();
+    if (q.length < 2) return null;
+    const top = getSuggestions(q, 1)[0]?.label;
+    return top && top.toLowerCase() !== q.toLowerCase() ? top : null;
+  }, [query]);
+
+  const noResults = !loading && !!filteredResults && filteredResults.results.length === 0 && !!query;
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-24 pb-16 flex flex-col md:flex-row gap-8">
@@ -198,11 +210,35 @@ export function ZoekenClient() {
           </div>
         )}
 
-        {!loading && filteredResults && (
+        {!loading && filteredResults && filteredResults.results.length > 0 && (
           <PriceList
             results={filteredResults}
             onAddToBuild={(item, slot: ComponentType) => setComponent(slot, item)}
           />
+        )}
+
+        {noResults && (
+          <div className="text-center py-16">
+            <p className="font-title-md text-title-md text-on-surface mb-2">
+              Geen resultaten voor &ldquo;{query}&rdquo;
+            </p>
+            {correction ? (
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                Bedoelde je{" "}
+                <Link
+                  href={`/zoeken?q=${encodeURIComponent(correction)}`}
+                  className="text-primary font-medium hover:underline"
+                >
+                  {correction}
+                </Link>
+                ?
+              </p>
+            ) : (
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                Probeer een andere zoekterm of merk.
+              </p>
+            )}
+          </div>
         )}
 
         {!loading && !filteredResults && !query && (

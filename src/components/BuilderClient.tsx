@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
+import { preload } from "swr";
 import { Plus, Trash2, Share, Save, Check, Pencil, ExternalLink, Sparkles } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { useSession } from "@/lib/auth-client";
@@ -11,14 +13,31 @@ import { RetailerLogo } from "@/components/RetailerLogo";
 import { formatEur } from "@/lib/format";
 import { BuildPreview } from "@/components/builder/BuildPreview";
 import { BuildSummary } from "@/components/builder/BuildSummary";
-import { SmartGenerate } from "@/components/builder/SmartGenerate";
-import { SlotPicker } from "@/components/builder/SlotPicker";
-import { BuildWizard } from "@/components/builder/BuildWizard";
+import { searchFetcher } from "@/lib/use-search";
 import {
   detectCpu, detectGpu, detectRamGb, detectDdr, detectSocket,
   detectPsuWatts, detectFormFactor,
 } from "@/lib/specs/detect";
 import type { ComponentType } from "@/lib/types";
+
+// Lui laden zodat de initiële builder-bundle klein blijft: de smart-generate-
+// vragenlijst staat hoog maar is zwaar, en de twee modals zijn pas nodig na een
+// klik (zoals BuildPreview de three.js-scène al on-demand laadt).
+const SmartGenerate = dynamic(
+  () => import("@/components/builder/SmartGenerate").then((m) => m.SmartGenerate),
+  { loading: () => <div className="h-44 rounded-xl bg-surface-container animate-pulse" /> }
+);
+const SlotPicker = dynamic(
+  () => import("@/components/builder/SlotPicker").then((m) => m.SlotPicker)
+);
+const BuildWizard = dynamic(
+  () => import("@/components/builder/BuildWizard").then((m) => m.BuildWizard)
+);
+
+/** Warm de SWR-cache voor een slot vóór de picker opent (zelfde key/fetcher). */
+function prefetchSlot(type: ComponentType) {
+  preload(`/api/search?cat=${type}`, searchFetcher);
+}
 
 /** Korte spec-chips per slot, afgeleid uit de productnaam. */
 function slotChips(type: ComponentType, name: string): string[] {
@@ -199,6 +218,8 @@ export function BuilderClient() {
                           )}
                           <button
                             onClick={() => setPickerType(type)}
+                            onMouseEnter={() => prefetchSlot(type)}
+                            onFocus={() => prefetchSlot(type)}
                             className="font-label-technical text-[10px] text-on-surface-variant hover:text-primary inline-flex items-center gap-1"
                           >
                             <Pencil className="w-3 h-3" /> wijzig
@@ -235,6 +256,8 @@ export function BuilderClient() {
                   </div>
                   <button
                     onClick={() => setPickerType(type)}
+                    onMouseEnter={() => prefetchSlot(type)}
+                    onFocus={() => prefetchSlot(type)}
                     className="px-4 py-2 border border-primary text-primary font-label-technical text-label-technical rounded-lg hover:bg-primary hover:text-white transition-all flex items-center gap-2 flex-shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" /> Voeg toe

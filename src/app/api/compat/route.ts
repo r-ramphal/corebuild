@@ -26,7 +26,11 @@ export async function GET(req: NextRequest) {
   };
 
   return NextResponse.json(body, {
-    // Maten veranderen niet; cache mag lang staan (per unieke namencombinatie).
-    headers: { "Cache-Control": "public, max-age=86400" },
+    // Maten veranderen niet (functie van de namen + statische datasets); cache
+    // mag lang staan. Ook op de CDN (s-maxage) zodat herhaalde builder-checks
+    // niet steeds de server raken.
+    headers: {
+      "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+    },
   });
 }

@@ -6,6 +6,7 @@
 import { CPUS } from "@/lib/specs/cpu-data";
 import { GPUS } from "@/lib/specs/gpu-data";
 import { CATALOG_TYPES, COMPONENT_META } from "@/lib/categories";
+import { fuzzyTokenMatch } from "@/lib/fuzzy";
 import type { ComponentType } from "@/lib/types";
 
 export type SuggestionKind = "cpu" | "gpu" | "category" | "term";
@@ -57,6 +58,9 @@ const INDEX: Suggestion[] = [
  * (de getypte letters in dezelfde volgorde). Met `category` worden alleen de
  * suggesties van dat type getoond — handig voor een categorie-specifiek zoekveld;
  * de losse "ga naar categorie"-links vallen dan weg.
+ *
+ * Levert prefix/contains niets (of te weinig) op, dan komt er een fuzzy-fallback
+ * bij (`fuzzyTokenMatch`) zodat typefouten als "ryzne 7" alsnog "Ryzen 7" geven.
  */
 export function getSuggestions(query: string, limit = 7, category?: ComponentType): Suggestion[] {
   const q = query.trim().toLowerCase();
@@ -81,5 +85,21 @@ export function getSuggestions(query: string, limit = 7, category?: ComponentTyp
       seen.add(l);
     }
   }
-  return [...starts, ...contains].slice(0, limit);
+
+  const out = [...starts, ...contains];
+
+  // Fuzzy-fallback voor typefouten — alleen aanvullen wanneer er nog plek is.
+  if (out.length < limit) {
+    for (const s of pool) {
+      const l = s.label.toLowerCase();
+      if (seen.has(l)) continue;
+      if (fuzzyTokenMatch(q, s.label)) {
+        out.push(s);
+        seen.add(l);
+        if (out.length >= limit) break;
+      }
+    }
+  }
+
+  return out.slice(0, limit);
 }

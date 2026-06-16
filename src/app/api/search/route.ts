@@ -8,6 +8,7 @@ import { searchMock } from "@/lib/mock/catalog";
 import { getDb, normalizeQuery } from "@/lib/db";
 import { getFreshListings, getCatalogListings, saveListings } from "@/lib/db/listings";
 import { isJunk, matchesCategory, isComponentType } from "@/lib/relevance";
+import { rankResults } from "@/lib/search-rank";
 import { cleanName } from "@/lib/clean-name";
 import { COMPONENT_META } from "@/lib/categories";
 import type { ComponentType, PriceResult, Retailer, SearchResults } from "@/lib/types";
@@ -136,7 +137,11 @@ export async function GET(req: NextRequest) {
     try {
       const cached = applyRelevance(await getFreshListings(db, nq), cat);
       if (cached.length > 0 && cached.some((r) => !r.mock)) {
-        const body: SearchResults = { query, results: cached, errors: [] };
+        // Bij een echte zoekterm op relevantie ordenen; anders prijs asc.
+        const ordered = rawQuery
+          ? rankResults(cached, rawQuery)
+          : [...cached].sort((a, b) => a.priceEur - b.priceEur);
+        const body: SearchResults = { query, results: ordered, errors: [] };
         return NextResponse.json(body, {
           headers: {
             "x-corebuild-source": "database",
@@ -166,14 +171,18 @@ export async function GET(req: NextRequest) {
     { retailer: "alternate", outcome: alternate },
   ];
 
-  const results = applyRelevance(
+  const filtered = applyRelevance(
     sources
       .filter((s): s is typeof s & { outcome: PromiseFulfilledResult<PriceResult[]> } =>
         s.outcome.status === "fulfilled"
       )
       .flatMap((s) => s.outcome.value),
     cat
-  ).sort((a, b) => a.priceEur - b.priceEur);
+  );
+  // Bij een echte zoekterm op relevantie ordenen; anders (categorie-fallback) prijs asc.
+  const results = rawQuery
+    ? rankResults(filtered, rawQuery)
+    : filtered.sort((a, b) => a.priceEur - b.priceEur);
 
   const errors = sources
     .filter((s) => s.outcome.status === "rejected")

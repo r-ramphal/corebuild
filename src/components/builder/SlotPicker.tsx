@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   X, Check, ExternalLink, Package, TrendingUp, MessagesSquare,
@@ -11,6 +10,7 @@ import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META } from "@/lib/categories";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { RetailerLogo } from "@/components/RetailerLogo";
+import { RetailerImage } from "@/components/RetailerImage";
 import { SearchBox } from "@/components/SearchBox";
 import { getSuggestions } from "@/lib/search-suggestions";
 import { communityLink } from "@/lib/community-links";
@@ -234,13 +234,14 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
               >
                 <div className="w-14 h-14 rounded-lg bg-surface-container-low flex items-center justify-center shrink-0 overflow-hidden">
                   {item.imageUrl ? (
-                    <Image
+                    <RetailerImage
                       src={item.imageUrl}
                       alt={item.name}
                       width={56}
                       height={56}
+                      sizes="56px"
                       className="object-contain max-w-full max-h-full"
-                      unoptimized
+                      fallback={<Package className="w-6 h-6 text-outline" />}
                     />
                   ) : (
                     <Package className="w-6 h-6 text-outline" />

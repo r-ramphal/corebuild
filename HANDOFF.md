@@ -2,6 +2,36 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (16 juni 2026, deel 25) — afbeeldingsoptimalisatie (retailer-images via de Next-optimizer)
+
+Vervolg op de site-brede snelheid: retailer-**productafbeeldingen** gaan nu door de Next-optimizer (webp,
+op de werkelijke weergavemaat) i.p.v. `unoptimized` (volledige retailer-resolutie). Dit was in deel 24
+bewust uitgesteld vanwege betrouwbaarheid; nu opgelost met een wrapper die veilig degradeert. Puur frontend.
+- **Gedeelde hostlijst** `src/lib/optimizable-host.ts` (`OPTIMIZABLE_DOMAINS` + `isOptimizableHost`) = één
+  bron van waarheid. `next.config.ts` bouwt hieruit de `remotePatterns` (per domein **apex én `**.`-wildcard**,
+  want de wildcard dekt de apex niet); `RetailerImage` gebruikt dezelfde lijst → config en component kunnen
+  niet uit sync lopen. Hosts: bol.com + s-bol.com (media.s-bol.com), media-amazon.com + ssl-images-amazon.com,
+  alternate.nl, azerty.nl, megekko.nl.
+- **`src/components/RetailerImage.tsx`** (`"use client"`): rendert `<Image>` met 3 niveaus — **opt** (via de
+  optimizer voor allowlist-hosts) → **raw** (`unoptimized`, directe load) → **fail** (`fallback`-icoon). Een
+  host die NIET in de allowlist staat start meteen op `raw`, zodat je nooit de Next "hostname not configured"-
+  fout krijgt; blokkeert een retailer-CDN de optimizer, dan valt `onError` terug op de directe load. Vervangt
+  de 5 `<Image unoptimized>`-plekken (SlotPicker, CategorieClient, PriceList, ProductClient, VolglijstClient)
+  mét passende `sizes` + het bestaande icoon als `fallback`.
+- **`next.config.ts`**: `formats: ["image/webp"]`, `minimumCacheTTL: 2678400` (31 dagen, beperkt
+  her-optimalisaties/kosten), `imageSizes` uitgebreid met kleine maten (56/64/96) voor de thumbnails.
+- **Test** `scripts/test-image-hosts.ts` (10 cases, incl. lookalike-domein `notbol.com` → niet optimaliseren)
+  in `npm run test`.
+- **Verificatie**: `tsc` + `eslint src` + `npm run test` + `next build` (57 pagina's) groen. **Runtime
+  bevestigd** via lokale `next start`: `/_next/image` serveert `image/webp` op maat — `cpu.webp` 43 KB →
+  256px **4.6 KB**, 64px **0.4 KB** (≈89–99% kleiner).
+- **⚠️ Let op (Vercel Hobby)**: dit gebruikt het **image-optimization-transformatiequotum** van het
+  Hobby-plan. `minimumCacheTTL` staat daarom hoog (varianten 31 dagen gecached). Bij overschrijding degradeert
+  Vercel; en als een retailer-CDN de optimizer blokkeert valt `RetailerImage` automatisch terug op de directe
+  load. Echte cijfers + eventueel host-blokkades zijn pas ná deploy zichtbaar (Vercel-dashboard → Usage/Image
+  Optimization). Lokale retailer-CDN-hosts waren niet uit de prod-DB te halen (read gated); de wrapper maakt
+  een onvolledige lijst onschadelijk (onbekende host → directe load).
+
 ## ▶ Nieuw (16 juni 2026, deel 24) — builder-UX (zoeken slimmer/sneller) + site-brede snelheid
 
 **Fase 1** van een UX-traject voor de builder (plan: zoeken slimmer + sneller, dan site-brede snelheid).

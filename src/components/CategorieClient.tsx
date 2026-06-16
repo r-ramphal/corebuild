@@ -13,6 +13,7 @@ import { formatEur } from "@/lib/format";
 import { productUrl } from "@/lib/product-url";
 import { ComponentSpecs } from "@/components/ComponentSpecs";
 import { RetailerLogo } from "@/components/RetailerLogo";
+import { RetailerImage } from "@/components/RetailerImage";
 import { SearchBox } from "@/components/SearchBox";
 import { WatchButton } from "@/components/WatchButton";
 import { bestValueIndex, hasValueMetric } from "@/lib/specs/value";
@@ -53,13 +54,14 @@ function CategoryResultCard({ item, isBestDeal, isBestValue, componentType, onAd
       {/* Image area */}
       <div className="md:w-64 h-48 p-4 flex items-center justify-center bg-surface-container-low shrink-0 relative">
         {item.imageUrl ? (
-          <Image
+          <RetailerImage
             src={item.imageUrl}
             alt={item.name}
             width={224}
             height={160}
+            sizes="224px"
             className="max-w-full max-h-full object-contain"
-            unoptimized
+            fallback={<HardDrive className="w-12 h-12 text-outline" />}
           />
         ) : (
           <HardDrive className="w-12 h-12 text-outline" />

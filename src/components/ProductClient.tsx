@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import { RetailerImage } from "@/components/RetailerImage";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { ExternalLink, Package, Plus, Check, Zap } from "lucide-react";
@@ -175,13 +175,14 @@ export function ProductClient() {
               {loading ? (
                 <div className="w-full h-full rounded-lg bg-surface-container animate-pulse" />
               ) : heroImage ? (
-                <Image
+                <RetailerImage
                   src={heroImage}
                   alt={name}
                   width={480}
                   height={480}
+                  sizes="(max-width: 768px) 90vw, 480px"
                   className="object-contain max-w-full max-h-full"
-                  unoptimized
+                  fallback={<Package className="w-24 h-24 text-outline" />}
                 />
               ) : (
                 <Package className="w-24 h-24 text-outline" />

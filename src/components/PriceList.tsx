@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import { RetailerImage } from "@/components/RetailerImage";
 import Link from "next/link";
 import { ExternalLink, Package, Plus, Check, CircleCheck, CircleAlert } from "lucide-react";
 import { formatEur } from "@/lib/format";
@@ -77,13 +77,14 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
         }`}
       >
         {item.imageUrl ? (
-          <Image
+          <RetailerImage
             src={item.imageUrl}
             alt={item.name}
             width={192}
             height={192}
+            sizes="192px"
             className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-300"
-            unoptimized
+            fallback={<Package className="w-16 h-16 text-outline" />}
           />
         ) : (
           <Package className="w-16 h-16 text-outline" />

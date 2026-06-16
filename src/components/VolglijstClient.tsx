@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { RetailerImage } from "@/components/RetailerImage";
 import Link from "next/link";
 import { Bell, BellRing, Trash2, TrendingDown, TrendingUp, Package } from "lucide-react";
 import { useWatchlist, type WatchItem } from "@/lib/store/watchlist";
@@ -58,13 +58,14 @@ function WatchRow({
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
       <div className="w-16 h-16 rounded-lg bg-surface-container-low flex items-center justify-center shrink-0 overflow-hidden">
         {item.imageUrl ? (
-          <Image
+          <RetailerImage
             src={item.imageUrl}
             alt={item.name}
             width={64}
             height={64}
+            sizes="64px"
             className="object-contain max-w-full max-h-full"
-            unoptimized
+            fallback={<Package className="w-7 h-7 text-outline" />}
           />
         ) : (
           <Package className="w-7 h-7 text-outline" />

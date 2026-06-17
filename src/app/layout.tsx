@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Montserrat, Pixelify_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
@@ -72,6 +73,13 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  // Domeineigendom voor Google Search Console. Rendert
+  // <meta name="google-site-verification" content="…" /> in de <head> —
+  // de HTML-tag-methode (werkt voor een URL-prefix-property), naast/los van
+  // de DNS-TXT-methode bij de domeinprovider.
+  verification: {
+    google: "PIVZzSPpYqXnbt2uKUlZ6mcTl_NzZV1sn1johf_bP80",
+  },
 };
 
 export default function RootLayout({
@@ -98,6 +106,9 @@ export default function RootLayout({
             Analytics). Stuurt alleen data wanneer Analytics in het Vercel-
             dashboard aanstaat; geen consent-banner nodig. */}
         <Analytics />
+        {/* Core Web Vitals-meting (Vercel Speed Insights). Stuurt alleen data
+            wanneer Speed Insights in het Vercel-dashboard aanstaat. */}
+        <SpeedInsights />
       </body>
     </html>
   );

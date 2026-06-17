@@ -127,10 +127,24 @@ export const auth = betterAuth({
       },
     },
   },
-  // Standaard alleen actief in productie — expliciet aanzetten zodat
-  // login/registratie ook in previews tegen brute-force beschermd is
+  // Brute-force/credential-stuffing-bescherming. Expliciet aan (ook in previews).
   rateLimit: {
     enabled: true,
+    // Tellers in Postgres → gedeeld over álle serverless-instances. In-memory
+    // (de default) reset per lambda-instance, waardoor de limiet op Vercel
+    // nauwelijks knijpt; database-storage maakt 'm betrouwbaar.
+    storage: "database",
+    // Strakke limiet op de gevoelige auth-endpoints (per IP). De globale default
+    // (100/10s) blijft voor de rest; de 2FA-verify-endpoints hebben hun eigen
+    // plugin-limiet.
+    customRules: {
+      "/sign-in/email": { window: 60, max: 5 },
+      "/sign-up/email": { window: 60, max: 5 },
+      // /get-session wordt bij elke sessiecheck aangeroepen (useSession) en is
+      // geen brute-force-doel (ongeldig token → null, geen mutatie). Uitsluiten
+      // zodat DB-storage niet bij elke sessiecheck de rate_limit-tabel raakt.
+      "/get-session": false,
+    },
   },
   plugins,
   trustedOrigins: [

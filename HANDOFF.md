@@ -2,6 +2,31 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 48) — security-audit stap 3: rate limiting / brute-force (LIVE)
+
+Derde hardening-stap: de in-memory rate limiter lekte op serverless (elke lambda-instance had zijn eigen,
+telkens resetbare teller → brute-force amper geremd). Opgelost door better-auth zijn tellers in **Postgres**
+te laten opslaan (gedeeld over alle instances) + strakke per-IP-regels op de auth-endpoints. `tsc` +
+`next build` groen; **end-to-end geverifieerd** tegen de live Neon-DB.
+
+- **`src/lib/auth.ts`** → `rateLimit: { enabled, storage: "database", customRules }`:
+  - `storage: "database"` — tellers in Neon i.p.v. per-instance geheugen (de serverless-fix).
+  - `customRules`: `/sign-in/email` en `/sign-up/email` = **5 pogingen / 60s** per IP (strenger dan de
+    default 10s-vensters); `/get-session: false` = uitgesloten (wordt bij elke `useSession` aangeroepen,
+    geen brute-force-doel → anders een DB-write per sessiecheck). 2FA-verify-endpoints hebben hun eigen
+    plugin-limiet; globale default (100/10s) blijft voor de rest.
+- **Schema/migratie:** `rate_limit`-tabel (`id`/`key`/`count`/`last_request` bigint, index op `key`) in
+  `auth-schema.ts`; `drizzle/0008_add_rate_limit.sql` (additief + idempotent) **toegepast op Neon** via
+  `scripts/apply-migration.ts`.
+- **Verificatie (lokale prod-build tegen Neon):** sign-in → `401,401,401,401,401,429,429` (5 toegestaan,
+  dan 429); get-session → 8×200 (nooit 429); en een rij in `rate_limit` (`key=<ip>|/sign-in/email count=5`)
+  bevestigt dat de tellers écht in de DB landen. **Let op:** moet ná elke config-wijziging eerst `next build`
+  voor `next start` 'm oppikt (anders test je de oude bundel — kostte hier één misleidende run).
+- **IP-bron:** better-auth leest de client-IP uit `x-forwarded-for` (Vercel zet die); lokaal is dat ::1.
+- **Nog aanbevolen (dashboard, geen code):** zet **Vercel Firewall**-rate limiting aan (Pro) voor edge-niveau
+  bescherming op `/api/*` — vangt volumetrisch/DoS-verkeer vóór de functions. De in-memory `Map` in
+  `/api/search` (deel: search-fanout) blijft als goedkope soft-layer; bewust geen DB-write per zoekrequest.
+
 ## ▶ Nieuw (17 juni 2026, deel 47) — security-audit stap 2: 2FA/TOTP (LIVE)
 
 Tweede stap van de hardening: tweestapsverificatie via better-auth's `twoFactor`-plugin. Opt-in per

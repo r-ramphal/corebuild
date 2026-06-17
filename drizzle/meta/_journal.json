@@ -57,6 +57,13 @@
       "when": 1781715491753,
       "tag": "0007_add_two_factor",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1781716738070,
+      "tag": "0008_add_rate_limit",
+      "breakpoints": true
     }
   ]
 }

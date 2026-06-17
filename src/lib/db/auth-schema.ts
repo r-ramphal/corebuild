@@ -1,4 +1,4 @@
-import { pgTable, text, boolean, timestamp, index } from "drizzle-orm/pg-core";
+import { pgTable, text, boolean, timestamp, index, integer, bigint } from "drizzle-orm/pg-core";
 
 /** Standaard better-auth tabellen (e-mail + wachtwoord). */
 
@@ -76,4 +76,22 @@ export const twoFactor = pgTable(
     index("two_factor_user_id_idx").on(table.userId),
     index("two_factor_secret_idx").on(table.secret),
   ]
+);
+
+/**
+ * Rate-limit-tellers voor better-auth (storage: "database"). Hiermee deelt
+ * better-auth de tellers via Postgres i.p.v. per-instance geheugen — cruciaal op
+ * serverless, waar elke lambda anders zijn eigen (telkens resetbare) teller heeft
+ * en brute-force amper geremd wordt. Eén rij per (endpoint+IP)-sleutel; better-auth
+ * beheert deze tabel zelf. De export moet `rateLimit` heten (model-naam van de adapter).
+ */
+export const rateLimit = pgTable(
+  "rate_limit",
+  {
+    id: text("id").primaryKey(),
+    key: text("key"),
+    count: integer("count"),
+    lastRequest: bigint("last_request", { mode: "number" }),
+  },
+  (table) => [index("rate_limit_key_idx").on(table.key)]
 );

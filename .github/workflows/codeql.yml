@@ -1,0 +1,36 @@
+# CodeQL — statische codeanalyse (SAST) voor JS/TS. Vindt code-kwetsbaarheden
+# (injectie, onveilige patronen) i.p.v. afhankelijkheids-CVE's; complementair aan
+# Dependabot/npm audit. Resultaten verschijnen op het Security-tabblad. Gratis
+# voor publieke repo's.
+name: CodeQL
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: "0 6 * * 1" # wekelijks, maandag 06:00 UTC
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (javascript-typescript)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialiseer CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+
+      # JS/TS wordt geïnterpreteerd → geen build-stap nodig voor CodeQL.
+      - name: Analyse uitvoeren
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"

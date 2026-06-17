@@ -1,0 +1,24 @@
+# Blokkeert pull requests die een afhankelijkheid met een bekende kwetsbaarheid
+# (of een niet-toegestane licentie) toevoegen — vóórdat het op master landt.
+# Gratis voor publieke repo's.
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Review afhankelijkheden in de PR-diff
+        uses: actions/dependency-review-action@v4
+        with:
+          # Faal alleen op high/critical zodat de PR niet blokkeert op de
+          # bestaande moderate build-tooling-meldingen.
+          fail-on-severity: high

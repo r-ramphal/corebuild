@@ -1,0 +1,26 @@
+# Automatische dependency-updates + CVE-meldingen.
+# Security-updates opent Dependabot sowieso direct (los van het wekelijkse
+# schema) zodra een advisory een gebruikte versie raakt.
+version: 2
+updates:
+  # npm-afhankelijkheden — wekelijks. Minor/patch gegroepeerd in één PR tegen
+  # ruis; major-updates komen als losse PR (kunnen breaking zijn → apart reviewen).
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Houd de GitHub Actions zelf (checkout/setup-node/codeql/…) up-to-date —
+  # verouderde action-versies zijn een vaak vergeten supply-chain-risico.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"

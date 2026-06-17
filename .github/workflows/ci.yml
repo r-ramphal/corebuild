@@ -23,6 +23,12 @@ jobs:
 
       - run: npm ci
 
+      # CVE-gate: faalt op high/critical kwetsbaarheden in productie-deps.
+      # --omit=dev laat build-tooling-noise buiten beschouwing; de bekende
+      # moderate next/postcss-meldingen komen via Dependabot binnen als PR's.
+      - name: Beveiligingsaudit (productie-deps)
+        run: npm audit --omit=dev --audit-level=high
+
       - run: npm run lint
 
       - run: npm run type-check

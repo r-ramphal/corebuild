@@ -2,6 +2,31 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 49) — security-audit stap 4: dependency-/CVE-scanning (CI)
+
+Vierde hardening-stap: afhankelijkheden + code automatisch op kwetsbaarheden scannen. Repo is **public**
+→ CodeQL, Dependency Review en secret scanning zijn gratis. Alleen CI/config, geen app-code; YAML van alle
+workflows gevalideerd (js-yaml-parse).
+
+- **`.github/dependabot.yml`** — wekelijkse updates voor **npm** (minor/patch gegroepeerd tegen PR-ruis,
+  major's los) én **github-actions** (action-versies actueel houden). Security-PR's opent Dependabot sowieso
+  direct bij een advisory.
+- **`.github/workflows/ci.yml`** — nieuwe stap **`npm audit --omit=dev --audit-level=high`**: CVE-gate die
+  faalt op high/critical in **productie-deps**. Bewust `--omit=dev` + drempel `high` zodat 'ie nu slaagt: de
+  bekende **6 moderate** (next→postcss, build-tooling) blijven buiten de gate en komen via Dependabot binnen.
+  Gecalibreerd: `npm audit --omit=dev --audit-level=high` → exit 0.
+- **`.github/workflows/dependency-review.yml`** — `actions/dependency-review-action` op PR's: blokkeert een
+  PR die een dep met een high/critical CVE (of foute licentie) toevoegt, vóór merge. Draait alleen op
+  `pull_request` (niet op directe pushes naar master).
+- **`.github/workflows/codeql.yml`** — CodeQL SAST (JS/TS, `security-and-quality`) op push/PR + wekelijks.
+  Vindt *code*-kwetsbaarheden (complementair aan de dep-scanning); resultaten op het Security-tabblad.
+- **Nog jouw GitHub-toggle (1 klik, gratis public):** repo → Settings → Code security → **Secret scanning
+  push protection** aanzetten (blokkeert per-ongeluk gecommitte keys — relevant met alle auth/Resend/Turnstile/
+  OAuth/CRON-secrets). Secret scanning zelf staat op public repos al automatisch aan.
+- **Let op (CVE-gate-onderhoud):** als een echte high/critical in een prod-dep verschijnt faalt CI bewust —
+  fix via de Dependabot-PR of bump de dep; verlaag de drempel niet zomaar. De moderate next/postcss-meldingen
+  periodiek herchecken (waren al pre-existing, geen runtime-risico).
+
 ## ▶ Nieuw (17 juni 2026, deel 48) — security-audit stap 3: rate limiting / brute-force (LIVE)
 
 Derde hardening-stap: de in-memory rate limiter lekte op serverless (elke lambda-instance had zijn eigen,

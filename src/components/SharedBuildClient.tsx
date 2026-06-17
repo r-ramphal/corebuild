@@ -41,7 +41,7 @@ export function SharedBuildClient() {
   if (notFound) {
     return (
       <main className="pt-16 min-h-screen">
-        <div className="max-w-[1280px] mx-auto px-8 py-16 text-center">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-16 text-center">
           <p className="font-title-md text-title-md text-on-surface mb-2">Build niet gevonden</p>
           <p className="font-body-sm text-body-sm text-on-surface-variant mb-6">
             Deze link klopt niet of de build is verwijderd.
@@ -57,7 +57,7 @@ export function SharedBuildClient() {
   if (!build) {
     return (
       <main className="pt-16 min-h-screen">
-        <div className="max-w-[1280px] mx-auto px-8 py-16">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-16">
           <div className="h-64 rounded-xl bg-surface-container animate-pulse" />
         </div>
       </main>
@@ -69,7 +69,7 @@ export function SharedBuildClient() {
 
   return (
     <main className="pt-16 min-h-screen">
-      <div className="max-w-[800px] mx-auto px-8 py-12">
+      <div className="max-w-[800px] mx-auto px-4 sm:px-8 py-12">
         <span className="font-label-technical text-label-technical text-outline uppercase tracking-wider block mb-2">
           Gedeelde build
         </span>
@@ -103,7 +103,7 @@ export function SharedBuildClient() {
           })}
         </div>
 
-        <div className="flex items-center justify-between p-6 bg-surface-container-lowest border border-outline-variant rounded-xl">
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between p-5 sm:p-6 bg-surface-container-lowest border border-outline-variant rounded-xl">
           <div>
             <span className="font-label-technical text-label-technical text-on-surface-variant block">
               Totaalprijs
@@ -112,7 +112,7 @@ export function SharedBuildClient() {
           </div>
           <button
             onClick={handleLoad}
-            className="px-8 py-4 bg-primary text-on-primary rounded-lg font-label-technical text-label-technical hover:opacity-90 flex items-center gap-2"
+            className="w-full sm:w-auto justify-center px-8 py-4 bg-primary text-on-primary rounded-lg font-label-technical text-label-technical hover:opacity-90 flex items-center gap-2"
           >
             <Upload className="w-4 h-4" /> Laad in builder
           </button>

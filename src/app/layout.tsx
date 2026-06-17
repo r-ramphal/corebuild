@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Montserrat, Pixelify_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { BottomTabBar } from "@/components/BottomTabBar";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import "./globals.css";
 
@@ -32,6 +33,17 @@ const pixelify = Pixelify_Sans({
   weight: ["500", "600", "700"],
   display: "swap",
 });
+
+// Mobiel-first: expliciete viewport. viewportFit "cover" activeert de
+// env(safe-area-inset-*)-utilities (notch/home-indicator). Bewust GEEN
+// maximumScale/userScalable:false — pinch-zoom moet werken (toegankelijkheid).
+// themeColor = wit canvas, kleurt de browser-UI mee op mobiel.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#ffffff",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://corebuildnl.com"),
@@ -102,6 +114,9 @@ export default function RootLayout({
           {children}
         </div>
         <Footer />
+        {/* Mobiel-exclusieve onderbalk (app-stijl). Verschijnt alleen <1024px;
+            de body reserveert er onderaan ruimte voor (zie globals.css). */}
+        <BottomTabBar />
         {/* Cookieloze, GDPR-vriendelijke bezoekersstatistieken (Vercel Web
             Analytics). Stuurt alleen data wanneer Analytics in het Vercel-
             dashboard aanstaat; geen consent-banner nodig. */}

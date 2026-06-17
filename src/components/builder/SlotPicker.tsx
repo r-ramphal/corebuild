@@ -64,6 +64,16 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  // Vergrendel achtergrond-scroll zolang de picker open is (vooral mobiel —
+  // de picker is daar een bottom-sheet). Mount = open, unmount = dicht.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   const sp = new URLSearchParams();
   if (activeQuery) sp.set("q", activeQuery);
   sp.set("cat", type);
@@ -309,8 +319,9 @@ export function SlotPicker({ type, onClose }: { type: ComponentType; onClose: ()
           )}
         </div>
 
-        {/* Footer: volledige pagina + community-verwijzing */}
-        <div className="p-3 border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-2 text-center">
+        {/* Footer: volledige pagina + community-verwijzing. Safe-area onderaan
+            zodat de links op mobiel niet onder de home-indicator vallen. */}
+        <div className="p-3 [padding-bottom:calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:[padding-bottom:0.75rem] border-t border-outline-variant flex flex-col sm:flex-row items-center justify-between gap-2 text-center">
           <Link
             href={`/categorie/${type}`}
             onClick={onClose}

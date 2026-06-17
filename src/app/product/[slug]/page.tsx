@@ -61,7 +61,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
       <Suspense
         fallback={
           <main className="pt-16 min-h-screen">
-            <div className="max-w-[1280px] mx-auto px-8 py-8 text-on-surface-variant">Laden...</div>
+            <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-8 text-on-surface-variant">Laden...</div>
           </main>
         }
       >

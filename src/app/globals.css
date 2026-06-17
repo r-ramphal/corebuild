@@ -306,6 +306,16 @@
     max-width: 100%;
   }
 
+  /* Mobiel-exclusieve bottom-tabbar (lg:hidden, <1024px): reserveer onderaan
+     de body ruimte = tabbar-hoogte (3.5rem) + de home-indicator safe-area,
+     zodat de footer/content nooit achter de vaste balk verdwijnt. Op ≥1024px
+     bestaat de tabbar niet en is er dus geen extra padding. */
+  @media (max-width: 1023px) {
+    body {
+      padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
   /* Zichtbare focus voor toetsenbordgebruikers, zonder muis-focus-ruis */
   :focus-visible {
     outline: 2px solid var(--cb-primary, #0049db);
@@ -341,6 +351,15 @@
 }
 
 @layer utilities {
+  /* Safe-area-insets (notch / home-indicator). Werkt door viewportFit: "cover"
+     in de viewport-export. De fallback 0px houdt desktop/non-notch ongemoeid. */
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pl-safe { padding-left: env(safe-area-inset-left, 0px); }
+  .pr-safe { padding-right: env(safe-area-inset-right, 0px); }
+  /* Marge onder een sticky CTA die zelf bovenop de tabbar zweeft (mobiel) */
+  .bottom-tabbar { bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)); }
+
   /* Stitch border-radius scale (overrides Tailwind defaults) */
   .rounded {
     border-radius: 0;
@@ -354,15 +373,18 @@
   .rounded-full {
     border-radius: 9999px;
   }
+  /* Vloeiende koppen: clamp-max == de oude desktopgrootte (desktop blijft dus
+     1:1 identiek), maar onder ~640px schalen ze mee zodat ze niet overlopen op
+     smalle toestellen (320px). Unitless line-height schaalt netjes mee. */
   .text-display-lg {
-    font-size: 3rem;
-    line-height: 3.5rem;
+    font-size: clamp(2rem, 1.1rem + 4.5vw, 3rem);
+    line-height: 1.1;
     letter-spacing: -0.02em;
     font-weight: 700;
   }
   .text-headline-lg {
-    font-size: 2rem;
-    line-height: 2.5rem;
+    font-size: clamp(1.5rem, 1rem + 2.5vw, 2rem);
+    line-height: 1.2;
     font-weight: 600;
   }
   .text-headline-lg-mobile {
@@ -371,8 +393,8 @@
     font-weight: 600;
   }
   .text-title-md {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.25rem);
+    line-height: 1.4;
     font-weight: 600;
   }
   .text-body-lg {

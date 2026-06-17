@@ -4,8 +4,8 @@ import Link from "next/link";
 export function GiastManifest() {
   return (
     <section className="bg-gp-bg text-gp-ink">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x py-24">
-        <p className="font-plex text-[12px] uppercase tracking-[0.2em] text-gp-ink-soft mb-10">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x py-14 sm:py-24">
+        <p className="font-plex text-[12px] uppercase tracking-[0.2em] text-gp-ink-soft mb-8 sm:mb-10">
           <span className="text-gp-orange">_</span>manifest
         </p>
 

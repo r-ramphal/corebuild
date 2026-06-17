@@ -79,14 +79,14 @@ export default function BuildsPage() {
   if (isPending || !session) {
     return (
       <main className="pt-16 min-h-screen">
-        <div className="max-w-[1280px] mx-auto px-8 py-16 text-on-surface-variant">Laden...</div>
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-16 text-on-surface-variant">Laden...</div>
       </main>
     );
   }
 
   return (
     <main className="pt-16 min-h-screen">
-      <div className="max-w-[1280px] mx-auto px-8 py-12">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-12">
         <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2">Mijn builds</h1>
         <p className="font-body-sm text-body-sm text-on-surface-variant mb-10">
           Je opgeslagen builds. Laad ze in de builder of deel een link.

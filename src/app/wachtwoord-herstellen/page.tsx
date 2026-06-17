@@ -12,7 +12,7 @@ export default function WachtwoordHerstellenPage() {
     <Suspense
       fallback={
         <main className="pt-16 min-h-screen">
-          <div className="max-w-md mx-auto px-8 py-16 text-on-surface-variant">Laden...</div>
+          <div className="max-w-md mx-auto px-4 sm:px-8 py-16 text-on-surface-variant">Laden...</div>
         </main>
       }
     >

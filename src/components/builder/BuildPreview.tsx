@@ -82,10 +82,14 @@ export function BuildPreview({
         </button>
       </div>
 
+      {/* touch-pan-y i.p.v. touch-none: op mobiel kan de pagina verticaal
+          doorscrollen over de canvas (geen scroll-val), terwijl zijwaarts
+          slepen het model nog steeds draait. Op desktop (muis) maakt het niet
+          uit. */}
       <div
         role="img"
         aria-label="Draaibaar 3D-aanzicht van je build, op schaal van de echte onderdelen"
-        className="h-[340px] mt-4 touch-none select-none"
+        className="h-[300px] sm:h-[340px] mt-4 touch-pan-y select-none"
       >
         <BuildScene
           model={model}

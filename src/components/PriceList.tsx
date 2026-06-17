@@ -58,7 +58,7 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
 
   return (
     <div
-      className={`group relative bg-surface-container-lowest rounded-xl p-4 flex flex-col sm:flex-row gap-6 transition-all ${
+      className={`group relative bg-surface-container-lowest rounded-xl p-4 flex flex-col sm:flex-row gap-4 sm:gap-6 transition-all ${
         isCheapest
           ? "border-2 border-success-emerald hover:shadow-lg"
           : "border border-outline-variant hover:border-primary hover:shadow-md"
@@ -154,7 +154,7 @@ function ResultRow({ item, isCheapest, categorySlot, onAddToBuild }: ResultRowPr
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`text-white px-6 py-2.5 rounded-lg font-label-technical text-label-technical flex items-center gap-2 transition-all ${
+                className={`text-white px-6 py-3 rounded-lg font-label-technical text-label-technical flex items-center gap-2 transition-all ${
                   isCheapest
                     ? "bg-primary hover:bg-primary-container"
                     : "bg-secondary hover:opacity-90"

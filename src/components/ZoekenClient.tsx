@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { SlidersHorizontal, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { PriceList } from "./PriceList";
 import { SearchSuggest } from "@/components/SearchSuggest";
@@ -59,6 +60,19 @@ export function ZoekenClient() {
   const [appliedMax, setAppliedMax] = useState(PRICE_CAP);
   const [appliedSel, setAppliedSel] = useState<FacetSelection>({});
   const [appliedTiers, setAppliedTiers] = useState<string[]>([]);
+
+  // Mobiel: filters openen als bottom-sheet (op desktop = vaste zijbalk).
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Vergrendel achtergrond-scroll zolang de mobiele filtersheet open is.
+  useEffect(() => {
+    if (!filtersOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [filtersOpen]);
 
   const { results, loading } = useSearch(
     query ? `/api/search?q=${encodeURIComponent(query)}` : null,
@@ -161,83 +175,121 @@ export function ZoekenClient() {
 
   const noResults = !loading && !!filteredResults && filteredResults.results.length === 0 && !!query;
 
-  return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-24 pb-16 flex flex-col md:flex-row gap-8">
-      {/* Filters Sidebar */}
-      <aside className="w-full md:w-1/4 space-y-6 md:sticky top-24 h-fit">
-        <FacetFilters
-          groups={facetGroups}
-          selected={facetSel}
-          onToggle={toggleFacet}
-          tiers={tiers}
-          selectedTiers={selectedTiers}
-          onToggleTier={toggleTier}
-          maxPrice={maxPrice}
-          priceCap={PRICE_CAP}
-          onMaxPrice={setMaxPrice}
-          onApply={applyFilters}
-          onClear={clearAll}
+  // Aantal toegepaste filters (voor het mobiele "Filters (n)"-knopje).
+  const activeFilterCount =
+    (category !== "all" ? 1 : 0) +
+    (appliedInStock ? 1 : 0) +
+    (appliedMax < PRICE_CAP ? 1 : 0) +
+    (appliedRetailers.length !== ALL_RETAILERS.length ? 1 : 0) +
+    appliedTiers.length +
+    Object.values(appliedSel).reduce((n, v) => n + v.length, 0);
+
+  // Extra filters (categorie/retailers/voorraad) die boven de facetten tonen.
+  // Eén keer gedefinieerd zodat de zijbalk (desktop) én de sheet (mobiel)
+  // exact dezelfde inhoud delen.
+  const filterExtras = (
+    <>
+      {/* Categorie-keuze (werkt direct) */}
+      <div className="mb-8">
+        <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
+          Categorie
+        </h4>
+        <select
+          value={category}
+          onChange={(e) => changeCategory(e.target.value as CategoryFilter)}
+          aria-label="Filter op categorie"
+          className="w-full h-11 px-3 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none cursor-pointer"
         >
-          {/* Categorie-keuze (werkt direct) */}
-          <div className="mb-8">
-            <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
-              Categorie
-            </h4>
-            <select
-              value={category}
-              onChange={(e) => changeCategory(e.target.value as CategoryFilter)}
-              aria-label="Filter op categorie"
-              className="w-full h-10 px-3 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none cursor-pointer"
-            >
-              <option value="all">Alle categorieën</option>
-              {CATALOG_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {COMPONENT_META[t].label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <option value="all">Alle categorieën</option>
+          {CATALOG_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {COMPONENT_META[t].label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          {/* Retailers */}
-          <div className="mb-8">
-            <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
-              Retailers
-            </h4>
-            <div className="space-y-2.5">
-              {ALL_RETAILERS.map((retailer) => (
-                <label key={retailer} className="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={selectedRetailers.includes(retailer)}
-                    onChange={() => toggleRetailer(retailer)}
-                    className="w-4 h-4 rounded text-primary border-outline-variant focus:ring-primary"
-                  />
-                  <span className="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">
-                    {RETAILER_LABEL[retailer]}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Alleen op voorraad */}
-          <div className="flex items-center justify-between mb-8">
-            <span className="font-body-sm text-body-sm text-on-surface">Alleen op voorraad</span>
-            <label className="relative inline-flex items-center cursor-pointer">
+      {/* Retailers */}
+      <div className="mb-8">
+        <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
+          Retailers
+        </h4>
+        <div className="space-y-2.5">
+          {ALL_RETAILERS.map((retailer) => (
+            <label key={retailer} className="flex items-center gap-3 cursor-pointer group py-1">
               <input
                 type="checkbox"
-                checked={inStockOnly}
-                onChange={(e) => setInStockOnly(e.target.checked)}
-                className="sr-only peer"
+                checked={selectedRetailers.includes(retailer)}
+                onChange={() => toggleRetailer(retailer)}
+                className="w-4 h-4 rounded text-primary border-outline-variant focus:ring-primary"
               />
-              <div className="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+              <span className="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">
+                {RETAILER_LABEL[retailer]}
+              </span>
             </label>
-          </div>
-        </FacetFilters>
+          ))}
+        </div>
+      </div>
+
+      {/* Alleen op voorraad */}
+      <div className="flex items-center justify-between mb-8">
+        <span className="font-body-sm text-body-sm text-on-surface">Alleen op voorraad</span>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={inStockOnly}
+            onChange={(e) => setInStockOnly(e.target.checked)}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+        </label>
+      </div>
+    </>
+  );
+
+  // De volledige FacetFilters met de extra's; onAfterApply sluit de mobiele sheet.
+  const filterPanel = (onAfterApply?: () => void) => (
+    <FacetFilters
+      groups={facetGroups}
+      selected={facetSel}
+      onToggle={toggleFacet}
+      tiers={tiers}
+      selectedTiers={selectedTiers}
+      onToggleTier={toggleTier}
+      maxPrice={maxPrice}
+      priceCap={PRICE_CAP}
+      onMaxPrice={setMaxPrice}
+      onApply={() => {
+        applyFilters();
+        onAfterApply?.();
+      }}
+      onClear={clearAll}
+    >
+      {filterExtras}
+    </FacetFilters>
+  );
+
+  return (
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-24 pb-16 flex flex-col md:flex-row gap-8">
+      {/* Filters: vaste zijbalk op desktop (≥768px); op mobiel via de
+          "Filters"-knop als bottom-sheet (zie onder). */}
+      <aside className="hidden md:block md:w-1/4 space-y-6 md:sticky md:top-24 h-fit">
+        {filterPanel()}
       </aside>
 
       {/* Results Column */}
       <section className="w-full md:w-3/4">
+        {/* Mobiele filter-trigger — opent de bottom-sheet (op desktop staat de
+            zijbalk al vast, dus md:hidden). Toont het aantal actieve filters. */}
+        <button
+          type="button"
+          onClick={() => setFiltersOpen(true)}
+          className="md:hidden w-full mb-4 flex items-center justify-center gap-2 h-11 border border-outline-variant bg-surface-container-lowest font-label-technical text-label-technical text-on-surface active:bg-surface-container transition-colors"
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+          Filters{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ""}
+        </button>
+
         {/* Sort Bar */}
         <div className="flex items-center justify-between mb-6 bg-surface-container-low p-4 rounded-xl border border-outline-variant">
           <p className="font-body-sm text-body-sm text-on-surface-variant">
@@ -327,6 +379,39 @@ export function ZoekenClient() {
           </div>
         )}
       </section>
+
+      {/* Mobiele filter-bottom-sheet (md:hidden). Zit boven de tabbar (z-60),
+          vergrendelt achtergrond-scroll, en deelt dezelfde FacetFilters als de
+          desktop-zijbalk. "Filters toepassen" sluit de sheet. */}
+      {filtersOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-[60]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Filters"
+        >
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setFiltersOpen(false)}
+          />
+          <div className="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col bg-gp-bg border-t border-gp-line pb-safe animate-fade-in-up">
+            <div className="relative border-b border-gp-line py-3 shrink-0">
+              <span className="mx-auto block h-1 w-10 rounded-full bg-gp-line-strong" />
+              <button
+                type="button"
+                onClick={() => setFiltersOpen(false)}
+                aria-label="Filters sluiten"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gp-ink-soft hover:text-gp-ink"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-y-auto overscroll-contain p-4">
+              {filterPanel(() => setFiltersOpen(false))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,6 +4,11 @@
 
 ## ▶ VOLGENDE SESSIE — open punten / TODO (bijgewerkt 17 juni 2026)
 
+**AF: mobiel-first traject (deel 38), Fase 0–5 compleet** — fundament (viewport/safe-area/fluïde type),
+bottom-tabbar, conversie-pagina's (sticky koop-balk + filter-bottom-sheets), landing & ontdekking, account
+& secundair, cross-device sweep. `tsc`+`eslint src`+`next build` groen. **Enige restpunt:** eyeballen op
+een echt toestel (checklist staat in deel 38). Aanpak was Tailwind-native (geen Konsta/Ionic/MUI).
+
 Optioneel, in volgorde van waarde:
 1. **Voorbeeldbuild-prijzen periodiek herdraaien.** Bijgesteld in deel 30; DDR5/GPU schommelen, dus af en toe
    `npx tsx scripts/calibrate-example-builds.ts` draaien en de bedragen opnieuw kalibreren.
@@ -52,6 +57,66 @@ _Vorige sessie (16 juni 2026):_
 
 Eerder al open (vereist account/inbox/toestel): reset-mail + mobiele weergave handmatig; Search Console
 sitemap indienen + Rich Results-test.
+
+## ▶ Nieuw (17 juni 2026, deel 38) — mobiel-first traject (Fase 0–5 COMPLEET)
+
+Groot project: de hele site systematisch mobiel-proof gemaakt (focus op conversie/aankopen op mobiel).
+Aanpak bewust **Tailwind-native** (geen Konsta/Ionic/MUI — die botsen met de giastpc-huisstijl);
+huisstijl blijft 1:1. Alle 5 fasen af + geverifieerd (`tsc`+`eslint src`+`next build` groen, 58 pagina's).
+Enige restpunt is **handmatig eyeballen op een echt toestel** (checklist onderaan) — kan ik niet autonoom.
+
+- **Fase 0 — fundament** (`layout.tsx` + `globals.css`): expliciete `viewport`-export
+  (`viewportFit:"cover"` → safe-area aan, themeColor wit, **bewust géén `userScalable:false`** zodat
+  pinch-zoom blijft werken). Safe-area-utilities (`pt/pb/pl/pr-safe`, `bottom-tabbar`) + body krijgt
+  op <1024px onderaan ruimte (3.5rem + safe-area). Koppen `text-display-lg`/`headline-lg`/`title-md`
+  vloeiend gemaakt met `clamp()` — **desktop blijft identiek** (clamp-max = oude grootte), geen
+  overflow meer op 320px.
+- **Fase 1 — mobiele navigatie**: nieuwe `src/components/BottomTabBar.tsx` — mobiel-exclusieve
+  (`lg:hidden`) app-stijl onderbalk met 5 duim-tabs (Home/Zoeken/Builder/Volglijst/Account; account
+  is sessie-afhankelijk → /builds of /inloggen). Gemount in `layout.tsx`. giastpc-stijl, oranje
+  actieve-accent, safe-area-aware.
+- **Fase 2 — conversie-pagina's**:
+  - `ProductClient`: mobiele **sticky koop-balk** (laagste prijs + "Bekijk bij retailer") die net
+    boven de tabbar zweeft (`.bottom-tabbar`-utility), `lg:hidden`.
+  - `ZoekenClient` + `CategorieClient`: filter-zijbalk → **bottom-sheet** op mobiel (`md:hidden`,
+    `z-[60]`, achtergrond-scroll-lock, grab-handle), met "Filters · n"-trigger. Desktop houdt de vaste
+    zijbalk. Eén gedeelde `FacetFilters` (geen duplicatie) via een lokale `filterPanel(onAfterApply)`.
+  - `SlotPicker` + `BuildWizard` (waren al bottom-sheets): achtergrond-scroll-lock + safe-area onder
+    de footer/navigatie. **BuildWizard z-index `z-40`→`z-50`** (botste met de nieuwe tabbar op z-40).
+  - `BuildPreview` (3D): `touch-none`→`touch-pan-y` (geen scroll-val meer; pagina scrollt verticaal
+    door, zijwaarts slepen draait nog), canvas `h-[300px] sm:h-[340px]`.
+  - `PriceList`: kaart-gap `gap-4 sm:gap-6`, primaire CTA `py-3` (groter tap-doel).
+- **Fase 3 — landing & ontdekking**: home-secties (`GiastShowcase`/`GiastCategories`/`GiastManifest`)
+  mobiele sectie-padding verdicht (`py-20`/`py-24` → `py-12/14 sm:…`, minder loze scroll; desktop
+  gelijk). **Regressie gefixt**: `GalleryClient`-vergelijkbalk stond op `fixed bottom-0` → viel achter
+  de tabbar; nu `bottom-tabbar lg:bottom-0` (zweeft op mobiel erboven). Rest van Fase 3 (GiastHero/
+  Terminal/Marquee, voorbeeldbuilds, blog + blog/[slug] + prose, CompareClient, community) bleek al
+  mobiel-bewust → geen wijziging. GiastBlueprint is mobiel verborgen; Preloader is `z-[100]` (dekt alles).
+- **z-index-conventie** (vastgelegd): sticky koop-/vergelijkbalk 30 · tabbar 40 · navbar 50 · modals
+  (SlotPicker/BuildWizard) 50 · filter-sheets 60 · preloader 100. **Let op:** elke nieuwe `fixed bottom-0`
+  bar moet `bottom-tabbar lg:bottom-0` gebruiken, anders valt 'ie achter de mobiele tabbar.
+- **Fase 4 — account & secundair**: alle resterende hardcoded `px-8`-wrappers → `px-4 sm:px-8` (smalle
+  telefoons kregen maar ~256px content): `inloggen` (+ card `p-6 sm:p-8`), `wachtwoord-vergeten`,
+  `WachtwoordHerstellenClient`, `builds`, `SharedBuildClient` (3×) + totaal/CTA-rij stapelt nu op mobiel
+  met volle-breedte knop, `categorie`-index, en de Suspense-fallbacks van `zoeken`/`product`/
+  `wachtwoord-herstellen`. `VolglijstClient`, `contact`, `over` bleken al `px-4 sm:px-8` + mobiel-bewust
+  (volglijst-rijen stapelen, alert-label icon-only op mobiel) → geen wijziging. Auth-inputs zijn `h-11`,
+  submit-knoppen `h-12` (goede tap-targets). Resterende kale `px-8` zijn knop-paddings (correct).
+- **Fase 5 — cross-device sweep**: systematische grep-audit (grote tekstgroottes zijn allemaal responsive
+  `text-[28-30px] sm:…`; geen vaste `w-[…]`/`min-w-[…]` ≥320px → alle brede waarden zijn `max-w-` caps;
+  geen verdwaalde `fixed bottom-0` meer). Eind-gate `tsc` + **volledige `eslint src`** + `next build`
+  groen. Het Fase 0-fundament (fluïde clamp-type + `px-4`-containers + `overflow-x:hidden`) dekt de rest af.
+
+**Eyeball-checklist (echt toestel, kan ik niet autonoom):**
+1. **Bottom-tabbar**: valt in de duimzone, actieve tab klopt per pagina, safe-area onderaan op een toestel
+   met home-indicator (iPhone), geen overlap met content.
+2. **Conversie**: sticky koop-balk op `/product/*` zweeft net boven de tabbar; filter-bottom-sheet op
+   `/zoeken` + `/categorie/*` (open/sluit, "Filters · n", "toepassen" sluit 'm, achtergrond scrollt niet).
+3. **Builder**: SlotPicker- en BuildWizard-sheets op klein scherm; 3D-preview scrollt verticaal door
+   (geen scroll-val), zijwaarts slepen draait nog.
+4. **Community**: vergelijk-balk zweeft boven de tabbar (niet erachter).
+5. **Type**: koppen niet afgekapt/overlopend op ≤360px; pinch-zoom werkt (bewust niet geblokkeerd).
+6. Breedtes 320/360/390/414: nergens horizontale scroll.
 
 ## ▶ Nieuw (17 juni 2026, deel 37) — vier nieuwe blogposts
 

@@ -132,7 +132,7 @@ export function GalleryClient() {
 
       {/* Vergelijk-balk */}
       {selected.length > 0 && (
-        <div className="fixed bottom-0 inset-x-0 z-30 bg-surface-container-lowest border-t border-outline-variant shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+        <div className="fixed inset-x-0 bottom-tabbar lg:bottom-0 z-30 bg-surface-container-lowest border-t border-outline-variant shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
           <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
             <span className="font-label-technical text-label-technical text-on-surface-variant">
               {selected.length} van 2 builds geselecteerd om te vergelijken

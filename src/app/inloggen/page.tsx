@@ -88,9 +88,9 @@ export default function InloggenPage() {
 
   if (registered) {
     return (
-      <main className="pt-16 min-h-screen flex items-center justify-center px-8">
+      <main className="pt-16 min-h-screen flex items-center justify-center px-4 sm:px-8">
         <div className="w-full max-w-md">
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-sm text-center">
+          <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 sm:p-8 shadow-sm text-center">
             <h1 className="font-headline-lg text-headline-lg text-on-surface mb-3">
               Bevestig je e-mailadres
             </h1>
@@ -126,9 +126,9 @@ export default function InloggenPage() {
   }
 
   return (
-    <main className="pt-16 min-h-screen flex items-center justify-center px-8">
+    <main className="pt-16 min-h-screen flex items-center justify-center px-4 sm:px-8">
       <div className="w-full max-w-md">
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-sm">
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 sm:p-8 shadow-sm">
           <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2">
             {mode === "login" ? "Inloggen" : "Account aanmaken"}
           </h1>

@@ -55,6 +55,16 @@ export function BuildWizard({ onClose }: { onClose: () => void }) {
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose, pickerOpen]);
 
+  // Vergrendel achtergrond-scroll zolang de wizard open is (mobiel = sheet).
+  // Nestelt veilig met de SlotPicker: elke effect bewaart de vorige waarde.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   const type = ORDER[step];
   const meta = COMPONENT_META[type];
   const Icon = ICONS[type];
@@ -80,7 +90,7 @@ export function BuildWizard({ onClose }: { onClose: () => void }) {
   return (
     <div
       data-lenis-prevent=""
-      className="fixed inset-0 z-40 flex items-end sm:items-center justify-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4"
     >
       <button aria-label="Sluiten" onClick={onClose} className="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" />
       <div
@@ -167,8 +177,9 @@ export function BuildWizard({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        {/* Navigatie */}
-        <div className="p-4 border-t border-outline-variant flex items-center justify-between gap-3">
+        {/* Navigatie. Safe-area onderaan zodat de knoppen op mobiel niet onder
+            de home-indicator vallen. */}
+        <div className="p-4 [padding-bottom:calc(1rem+env(safe-area-inset-bottom,0px))] sm:[padding-bottom:1rem] border-t border-outline-variant flex items-center justify-between gap-3">
           <button
             onClick={() => setStep((s) => Math.max(0, s - 1))}
             disabled={step === 0}

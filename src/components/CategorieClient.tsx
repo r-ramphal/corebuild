@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { HardDrive, TrendingUp, Check, ExternalLink } from "lucide-react";
+import { HardDrive, TrendingUp, Check, ExternalLink, SlidersHorizontal, X } from "lucide-react";
 import { useBuildStore } from "@/lib/store/build";
 import { COMPONENT_META } from "@/lib/categories";
 import { CATEGORY_ICONS } from "@/lib/category-icons";
@@ -239,6 +239,17 @@ export function CategorieClient() {
   const PAGE = 24;
   const [visible, setVisible] = useState(PAGE);
 
+  // Mobiel: filters openen als bottom-sheet (op desktop = vaste zijbalk).
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  useEffect(() => {
+    if (!filtersOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [filtersOpen]);
+
   const { setComponent } = useBuildStore();
 
   // Lege zoekterm = catalogusmodus: alle bekende producten in deze categorie.
@@ -336,6 +347,62 @@ export function CategorieClient() {
   // USP: het item met de beste prestatie-per-euro (alleen CPU/GPU)
   const bestValueIdx = bestValueIndex(filtered, componentType);
 
+  // Aantal toegepaste filters (voor het mobiele "Filters (n)"-knopje).
+  const activeFilterCount =
+    (appliedMax < PRICE_CAP ? 1 : 0) +
+    appliedTiers.length +
+    Object.values(appliedSel).reduce((n, v) => n + v.length, 0);
+
+  // Zoekterm-binnen-categorie als gedeelde FacetFilters-children (zijbalk + sheet).
+  const filterExtras = (
+    <div className="mb-8">
+      <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
+        Zoekterm
+      </h4>
+      <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3">
+        <SearchBox
+          value={query}
+          onChange={setQuery}
+          onSubmit={(t) => {
+            setQuery(t);
+            setActiveQuery(t);
+            setVisible(PAGE);
+          }}
+          category={componentType}
+          placeholder={`Zoek in ${meta.label.toLowerCase()}…`}
+          inputClassName="w-full h-11 pl-10 pr-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+        />
+        <button
+          type="submit"
+          className="w-full h-11 bg-primary text-on-primary rounded-lg font-label-technical text-label-technical hover:opacity-90 transition-opacity"
+        >
+          Zoeken
+        </button>
+      </form>
+    </div>
+  );
+
+  const filterPanel = (onAfterApply?: () => void) => (
+    <FacetFilters
+      groups={facetGroups}
+      selected={facetSel}
+      onToggle={toggleFacet}
+      tiers={tiers}
+      selectedTiers={selectedTiers}
+      onToggleTier={toggleTier}
+      maxPrice={maxPrice}
+      priceCap={PRICE_CAP}
+      onMaxPrice={setMaxPrice}
+      onApply={() => {
+        applyFilters();
+        onAfterApply?.();
+      }}
+      onClear={clearAll}
+    >
+      {filterExtras}
+    </FacetFilters>
+  );
+
   return (
     <main className="mt-16 max-w-[1280px] mx-auto px-4 sm:px-8 py-8 min-h-screen">
       {/* Category Header */}
@@ -401,48 +468,10 @@ export function CategorieClient() {
 
       {/* Grid: filter sidebar (3 col) + results (9 col) */}
       <div className="grid grid-cols-12 gap-4">
-        {/* Filter Sidebar */}
-        <aside className="col-span-12 md:col-span-3 space-y-6">
-          <FacetFilters
-            groups={facetGroups}
-            selected={facetSel}
-            onToggle={toggleFacet}
-            tiers={tiers}
-            selectedTiers={selectedTiers}
-            onToggleTier={toggleTier}
-            maxPrice={maxPrice}
-            priceCap={PRICE_CAP}
-            onMaxPrice={setMaxPrice}
-            onApply={applyFilters}
-            onClear={clearAll}
-          >
-            {/* Zoekterm binnen deze categorie */}
-            <div className="mb-8">
-              <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
-                Zoekterm
-              </h4>
-              <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3">
-                <SearchBox
-                  value={query}
-                  onChange={setQuery}
-                  onSubmit={(t) => {
-                    setQuery(t);
-                    setActiveQuery(t);
-                    setVisible(PAGE);
-                  }}
-                  category={componentType}
-                  placeholder={`Zoek in ${meta.label.toLowerCase()}…`}
-                  inputClassName="w-full h-10 pl-10 pr-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                />
-                <button
-                  type="submit"
-                  className="w-full h-10 bg-primary text-on-primary rounded-lg font-label-technical text-label-technical hover:opacity-90 transition-opacity"
-                >
-                  Zoeken
-                </button>
-              </form>
-            </div>
-          </FacetFilters>
+        {/* Filter Sidebar — vaste zijbalk op desktop; op mobiel via de
+            "Filters"-knop als bottom-sheet (zie onder). */}
+        <aside className="hidden md:block md:col-span-3 space-y-6">
+          {filterPanel()}
 
           {/* Builder CTA */}
           <Link
@@ -472,6 +501,16 @@ export function CategorieClient() {
 
         {/* Results List */}
         <div className="col-span-12 md:col-span-9 space-y-4">
+          {/* Mobiele filter-trigger — opent de bottom-sheet (md:hidden). */}
+          <button
+            type="button"
+            onClick={() => setFiltersOpen(true)}
+            className="md:hidden w-full flex items-center justify-center gap-2 h-11 border border-outline-variant bg-surface-container-lowest font-label-technical text-label-technical text-on-surface active:bg-surface-container transition-colors"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            Filters{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ""}
+          </button>
+
           {/* Toolbar */}
           <div className="flex justify-between items-center mb-6 px-2">
             <span className="font-body-sm text-body-sm text-on-surface-variant">
@@ -541,6 +580,38 @@ export function CategorieClient() {
           )}
         </div>
       </div>
+
+      {/* Mobiele filter-bottom-sheet (md:hidden). Deelt dezelfde FacetFilters
+          als de desktop-zijbalk; "Filters toepassen" sluit de sheet. */}
+      {filtersOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-[60]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Filters"
+        >
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setFiltersOpen(false)}
+          />
+          <div className="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col bg-gp-bg border-t border-gp-line pb-safe animate-fade-in-up">
+            <div className="relative border-b border-gp-line py-3 shrink-0">
+              <span className="mx-auto block h-1 w-10 rounded-full bg-gp-line-strong" />
+              <button
+                type="button"
+                onClick={() => setFiltersOpen(false)}
+                aria-label="Filters sluiten"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gp-ink-soft hover:text-gp-ink"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-y-auto overscroll-contain p-4">
+              {filterPanel(() => setFiltersOpen(false))}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

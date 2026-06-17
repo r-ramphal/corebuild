@@ -414,6 +414,34 @@ export function ProductClient() {
           </div>
         )}
       </div>
+
+      {/* Mobiele sticky koop-balk: houdt de laagste prijs + retailer-CTA altijd
+          binnen duimbereik terwijl je door specs/prijsverloop/vergelijking
+          scrolt. Zweeft net boven de bottom-tabbar (bottom-tabbar utility).
+          Alleen <1024px; op desktop staat de CTA al vast in de hero-kolom. */}
+      {!loading && best && (
+        <div className="lg:hidden fixed inset-x-0 bottom-tabbar z-30 border-t border-gp-line bg-gp-bg/95 backdrop-blur-sm">
+          <div className="max-w-[1280px] mx-auto px-4 py-2.5 flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="font-label-technical text-[10px] uppercase tracking-wider text-on-surface-variant truncate">
+                Laagste prijs · {RETAILER_LABEL[best.retailer] ?? best.retailer}
+                {best.mock ? " · demo" : ""}
+              </p>
+              <p className="font-label-price text-label-price text-primary leading-tight">
+                {formatEur(best.priceEur)}
+              </p>
+            </div>
+            <a
+              href={best.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 bg-primary text-on-primary px-5 py-3 font-label-technical text-label-technical flex items-center gap-2 hover:opacity-90 transition-opacity"
+            >
+              Bekijk <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -8,8 +8,8 @@ import { CATEGORY_IMAGES } from "@/lib/category-images";
 export function GiastCategories() {
   return (
     <section className="bg-gp-bg-soft text-gp-ink border-y border-gp-line">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x py-20">
-        <div className="flex items-baseline justify-between mb-10">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x py-12 sm:py-20">
+        <div className="flex items-baseline justify-between mb-7 sm:mb-10">
           <h2 className="font-mont font-extrabold text-[28px] sm:text-[36px]">Onderdelen</h2>
           <Link
             href="/categorie"

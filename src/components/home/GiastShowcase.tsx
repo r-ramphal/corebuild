@@ -23,7 +23,7 @@ const FEATURED: { type: ComponentType; name: string }[] = [
 export function GiastShowcase() {
   return (
     <section className="bg-gp-bg border-b border-gp-line">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x py-20">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 gp-rule-x py-12 sm:py-20">
         <div className="border border-gp-line">
           {/* Oranje pixel-kopbalk */}
           <div className="gp-bar flex items-center justify-between px-4 py-2">

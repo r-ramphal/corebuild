@@ -15,6 +15,9 @@ import { OPTIMIZABLE_DOMAINS } from "./src/lib/optimizable-host";
  * hydration-scripts injecteert zonder nonce. Volgende verharding: nonce via
  * middleware → 'unsafe-inline' kan er dan af. JsonLd (application/ld+json) is
  * data en valt niet onder script-src.
+ *
+ * Enforcing (na een Report-Only-validatieperiode, deel 46). Bij een blokkade:
+ * de header-key tijdelijk terugzetten op "Content-Security-Policy-Report-Only".
  */
 const csp = [
   "default-src 'self'",
@@ -33,10 +36,9 @@ const csp = [
 ].join("; ");
 
 /**
- * Beveiligingsheaders op elke route. De CSP staat bewust nog op Report-Only:
- * de browser blokkeert niets maar rapporteert overtredingen in de console, zodat
- * we 'm veilig op de live site kunnen valideren vóór we 'm enforcing maken.
- * Flippen = de key hieronder naar "Content-Security-Policy" hernoemen.
+ * Beveiligingsheaders op elke route. De CSP is enforcing (geldig na de
+ * Report-Only-validatie). Terugzetten naar Report-Only = de key hieronder
+ * naar "Content-Security-Policy-Report-Only" hernoemen.
  */
 const securityHeaders = [
   // 2 jaar HSTS. includeSubDomains is veilig: alle (sub)domeinen draaien op
@@ -46,7 +48,7 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-  { key: "Content-Security-Policy-Report-Only", value: csp },
+  { key: "Content-Security-Policy", value: csp },
 ];
 
 const nextConfig: NextConfig = {

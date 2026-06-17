@@ -17,9 +17,11 @@ import {
   Lightformer,
   MeshTransmissionMaterial,
 } from "@react-three/drei";
+import { EffectComposer, Bloom, ToneMapping } from "@react-three/postprocessing";
+import { ToneMappingMode } from "postprocessing";
 import { useEffect, useRef } from "react";
 import type { ComponentRef } from "react";
-import { ACESFilmicToneMapping } from "three";
+import { NoToneMapping, HalfFloatType } from "three";
 import type { Group } from "three";
 import type { BuildModel, PartModel, Vec3 } from "@/lib/specs/build-model";
 import type { ComponentType } from "@/lib/types";
@@ -45,9 +47,10 @@ const C = {
   ghost: "#9aa3b2",
 };
 
-/** Emissive-highlight als het onderdeel "hot" is (hover/legenda). */
+/** Emissive-highlight als het onderdeel "hot" is (hover/legenda). Boven de
+ *  Bloom-drempel (>1) zodat een gehoverd onderdeel oplicht én bloeit. */
 function hl(on: boolean) {
-  return { emissive: on ? ORANGE : "#000000", emissiveIntensity: on ? 0.5 : 0 };
+  return { emissive: on ? ORANGE : "#000000", emissiveIntensity: on ? 1.5 : 0 };
 }
 
 interface SelectHandlers {
@@ -162,7 +165,7 @@ function Motherboard({ part, hot, handlers }: { part: BuildModel["mobo"]; hot: b
       {/* PCIe-slot-accent */}
       <mesh position={[x + 1, -h * 0.1, d * 0.02]}>
         <boxGeometry args={[2, 4, d * 0.55]} />
-        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={0.35} />
+        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={2.2} />
       </mesh>
       {/* rear-I/O-shield (achter, boven) */}
       <mesh position={[x, h * 0.34, -d / 2 + 3]}>
@@ -227,7 +230,7 @@ function Cooler({
       </mesh>
       <mesh position={[pump[0] + 23, pump[1], pump[2]]}>
         <cylinderGeometry args={[18, 18, 4, 24]} />
-        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={0.3} />
+        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={2.2} />
       </mesh>
       {/* radiator */}
       <mesh position={mm(part.pos)}>
@@ -283,7 +286,7 @@ function Ram({ part, hot, handlers }: { part: BuildModel["ram"]; hot: boolean; h
             {/* RGB-diffuser bovenop */}
             <mesh position={[0, h / 2 + 1.5, 0]}>
               <boxGeometry args={[w * 0.7, 3, dz * 0.85]} />
-              <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={0.45} />
+              <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={2.2} />
             </mesh>
           </group>
         );
@@ -316,7 +319,7 @@ function Gpu({ part, hot, spin, handlers }: { part: BuildModel["gpu"]; hot: bool
       {/* RGB-streep langs de rand */}
       <mesh position={[w / 2 + 0.6, h / 2 - 3, 0]}>
         <boxGeometry args={[1.5, 4, d * 0.92]} />
-        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={0.5} />
+        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={2.2} />
       </mesh>
       {/* ventilatoren op de kijkkant (+x) */}
       {Array.from({ length: fans }).map((_, i) => {
@@ -516,6 +519,20 @@ function Scene({ model, hot, setHot, onSelectSlot, reducedMotion, resetSignal }:
         autoRotate={!reducedMotion}
         autoRotateSpeed={0.6}
       />
+
+      {/* HDR-buffer zodat emissive >1 overleeft; Bloom pakt alleen die HDR-
+          pieken (de oranje RGB-accenten + hover-highlight) en laat ze gloeien,
+          dáárna pas de ACES-tone-mapping als laatste effect. */}
+      <EffectComposer multisampling={4} frameBufferType={HalfFloatType}>
+        <Bloom
+          mipmapBlur
+          luminanceThreshold={1}
+          luminanceSmoothing={0.2}
+          intensity={0.8}
+          radius={0.6}
+        />
+        <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+      </EffectComposer>
     </>
   );
 }
@@ -526,7 +543,7 @@ export default function BuildScene(props: Props) {
       dpr={[1, 2]}
       frameloop={props.reducedMotion ? "demand" : "always"}
       camera={{ position: [6.6, 2.1, 5.0], fov: 31 }}
-      gl={{ antialias: true, alpha: true, toneMapping: ACESFilmicToneMapping, toneMappingExposure: 1.1 }}
+      gl={{ antialias: true, alpha: true, toneMapping: NoToneMapping }}
       style={{ width: "100%", height: "100%", touchAction: "none" }}
     >
       <Scene {...props} />

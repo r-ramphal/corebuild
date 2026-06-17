@@ -1,0 +1,71 @@
+# Dagelijkse versleutelde off-site back-up van de Neon-database.
+#   pg_dump (custom format) → age-encryptie (publieke sleutel) → Cloudflare R2.
+# De R2-bucket staat op Object Lock (immutable) → bescherming tegen ransomware/
+# per-ongeluk-verwijderen. Privé age-sleutel bewaar JIJ offline (voor restore).
+#
+# Zolang de secrets niet gezet zijn no-opt de run netjes (geen faal-ruis).
+# Volledige setup + restore-drill: docs/backups.md.
+name: Encrypted DB Backup
+
+on:
+  schedule:
+    - cron: "30 2 * * *" # dagelijks 02:30 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Controleer configuratie
+        id: cfg
+        env:
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          DB: ${{ secrets.BACKUP_DATABASE_URL }}
+          AGE_PUB: ${{ secrets.AGE_PUBLIC_KEY }}
+        run: |
+          if [ -z "$R2_BUCKET" ] || [ -z "$DB" ] || [ -z "$AGE_PUB" ]; then
+            echo "::warning::Back-up-secrets nog niet gezet — run overgeslagen (zie docs/backups.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: PostgreSQL 17-client + age installeren
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/pgdg.gpg
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17 age
+
+      - name: Dump + versleutelen
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          DB: ${{ secrets.BACKUP_DATABASE_URL }}
+          AGE_PUB: ${{ secrets.AGE_PUBLIC_KEY }}
+        run: |
+          ts=$(date -u +%Y-%m-%dT%H%M%SZ)
+          artifact="corebuild-${ts}.pgc.age"
+          # Custom format (compressed); --no-owner/--no-privileges → portabel
+          # herstelbaar naar elke (wegwerp-)DB ongeacht rolnamen.
+          pg_dump "$DB" --format=custom --no-owner --no-privileges -f "dump.pgc"
+          age -r "$AGE_PUB" -o "$artifact" "dump.pgc"
+          rm -f dump.pgc
+          echo "ARTIFACT=$artifact" >> "$GITHUB_ENV"
+          echo "Versleutelde dump: $artifact ($(du -h "$artifact" | cut -f1))"
+
+      - name: Upload naar Cloudflare R2 (immutable)
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          aws s3 cp "$ARTIFACT" "s3://$R2_BUCKET/db/$ARTIFACT" --endpoint-url "$R2_ENDPOINT"
+          rm -f "$ARTIFACT"
+          echo "✓ Geüpload naar s3://$R2_BUCKET/db/$ARTIFACT"

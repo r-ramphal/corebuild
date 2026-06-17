@@ -2,6 +2,27 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 51) — security-audit stap 5b: versleutelde off-site back-ups (TOOLING)
+
+Laatste hardening-stap: externe, versleutelde, geteste back-ups bovenop Neon PITR. **Tooling staat klaar;
+activeren vereist jouw R2-bucket + age-sleutel + GitHub-secrets** (de workflow no-opt netjes tot dan).
+Volledige setup + restore-procedure: **`docs/backups.md`**.
+
+- **`.github/workflows/backup.yml`** — dagelijks (02:30 UTC) + handmatig: `pg_dump` (custom format,
+  `--no-owner --no-privileges`) → **age**-encryptie (publieke sleutel) → upload naar **Cloudflare R2**.
+  Installeert postgresql-client-17 (matcht Neon PG17) + age. Eerste stap checkt de secrets en slaat de run
+  over (warning, geen fail) zolang ze ontbreken.
+- **`scripts/restore-test.sh`** — restore-drill: haalt de laatste back-up uit R2, ontsleutelt met de privé
+  age-sleutel, herstelt naar een **wegwerp-DB** en print rij-aantallen. **Weigert** de productie-host
+  (`ep-rapid-math-a2p24w0q`). Periodiek draaien (kwartaal) + datum/RTO noteren.
+- **Keuzes (met gebruiker):** opslag = Cloudflare R2 met **Object Lock** (immutable, anti-ransomware);
+  encryptie = **age** (1 keypair; publieke sleutel in CI, privé offline). Dump gebruikt de **owner**-rol
+  via de **unpooled** Neon-URL (`STORAGE_DATABASE_URL_UNPOOLED`), niet de pooler/app-rol.
+- **Nog te doen door jou (zie docs/backups.md):** age-keypair genereren (privé offline bewaren), R2-bucket
+  met Object Lock + API-token, en de 6 GitHub-secrets zetten (`BACKUP_DATABASE_URL`, `AGE_PUBLIC_KEY`,
+  `R2_*`). Daarna Actions → Encrypted DB Backup → Run workflow voor de eerste back-up, en een restore-drill.
+- **Neon PITR:** retentievenster checken/instellen in het Neon-dashboard (snelle laag naast de off-site dump).
+
 ## ▶ Nieuw (17 juni 2026, deel 50) — security-audit stap 5a: least-privilege DB-rol (LIVE)
 
 Vijfde hardening-stap, deel a: de runtime draait niet meer als `neondb_owner` (volledige DDL — bij een

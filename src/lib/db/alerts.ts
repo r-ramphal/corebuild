@@ -1,6 +1,7 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import type { Db } from "./index";
 import { listings, priceAlerts, user, type PriceAlertRow } from "./schema";
+import { productMatches } from "@/lib/specs/match-product";
 
 export const MAX_ALERTS_PER_USER = 100;
 
@@ -33,17 +34,18 @@ export interface SiblingListing {
 
 /**
  * Alle aanbiedings-urls voor hetzelfde product, over álle retailers heen: de
- * gevolgde url zelf + elke listing in dezelfde categorie waarvan de naam de
- * (genormaliseerde) productnaam bevat. Zo vergelijkt de alert de laagste prijs
- * in de hele markt, niet alleen bij de oorspronkelijk gevolgde winkel.
+ * gevolgde url zelf + elke listing in dezelfde categorie die hetzelfde product
+ * is volgens de model/token-matcher (`productMatches` — CPU/GPU op model, de rest
+ * op onderscheidende tokens). Zo vergelijkt de alert de laagste prijs in de hele
+ * markt, niet alleen bij de oorspronkelijk gevolgde winkel. De korte-naam-guard
+ * blijft: te generieke namen leveren alleen de eigen url.
  */
 export function siblingUrls(alert: AlertSiblingInput, listingRows: SiblingListing[]): string[] {
   const urls = new Set<string>([alert.url]);
-  const key = normName(alert.name);
-  if (key.length < MIN_KEY_LEN) return [...urls];
+  if (normName(alert.name).length < MIN_KEY_LEN) return [...urls];
   for (const l of listingRows) {
     if (l.category !== alert.category) continue;
-    if (normName(l.name).includes(key)) urls.add(l.url);
+    if (productMatches(alert.name, l.name, alert.category)) urls.add(l.url);
   }
   return [...urls];
 }

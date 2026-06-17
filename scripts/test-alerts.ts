@@ -33,6 +33,16 @@ check("matcht niet over categorie heen", !sib.includes("https://x.nl/d"));
 const shortAlert = { url: "https://r/own", category: "ram", name: "RAM" };
 check("te korte naam → alleen eigen url", siblingUrls(shortAlert, listings).length === 1);
 
+// Verbeterde model/token-matcher (deel 43): vangt anders getitelde siblings die de
+// oude substring-match (volledige naam moet voorkomen) zou missen.
+const ramListings: SiblingListing[] = [
+  { category: "ram", name: "Corsair Vengeance RGB 32GB (2x16GB) DDR5 6000MHz CL30", url: "https://megekko.nl/r1" },
+  { category: "ram", name: "Corsair Vengeance 16GB DDR5 6000MHz", url: "https://azerty.nl/r2" },
+];
+const ramSib = siblingUrls({ url: "https://bol.com/ram", category: "ram", name: "Corsair Vengeance 32GB DDR5-6000" }, ramListings);
+check("ram-alert matcht anders getitelde 32GB-kit", ramSib.includes("https://megekko.nl/r1"));
+check("ram-alert matcht geen 16GB-kit", !ramSib.includes("https://azerty.nl/r2"));
+
 // ── lowestPrice ─────────────────────────────────────────────────────────────
 const prices = new Map<string, number>([
   ["https://bol.com/own", 49900],

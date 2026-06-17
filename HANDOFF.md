@@ -19,9 +19,10 @@ Nederlandstalig benoemde onderdelen. Vervangen door een **pure, geteste matcher*
 - **Effect (live):** 1440p-voorbeeldbuild **4/8 → 7/8** gedekt (€1186 → €1879,90, nu consistent met de
   ~€1950 indicatie); Budget gamer 6/8. Resterende gaten = catalogus-beschikbaarheid (cooling/psu/case),
   geen matcher-fouten. Gate groen: `tsc` + `eslint src` + `npm run test` (26 nieuwe matcher-cases) + `next build`.
-- **Nog open (optioneel):** `siblingUrls` in `src/lib/db/alerts.ts` (de per-product cross-retailer
-  prijsalert, deel 17) gebruikt nog de oude substring-match — kan met dezelfde `productMatches` worden
-  opgewaardeerd voor bredere alert-dekking (raakt de deel-17 tests).
+- **Ook opgewaardeerd:** `siblingUrls` in `src/lib/db/alerts.ts` (de per-product cross-retailer prijsalert,
+  deel 17) gebruikt nu óók `productMatches` i.p.v. de substring-match — bredere alert-dekking (vangt anders
+  getitelde siblings bij andere retailers). De korte-naam-guard (`MIN_KEY_LEN`) blijft. Deel-17 tests groen +
+  2 nieuwe ram-cases in `test-alerts.ts`.
 
 ## ▶ Nieuw (17 juni 2026, deel 42) — "Slim Kopen" op /voorbeeldbuilds
 

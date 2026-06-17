@@ -5,6 +5,7 @@ import { GiastCategories } from "@/components/home/GiastCategories";
 import { GiastShowcase } from "@/components/home/GiastShowcase";
 import { GiastManifest } from "@/components/home/GiastManifest";
 import { Reveal } from "@/components/motion/Reveal";
+import { Preloader } from "@/components/motion/Preloader";
 import { JsonLd } from "@/components/JsonLd";
 
 const BASE_URL = "https://corebuildnl.com";
@@ -42,22 +43,25 @@ const siteLd = {
 
 export default function Home() {
   return (
-    <main className="pt-16 bg-gp-bg">
-      <JsonLd data={siteLd} />
-      <GiastHero />
-      <GiastMarquee />
-      <Reveal>
-        <GiastTerminal />
-      </Reveal>
-      <Reveal>
-        <GiastCategories />
-      </Reveal>
-      <Reveal>
-        <GiastShowcase />
-      </Reveal>
-      <Reveal>
-        <GiastManifest />
-      </Reveal>
-    </main>
+    <>
+      <Preloader />
+      <main className="pt-16 bg-gp-bg">
+        <JsonLd data={siteLd} />
+        <GiastHero />
+        <GiastMarquee />
+        <Reveal>
+          <GiastTerminal />
+        </Reveal>
+        <Reveal>
+          <GiastCategories />
+        </Reveal>
+        <Reveal>
+          <GiastShowcase />
+        </Reveal>
+        <Reveal>
+          <GiastManifest />
+        </Reveal>
+      </main>
+    </>
   );
 }

@@ -159,9 +159,10 @@ de **config-laag**.
   én live op corebuildnl.com bevestigd.
   - **`'unsafe-inline'` op script-src** is voorlopig nodig (Next injecteert inline bootstrap/hydration zonder
     nonce). Verharding later: nonce via `middleware.ts` → dan kan `'unsafe-inline'` eraf.
-  - **TODO vóór stap 1b (CSP enforcing):** browser-console checken op CSP-(Report-Only)-violations op `/`,
-    `/inloggen` (Turnstile), `/builder` (3D-canvas), `/categorie/gpu` (images). Geen meldingen → header-key
-    hernoemen `Content-Security-Policy-Report-Only` → `Content-Security-Policy`.
+  - **Stap 1b — CSP enforcing: ✅ GEDAAN** (commit `ae6c6bb`). Header omgezet naar `Content-Security-Policy`;
+    live geverifieerd (header enforcing + `/`, `/inloggen`, `/builder`, `/categorie/gpu` laden 200). Rollback
+    = key terug naar `Content-Security-Policy-Report-Only`. (Volgende verharding blijft: nonce via middleware
+    → `'unsafe-inline'` van script-src af.)
 
 - **Roadmap resterende stappen (afgesproken volgorde):** 2) **2FA/TOTP** (better-auth `twoFactor`-plugin +
   migratie + enrollment-UI met QR/backup-codes, verplicht voor admin) · 3) **rate limiting** naar gedeelde

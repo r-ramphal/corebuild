@@ -7,8 +7,13 @@ import { GiastManifest } from "@/components/home/GiastManifest";
 import { Reveal } from "@/components/motion/Reveal";
 import { Preloader } from "@/components/motion/Preloader";
 import { JsonLd } from "@/components/JsonLd";
+import { getDemoSlimKopen } from "@/lib/demo-slim-kopen";
 
 const BASE_URL = "https://corebuildnl.com";
+
+// ISR: de homepage blijft prerendered (snel), maar de live Slim-Kopen-cijfers
+// worden elke 6 uur ververst — in lijn met de catalogus-refresh.
+export const revalidate = 21600;
 
 // Organization + WebSite structured data. De SearchAction levert Google de
 // sitelinks-searchbox (zoekveld in de zoekresultaten) richting /zoeken.
@@ -41,7 +46,9 @@ const siteLd = {
   ],
 };
 
-export default function Home() {
+export default async function Home() {
+  const slimKopen = await getDemoSlimKopen();
+
   return (
     <>
       <Preloader />
@@ -50,7 +57,7 @@ export default function Home() {
         <GiastHero />
         <GiastMarquee />
         <Reveal>
-          <GiastSlimKopen />
+          <GiastSlimKopen data={slimKopen} />
         </Reveal>
         <Reveal>
           <GiastTerminal />

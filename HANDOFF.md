@@ -2,6 +2,28 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 53) — Slim Kopen-homepage: live cijfers i.p.v. statisch voorbeeld
+
+De homepage-sectie (deel 52) toont nu **echte, actuele** split-cart-cijfers voor de 1440p-demobuild i.p.v.
+een hardcoded voorbeeld. `tsc` + `eslint src` + `next build` groen; lokaal geverifieerd (tegen de live
+catalogus): label "actueel · 1440p-build", **€2.001 (1 winkel) vs €1.891 (slim verdeeld, 5 winkels) →
+bespaar €110**, 7/8 onderdelen gedekt.
+
+- **`src/lib/demo-slim-kopen.ts`** — `getDemoSlimKopen()` (server-only): pakt de `1440p-gamer`-voorbeeldbuild,
+  draait dezelfde pipeline als `/api/build-pricing` (`getBuildPricingData` → `optimizeSplitCart`) en geeft de
+  kerncijfers terug (single/split/besparing/winkels/dekking). **Fallback = `null`** (→ statische cijfers in de
+  sectie) als er geen DB is, de query faalt (CI-build met placeholder-DB), of het resultaat niet overtuigend
+  is (dekking <5, geen single-store, of spreiden niet goedkoper).
+- **`src/components/home/GiastSlimKopen.tsx`** — accepteert nu `data?: DemoSlimKopen | null`; toont live cijfers
+  óf het statische `FALLBACK`. Live label "actueel", anders "voorbeeld". De prijsverloop-strip is
+  feature-beschrijvend gemaakt (geen valse "laagste punt"-claim meer).
+- **`src/app/page.tsx`** — `Home` is nu `async` + `await getDemoSlimKopen()`; **`export const revalidate =
+  21600`** → homepage blijft prerendered (ISR, `○ /` met 6u-revalidate) maar de cijfers verversen elke 6 uur
+  (in lijn met de catalogus-refresh). Productie-runtime draait als `corebuild_app` (heeft SELECT → query werkt).
+- **Onderhoud:** wil je een andere demobuild, pas `DEMO_SLUG` in `demo-slim-kopen.ts` aan. De getoonde
+  besparing/winkels schommelen mee met de dagprijzen + catalogusdekking; bij weinig dekking valt 'ie netjes
+  terug op het statische voorbeeld.
+
 ## ▶ Nieuw (17 juni 2026, deel 52) — Slim Kopen-USP naar de homepage gehaald (LIVE)
 
 De "Slim Kopen"-USP (deel 40–45) stond alleen in de builder (achter een on-demand knop) en op

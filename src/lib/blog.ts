@@ -3,6 +3,10 @@ import type { BlogMeta } from "./blog-types";
 import * as voeding from "@/content/blog/hoeveel-watt-voeding";
 import * as resolutie from "@/content/blog/resolutie-en-videokaart";
 import * as behuizing from "@/content/blog/past-het-in-je-behuizing";
+import * as am5am4 from "@/content/blog/am5-of-am4";
+import * as ddr from "@/content/blog/ddr4-vs-ddr5";
+import * as ssd from "@/content/blog/ssd-kopen-nvme-of-sata";
+import * as koeling from "@/content/blog/luchtkoeling-of-waterkoeling";
 
 export type { BlogMeta } from "./blog-types";
 
@@ -15,7 +19,7 @@ export interface BlogPost {
  * Centrale blog-registry. Nieuwe post toevoegen = module aanmaken in
  * src/content/blog/ en hier importeren. Gesorteerd op datum (nieuwste eerst).
  */
-const MODULES = [voeding, resolutie, behuizing];
+const MODULES = [voeding, resolutie, behuizing, am5am4, ddr, ssd, koeling];
 
 export const POSTS: BlogPost[] = MODULES.map((m) => ({ meta: m.meta, Body: m.Body })).sort((a, b) =>
   b.meta.date.localeCompare(a.meta.date)

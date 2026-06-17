@@ -33,6 +33,10 @@ const SlotPicker = dynamic(
 const BuildWizard = dynamic(
   () => import("@/components/builder/BuildWizard").then((m) => m.BuildWizard)
 );
+const BuildCheckout = dynamic(
+  () => import("@/components/builder/BuildCheckout").then((m) => m.BuildCheckout),
+  { loading: () => <div className="h-40 rounded-xl bg-surface-container animate-pulse" /> }
+);
 
 /** Warm de SWR-cache voor een slot vóór de picker opent (zelfde key/fetcher). */
 function prefetchSlot(type: ComponentType) {
@@ -269,6 +273,7 @@ export function BuilderClient() {
 
           <BuildPreview components={components} onSelectSlot={setPickerType} />
           <BuildSummary components={components} />
+          {filledCount > 0 && <BuildCheckout components={components} />}
         </div>
 
         {/* Right: build-overzicht (sticky) */}

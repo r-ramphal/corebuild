@@ -2,6 +2,41 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 40) — USP "Slim Kopen" in de builder (split-cart + build-prijsindex)
+
+Nieuwe USP om de builder-funnel te sluiten: een affiliate-gedreven "laatste klik"-laag. Een PC koop je
+zelden in één winkel, dus we tonen (a) de **slimste verdeling** over winkels en (b) het **prijsverloop van
+de hele build**. Doel: 1 build → N affiliate-klikken i.p.v. 0. **Geen schema-/migratiewijziging** (bouwt op
+`listings` + `price_history`). Gate groen: `tsc` + `eslint src` + `npm run test` (nieuw `test-build-pricing`,
+20 cases) + `next build`; **end-to-end geverifieerd tegen de live Neon-DB** (read-only smoke-test).
+
+- **Pure logica (getest):** `src/lib/specs/split-cart.ts` (`optimizeSplitCart` — goedkoopste per onderdeel,
+  groepeert per winkel, geschatte verzending mee, plus goedkoopste "alles bij 1 winkel" → eerlijke besparing;
+  voorraad wint van prijs) + `src/lib/specs/build-index.ts` (`computeBuildIndex` met **LOCF** over een
+  daggrid; index start pas als álle getrackte onderdelen data hebben → complete som; `summarizeBuildIndex` →
+  laag/hoog/`pctAboveLow` + signaal low/near/falling/neutral).
+- **Verzending:** `src/lib/retailers.ts` (`RETAILER_SHIPPING` per retailer, gratis-vanaf-drempel + tarief).
+  **Schattingen** — even sanity-checken/tunen tegen de echte tarieven (één regel per winkel).
+- **Datalaag:** `src/lib/db/build-pricing.ts` (`getBuildPricingData`) — 1 `listings`-query (concurrerende
+  aanbiedingen per onderdeel, productidentiteit = categorie + naam bevat genormaliseerde naam ≥6 tekens,
+  hergebruikt de deel-17 sibling-logica) + 1 `price_history`-query (min-prijs per url per dag).
+  **Index/split-consistentie:** het laatste indexpunt (vandaag) wordt **geankerd op de live goedkoopste
+  prijs per getrackt onderdeel** (gedeelde `cheapestOffer` uit `split-cart.ts`), zodat "Nu" op de
+  prijsindex exact gelijk is aan de onderdeelprijs van de slimme verdeling (price_history kan iets
+  achterlopen op de actuele catalogus). Geverifieerd: €1634,80 == €1634,80.
+- **Endpoint:** `POST /api/build-pricing` (nodejs, validatie + url-guard in stijl van `/api/builds`, max 8
+  parts, mock uitgesloten). Geeft `{ split, index{+summary}, shippingNote }`.
+- **UI:** `src/components/builder/BuildCheckout.tsx` (lui geladen, **on-demand** knop "Bereken de slimste
+  manier om te kopen" — geen N zoekopdrachten per buildwijziging), via hook `src/lib/use-build-pricing.ts`.
+  Gerenderd onder `BuildSummary` in `BuilderClient` bij ≥1 onderdeel. Twee strategie-kaarten (1 winkel vs
+  verdeeld, bespaar-badge op de goedkoopste), per-winkel groepjes met affiliate-links + "kopieer lijstje",
+  en de build-index-grafiek (hergebruikt `PriceHistoryChart` met nieuwe optionele `caption`-prop). Mobiel
+  gestapeld, em-dashes vrij, eerlijke disclaimers (indicatief, verzending geschat).
+- **Open / v2:** hele-build prijsalert ("mail me onder €X", hergebruikt de bestaande alert-cron) ·
+  verzendtarieven verfijnen · index ook op `/voorbeeldbuilds` + gedeelde builds · echte-toestel-eyeball ·
+  **nog niet gecommit/gepusht** (gebruiker beslist). Vervolg-USP's uit de brainstorm: assemblage-begeleiding
+  op maat, "Second Opinion"-buildreviewer, community-leaderboard, "Mijn Rig"-lifecycle.
+
 ## ▶ VOLGENDE SESSIE — open punten / TODO (bijgewerkt 17 juni 2026)
 
 **AF: mobiel-first traject (deel 38), Fase 0–5 compleet + LIVE op master** — fundament (viewport/safe-area/

@@ -12,7 +12,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed-db.ts",
-    "test": "tsx scripts/test-relevance.ts && tsx scripts/test-dimensions.ts && tsx scripts/test-build-analysis.ts && tsx scripts/test-build-model.ts && tsx scripts/test-generate.ts && tsx scripts/test-alerts.ts && tsx scripts/test-search-rank.ts && tsx scripts/test-fuzzy.ts && tsx scripts/test-slot-compat.ts && tsx scripts/test-image-hosts.ts",
+    "test": "tsx scripts/test-relevance.ts && tsx scripts/test-dimensions.ts && tsx scripts/test-build-analysis.ts && tsx scripts/test-build-model.ts && tsx scripts/test-generate.ts && tsx scripts/test-alerts.ts && tsx scripts/test-search-rank.ts && tsx scripts/test-fuzzy.ts && tsx scripts/test-slot-compat.ts && tsx scripts/test-image-hosts.ts && tsx scripts/test-build-pricing.ts",
     "test:scrapers": "tsx scripts/test-scrapers.ts"
   },
   "dependencies": {

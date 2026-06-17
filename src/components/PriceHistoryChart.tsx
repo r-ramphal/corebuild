@@ -19,7 +19,14 @@ function formatDay(day: string): string {
  * area + lijn met de huidige, laagste en hoogste prijs in de periode. Bij minder
  * dan twee meetpunten rendert de aanroeper deze component niet.
  */
-export function PriceHistoryChart({ points }: { points: PricePoint[] }) {
+export function PriceHistoryChart({
+  points,
+  caption = "Laagste prijs per dag",
+}: {
+  points: PricePoint[];
+  /** Bijschrift onder de grafiek (bv. "Laagste buildprijs per dag"). */
+  caption?: string;
+}) {
   const gradientId = useId();
   if (points.length < 2) return null;
 
@@ -131,7 +138,7 @@ export function PriceHistoryChart({ points }: { points: PricePoint[] }) {
 
       <div className="flex items-center justify-between mt-2 font-label-technical text-label-technical text-on-surface-variant">
         <span>{formatDay(points[0].day)}</span>
-        <span>Laagste prijs per dag</span>
+        <span>{caption}</span>
         <span>{formatDay(points[points.length - 1].day)}</span>
       </div>
     </div>

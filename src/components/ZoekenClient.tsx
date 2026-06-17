@@ -270,7 +270,7 @@ export function ZoekenClient() {
   );
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-24 pb-16 flex flex-col md:flex-row gap-8">
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-8 flex flex-col md:flex-row gap-8">
       {/* Filters: vaste zijbalk op desktop (≥768px); op mobiel via de
           "Filters"-knop als bottom-sheet (zie onder). */}
       <aside className="hidden md:block md:w-1/4 space-y-6 md:sticky md:top-24 h-fit">
@@ -290,8 +290,9 @@ export function ZoekenClient() {
           Filters{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ""}
         </button>
 
-        {/* Sort Bar */}
-        <div className="flex items-center justify-between mb-6 bg-surface-container-low p-4 rounded-xl border border-outline-variant">
+        {/* Sort Bar — stapelt op mobiel; de 3-knops segmented control past daar
+            niet, dus wordt het onder ≥640px een compacte select. */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6 bg-surface-container-low p-4 rounded-xl border border-outline-variant">
           <p className="font-body-sm text-body-sm text-on-surface-variant">
             {loading ? (
               "Zoeken..."
@@ -306,11 +307,25 @@ export function ZoekenClient() {
               "Voer een zoekopdracht in"
             )}
           </p>
-          <div className="flex gap-4 items-center">
-            <span className="hidden sm:inline font-label-technical text-label-technical text-on-surface-variant">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <span className="font-label-technical text-label-technical text-on-surface-variant shrink-0">
               Sorteer op:
             </span>
-            <div className="flex bg-surface-container-high p-1 rounded-lg">
+            {/* Mobiel: compacte select (de segmented control overloopt op smal scherm) */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortMode)}
+              aria-label="Sorteer resultaten"
+              className="sm:hidden flex-1 h-9 px-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-label-technical text-label-technical text-on-surface outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+            >
+              {sortOptions.map(({ mode, label }) => (
+                <option key={mode} value={mode}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            {/* Desktop: segmented control */}
+            <div className="hidden sm:flex bg-surface-container-high p-1 rounded-lg">
               {sortOptions.map(({ mode, label }) => (
                 <button
                   key={mode}

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function ZoekenPage() {
   return (
-    <main className="pt-20 pb-16 min-h-screen">
+    <main className="pt-24 pb-16 min-h-screen">
       <Suspense
         fallback={
           <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-8 text-on-surface-variant">

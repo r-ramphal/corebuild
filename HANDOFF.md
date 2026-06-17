@@ -2,7 +2,7 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
-## ▶ VOLGENDE SESSIE — open punten / TODO (genoteerd 16 juni 2026)
+## ▶ VOLGENDE SESSIE — open punten / TODO (bijgewerkt 17 juni 2026)
 
 Optioneel, in volgorde van waarde:
 1. **Voorbeeldbuild-prijzen periodiek herdraaien.** Bijgesteld in deel 30; DDR5/GPU schommelen, dus af en toe
@@ -14,7 +14,17 @@ regelt de Next.js `deploymentId` automatisch (geverifieerd in de Next 16-docs); 
 
 _(Catalogus-verversingscron → deel 29; voorbeeldbuild-prijzen herijkt → deel 30. Beide hieronder.)_
 
-**Op productie verifiëren (deze sessie gedeployd — kan ik niet autonoom):**
+**Op productie verifiëren / eyeballen (kan ik niet autonoom):**
+
+_Deze sessie (17 juni 2026, deel 31):_
+- **Speed Insights (deel 31)**: Vercel → Project → tab **Speed Insights** → *Enable* (anders komt er geen
+  Core-Web-Vitals-data binnen). `<SpeedInsights />` zit al in de layout.
+- **Google Search Console (deel 31)**: voeg een **URL-prefix**-property toe (`https://corebuildnl.com`) en
+  verifieer met methode **HTML-tag** — de `google-site-verification`-meta-tag staat nu op elke pagina. De
+  eerdere **Domein**-property faalde; die kán alléén via DNS-TXT bij de domeinprovider.
+  _(De 3D-viewer-fidelity-poging is op feedback teruggedraaid — zie deel 31; niets meer te verifiëren daar.)_
+
+_Vorige sessie (16 juni 2026):_
 - **Catalogus-cron (deel 29)**: Vercel → Cron Jobs toont nu óók `/api/cron/refresh-catalog` (02/08/14/20 UTC).
   Handmatig: `GET /api/cron/refresh-catalog` met `Authorization: Bearer $CRON_SECRET` → JSON
   `{saved, perCategory, ms, errors}`; daarna een categoriepagina (bv. `/categorie/cpu`) op verse
@@ -29,6 +39,33 @@ _(Catalogus-verversingscron → deel 29; voorbeeldbuild-prijzen herijkt → deel
 
 Eerder al open (vereist account/inbox/toestel): reset-mail + mobiele weergave handmatig; Search Console
 sitemap indienen + Rich Results-test.
+
+## ▶ Nieuw (17 juni 2026, deel 31) — Speed Insights, GSC-verificatie & 3D-viewer opgepoetst
+
+Drie stukken; alle `tsc` + `eslint` + `next build` groen, in aparte commits naar master gepusht. Eén nieuwe
+dependency: `@vercel/speed-insights` (de 3D-postprocessing-dependency is met de rollback weer verwijderd — punt 3).
+
+**1. Vercel Speed Insights.** `@vercel/speed-insights` geïnstalleerd en `<SpeedInsights />` in
+`src/app/layout.tsx` naast `<Analytics />`. Meet Core Web Vitals; stuurt pas data zodra Speed Insights in het
+Vercel-dashboard aanstaat (zie verifieer-lijst bovenaan).
+
+**2. Google Search Console — meta-tag-verificatie.** `verification: { google: "PIVZ…bP80" }` toegevoegd aan
+de metadata in de layout → rendert `<meta name="google-site-verification" …>` op elke pagina (bevestigd in de
+gebuilde HTML). **Inzicht**: de eerdere poging ("werkt niet") was een **Domein**-property — die kan alléén via
+DNS-TXT. De meta-tag verifieert een **URL-prefix**-property, dus kies in GSC methode "HTML-tag". De DNS-TXT-
+route (`google-site-verification=PIVZ…bP80` op host `@`) kan ik niet zetten (geen DNS-toegang).
+
+**3. 3D build-viewer — fidelity-experiment teruggedraaid.** Eerst HDRI-`Environment` + Lightformers,
+`MeshTransmissionMaterial`-glas en Bloom-postprocessing toegevoegd (commits `54cb6be` + `0600eb3`), maar op
+feedback **teruggedraaid**: dat gaf een gele streep (oranje Lightformer-reflectie + bloom) en maakte het glas
+juist mínder doorzichtig. `src/components/builder/BuildScene.tsx` is hersteld naar de versie van vóór deze
+sessie (`git checkout 808be50 -- …`) en `@react-three/postprocessing` weer verwijderd.
+- **Richtlijn voor de viewer** (zie ook memory `corebuild-3d-viewer-style`): houden zoals nu — schoon,
+  **doorzichtig**, toont puur de **layout** van de componenten; géén reflecterende env-maps, getint/transmission-
+  glas of bloom-gloed. Toekomstige winst alleen binnen die stijl (bv. transparantere/wireframe kastpanelen, of
+  glTF via `useGLTF` met behoud van de parametrische plaatsing uit `buildModel()`).
+- **Spline blijft afgeraden**: de viewer is data-gedreven (geometrie volgt `buildModel()` in mm), dus een
+  statisch geauthorde scene zou de data-binding/bundle juist verslechteren.
 
 ## ▶ Nieuw (16 juni 2026, deel 30) — voorbeeldbuild-prijzen herijkt tegen de live catalogus
 

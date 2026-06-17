@@ -10,18 +10,9 @@
  */
 import { useFrame } from "@react-three/fiber";
 import { Canvas } from "@react-three/fiber";
-import {
-  OrbitControls,
-  ContactShadows,
-  Environment,
-  Lightformer,
-  MeshTransmissionMaterial,
-} from "@react-three/drei";
-import { EffectComposer, Bloom, ToneMapping } from "@react-three/postprocessing";
-import { ToneMappingMode } from "postprocessing";
+import { OrbitControls, ContactShadows } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import type { ComponentRef } from "react";
-import { NoToneMapping, HalfFloatType } from "three";
 import type { Group } from "three";
 import type { BuildModel, PartModel, Vec3 } from "@/lib/specs/build-model";
 import type { ComponentType } from "@/lib/types";
@@ -47,10 +38,9 @@ const C = {
   ghost: "#9aa3b2",
 };
 
-/** Emissive-highlight als het onderdeel "hot" is (hover/legenda). Boven de
- *  Bloom-drempel (>1) zodat een gehoverd onderdeel oplicht én bloeit. */
+/** Emissive-highlight als het onderdeel "hot" is (hover/legenda). */
 function hl(on: boolean) {
-  return { emissive: on ? ORANGE : "#000000", emissiveIntensity: on ? 1.5 : 0 };
+  return { emissive: on ? ORANGE : "#000000", emissiveIntensity: on ? 0.5 : 0 };
 }
 
 interface SelectHandlers {
@@ -165,7 +155,7 @@ function Motherboard({ part, hot, handlers }: { part: BuildModel["mobo"]; hot: b
       {/* PCIe-slot-accent */}
       <mesh position={[x + 1, -h * 0.1, d * 0.02]}>
         <boxGeometry args={[2, 4, d * 0.55]} />
-        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={2.2} />
+        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={0.35} />
       </mesh>
       {/* rear-I/O-shield (achter, boven) */}
       <mesh position={[x, h * 0.34, -d / 2 + 3]}>
@@ -230,7 +220,7 @@ function Cooler({
       </mesh>
       <mesh position={[pump[0] + 23, pump[1], pump[2]]}>
         <cylinderGeometry args={[18, 18, 4, 24]} />
-        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={2.2} />
+        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={0.3} />
       </mesh>
       {/* radiator */}
       <mesh position={mm(part.pos)}>
@@ -286,7 +276,7 @@ function Ram({ part, hot, handlers }: { part: BuildModel["ram"]; hot: boolean; h
             {/* RGB-diffuser bovenop */}
             <mesh position={[0, h / 2 + 1.5, 0]}>
               <boxGeometry args={[w * 0.7, 3, dz * 0.85]} />
-              <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={2.2} />
+              <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={0.45} />
             </mesh>
           </group>
         );
@@ -319,7 +309,7 @@ function Gpu({ part, hot, spin, handlers }: { part: BuildModel["gpu"]; hot: bool
       {/* RGB-streep langs de rand */}
       <mesh position={[w / 2 + 0.6, h / 2 - 3, 0]}>
         <boxGeometry args={[1.5, 4, d * 0.92]} />
-        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={2.2} />
+        <meshStandardMaterial color={ORANGE} emissive={ORANGE} emissiveIntensity={0.5} />
       </mesh>
       {/* ventilatoren op de kijkkant (+x) */}
       {Array.from({ length: fans }).map((_, i) => {
@@ -403,51 +393,12 @@ function CaseShell({ model, hot, handlers }: { model: BuildModel; hot: boolean; 
           {steel}
         </mesh>
       ))}
-      {/* getint glazen zijpaneel (+x) — echt tempered-glass via transmission:
-          breekt de internals subtiel en vangt de studio-reflecties op. Lage
-          samples/resolution houden de extra transmission-pass betaalbaar. */}
+      {/* getint glazen zijpaneel (+x) */}
       <mesh position={[w / 2, 0, 0]}>
         <boxGeometry args={[2, h - t, d - t]} />
-        <MeshTransmissionMaterial
-          transmission={1}
-          thickness={0.3}
-          roughness={0.06}
-          ior={1.5}
-          chromaticAberration={0.03}
-          anisotropy={0.1}
-          distortion={0}
-          temporalDistortion={0}
-          color="#cfe0f2"
-          attenuationColor="#9bc2e6"
-          attenuationDistance={2}
-          samples={6}
-          resolution={256}
-          backside={false}
-        />
+        <meshStandardMaterial color={C.glass} metalness={0.1} roughness={0.05} transparent opacity={0.1} />
       </mesh>
     </group>
-  );
-}
-
-/**
- * Procedurele studio-omgeving: een paar emissive vlakken die als image-based
- * lighting de reflecties op het glas en het aluminium verzorgen. Geen externe
- * HDRI/CDN — alles wordt in-scene naar een kleine env-map gebakken. De
- * lightformers wijzen naar de oorsprong (target) zodat hun reflectie naar de
- * internals strijkt. background blijft uit: de canvas houdt zijn alpha.
- */
-function StudioEnvironment() {
-  return (
-    <Environment resolution={256} environmentIntensity={0.5}>
-      {/* grote zachte key vanaf de glas-/kijkkant */}
-      <Lightformer form="rect" intensity={2.2} color="#eef3ff" position={[6, 4, 6]} scale={[9, 9, 1]} target={[0, 0, 0]} />
-      {/* lange witte rim-strook die over glas en metaal strijkt */}
-      <Lightformer form="rect" intensity={3} color="#ffffff" position={[0, 5, -2]} scale={[12, 1.5, 1]} target={[0, 0, 0]} />
-      {/* koel tegenlicht achter de kast */}
-      <Lightformer form="rect" intensity={1.2} color="#bcd2ff" position={[-6, 2, -5]} scale={[7, 7, 1]} target={[0, 0, 0]} />
-      {/* subtiele oranje merk-accentreflectie laag bij de kijkkant */}
-      <Lightformer form="rect" intensity={1.6} color={ORANGE} position={[3, -3, 5]} scale={[4, 4, 1]} target={[0, 0, 0]} />
-    </Environment>
   );
 }
 
@@ -483,16 +434,13 @@ function Scene({ model, hot, setHot, onSelectSlot, reducedMotion, resetSignal }:
 
   return (
     <>
-      {/* IBL uit de procedurele studio levert nu de fill + reflecties; de
-          expliciete lichten zijn navenant gedimd zodat niets uitblaast. */}
-      <StudioEnvironment />
-      <ambientLight intensity={0.35} />
-      <hemisphereLight intensity={0.35} groundColor="#11141a" color="#eaf0fb" />
+      <ambientLight intensity={0.95} />
+      <hemisphereLight intensity={0.6} groundColor="#11141a" color="#eaf0fb" />
       {/* keylight vanaf de kijk-/glaskant zodat de internals oplichten */}
-      <directionalLight position={[7, 8, 7]} intensity={1.6} castShadow={false} />
-      <directionalLight position={[-5, 4, -4]} intensity={0.5} color="#cfe0ff" />
-      <pointLight position={[3, 1, 5]} intensity={14} color="#ffffff" distance={11} />
-      <pointLight position={[1, -1, 4]} intensity={9} color={ORANGE} distance={8} />
+      <directionalLight position={[7, 8, 7]} intensity={2.1} castShadow={false} />
+      <directionalLight position={[-5, 4, -4]} intensity={0.7} color="#cfe0ff" />
+      <pointLight position={[3, 1, 5]} intensity={22} color="#ffffff" distance={11} />
+      <pointLight position={[1, -1, 4]} intensity={12} color={ORANGE} distance={8} />
 
       <group scale={[SCALE, SCALE, SCALE]}>
         <CaseShell model={model} hot={hot === "case"} handlers={H.case} />
@@ -519,20 +467,6 @@ function Scene({ model, hot, setHot, onSelectSlot, reducedMotion, resetSignal }:
         autoRotate={!reducedMotion}
         autoRotateSpeed={0.6}
       />
-
-      {/* HDR-buffer zodat emissive >1 overleeft; Bloom pakt alleen die HDR-
-          pieken (de oranje RGB-accenten + hover-highlight) en laat ze gloeien,
-          dáárna pas de ACES-tone-mapping als laatste effect. */}
-      <EffectComposer multisampling={4} frameBufferType={HalfFloatType}>
-        <Bloom
-          mipmapBlur
-          luminanceThreshold={1}
-          luminanceSmoothing={0.2}
-          intensity={0.8}
-          radius={0.6}
-        />
-        <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-      </EffectComposer>
     </>
   );
 }
@@ -543,7 +477,7 @@ export default function BuildScene(props: Props) {
       dpr={[1, 2]}
       frameloop={props.reducedMotion ? "demand" : "always"}
       camera={{ position: [6.6, 2.1, 5.0], fov: 31 }}
-      gl={{ antialias: true, alpha: true, toneMapping: NoToneMapping }}
+      gl={{ antialias: true, alpha: true }}
       style={{ width: "100%", height: "100%", touchAction: "none" }}
     >
       <Scene {...props} />

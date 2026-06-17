@@ -16,7 +16,10 @@ _(Catalogus-verversingscron → deel 29; voorbeeldbuild-prijzen herijkt → deel
 
 **Op productie verifiëren / eyeballen (kan ik niet autonoom):**
 
-_Deze sessie (17 juni 2026):_
+_Afgerond + live deze sessie (geen actie nodig): facet-filters + "Filters toepassen" (deel 35),
+buildgalerij → /community + 301-redirect (deel 36), 4 nieuwe blogposts (deel 37)._
+
+_Deze sessie (17 juni 2026) — nog te doen:_
 - **Auth — social login afmaken (deel 34)**: OAuth-apps aanmaken voor Google/Microsoft/Discord en de keys in
   Vercel zetten (project is gelinkt → ik kan ze via de CLI plaatsen; plak Client ID + secret per provider).
   Callback-URL's voor **www én non-www**: `https://(www.)corebuildnl.com/api/auth/callback/<provider>`
@@ -49,6 +52,41 @@ _Vorige sessie (16 juni 2026):_
 
 Eerder al open (vereist account/inbox/toestel): reset-mail + mobiele weergave handmatig; Search Console
 sitemap indienen + Rich Results-test.
+
+## ▶ Nieuw (17 juni 2026, deel 37) — vier nieuwe blogposts
+
+Posts in `src/content/blog/`: `am5-of-am4`, `ddr4-vs-ddr5`, `ssd-kopen-nvme-of-sata`,
+`luchtkoeling-of-waterkoeling`, geregistreerd in `src/lib/blog.ts` (`MODULES`). Bestaande prose-stijl
+(Lead/H2/P/UL/Callout/A/CTA). Vullen de gaten (CPU-platform, RAM-type, opslag, koeling), sluiten aan op de
+nieuwe categoriefilters en linken naar `/categorie/*` + `/builder`. Verschijnen automatisch op `/blog` + in de
+sitemap (POSTS-gedreven). Commit `5246b62`.
+
+## ▶ Nieuw (17 juni 2026, deel 36) — buildgalerij opgegaan in /community
+
+- `/galerij`-route verwijderd (page + loading). `GalleryClient` omgebouwd van een hele pagina (`<main>` + h1)
+  naar een herbruikbare `<section>` met h2 "Builds uit de community", nu gerenderd op **`/community`** (boven de
+  subreddits).
+- **301-redirect** `/galerij → /community` in `next.config.ts` (oude geïndexeerde links/bookmarks behouden).
+- Navbar + footer: Galerij/Buildgalerij-links verwijderd (Community blijft). Sitemap: `/galerij` eruit,
+  `/community` → prioriteit 0.7.
+- CompareClient (`/vergelijk`)-teruglinks, de publiceer-knoppen op `/builds` en losse teksten verwijzen nu naar
+  "community". Commit `f10b056`.
+
+## ▶ Nieuw (17 juni 2026, deel 35) — facet-filters per onderdeel + "Filters toepassen"
+
+- Nieuw: `src/lib/specs/facets.ts` (facet-engine) + `src/lib/specs/detect-brand.ts` (merk-detector) +
+  `src/components/FacetFilters.tsx` (gedeelde zijbalk). Alles **client-side** afgeleid uit de productnaam via
+  `detect.ts` — **geen DB-/schemawijziging**.
+- Per categorie passende facetten mét aantallen: merk, socket (AM5/AM4/LGA…), chip (GPU), form factor, DDR,
+  capaciteit (RAM/opslag), wattage + 80+-rating (PSU), type (opslag/koeling). Binnen groep = OF, tussen groepen
+  = EN. Prijs = **tier-checkboxes + slider**.
+- **Toepassen-knop**: de concept-selectie (de inputs) staat los van de toegepaste filters; pas bij klikken op
+  "Filters toepassen" worden de resultaten gefilterd. _Let op: een `next.config`-wijziging herstart de
+  dev-server en verbreekt HMR → in een al-open tab is een harde refresh nodig (dat veroorzaakte de "werkt niet"-
+  melding; logica is getest en correct)._
+- `CategorieClient` (categoriepagina) en `ZoekenClient` (`/zoeken`) gebruiken het. `/zoeken` kreeg een
+  **categorie-keuze** (werkt direct, bepaalt welke facetten tonen); retailer-/voorraadfilters vallen daar ook
+  onder de toepassen-knop. Commit `9a6da22`.
 
 ## ▶ Nieuw (17 juni 2026, deel 34) — Auth: social login + anti-spam
 

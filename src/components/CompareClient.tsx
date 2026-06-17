@@ -73,8 +73,8 @@ export function CompareClient() {
       <main className="pt-16 min-h-screen">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-16">
           <p className="font-body-lg text-body-lg text-on-surface-variant mb-4">{error}</p>
-          <Link href="/galerij" className="text-primary hover:underline font-label-technical text-label-technical inline-flex items-center gap-1.5">
-            <ArrowLeft className="w-4 h-4" /> Terug naar de galerij
+          <Link href="/community" className="text-primary hover:underline font-label-technical text-label-technical inline-flex items-center gap-1.5">
+            <ArrowLeft className="w-4 h-4" /> Terug naar de community
           </Link>
         </div>
       </main>
@@ -98,8 +98,8 @@ export function CompareClient() {
   return (
     <main className="pt-16 min-h-screen pb-16">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-10">
-        <Link href="/galerij" className="text-on-surface-variant hover:text-primary font-label-technical text-label-technical inline-flex items-center gap-1.5 mb-6">
-          <ArrowLeft className="w-4 h-4" /> Galerij
+        <Link href="/community" className="text-on-surface-variant hover:text-primary font-label-technical text-label-technical inline-flex items-center gap-1.5 mb-6">
+          <ArrowLeft className="w-4 h-4" /> Community
         </Link>
         <h1 className="font-headline-lg text-headline-lg text-on-surface mb-8">Builds vergelijken</h1>
 

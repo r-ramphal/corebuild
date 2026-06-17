@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Scale, Check, FolderOpen } from "lucide-react";
+import { Scale, Check, FolderOpen, LayoutGrid } from "lucide-react";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { formatEur } from "@/lib/format";
 import type { BuildComponents } from "@/lib/store/build";
@@ -41,10 +41,12 @@ export function GalleryClient() {
   }
 
   return (
-    <main className="pt-16 min-h-screen pb-28">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-12">
-        <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2">Buildgalerij</h1>
-        <p className="font-body-sm text-body-sm text-on-surface-variant mb-10 max-w-2xl">
+    <>
+      <section>
+        <h2 className="font-title-md text-title-md text-on-surface mb-4 flex items-center gap-2">
+          <LayoutGrid className="w-5 h-5 text-primary" /> Builds uit de community
+        </h2>
+        <p className="font-body-sm text-body-sm text-on-surface-variant mb-6 max-w-2xl">
           Builds die de community heeft gedeeld. Laad er een in de builder, of selecteer er twee om ze
           naast elkaar te vergelijken.
         </p>
@@ -125,7 +127,8 @@ export function GalleryClient() {
             })}
           </div>
         )}
-      </div>
+
+      </section>
 
       {/* Vergelijk-balk */}
       {selected.length > 0 && (
@@ -152,6 +155,6 @@ export function GalleryClient() {
           </div>
         </div>
       )}
-    </main>
+    </>
   );
 }

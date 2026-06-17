@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExternalLink, ArrowRight, Sparkles, MessagesSquare } from "lucide-react";
+import { GalleryClient } from "@/components/GalleryClient";
 
 export const metadata: Metadata = {
   title: "Community",
   description:
-    "Bouw mee met de pc-community: handige subreddits voor bouwadvies en deals, plus hoe CoreBuild de community-consensus in zijn aanbevelingen verwerkt.",
+    "Door de community gedeelde PC-builds (bekijken en vergelijken), handige subreddits voor bouwadvies en deals, en hoe CoreBuild de community-consensus in zijn aanbevelingen verwerkt.",
   alternates: { canonical: "/community" },
 };
 
@@ -32,9 +33,15 @@ export default function CommunityPage() {
         <h1 className="font-headline-lg text-headline-lg text-on-surface">Bouw mee met de community</h1>
       </div>
       <p className="font-body-sm text-body-sm text-on-surface-variant mb-10 max-w-2xl">
-        CoreBuild spreekt dezelfde taal als de bouwcommunity. Hieronder de subreddits waar ervaren
-        bouwers samenkomen, plus hoe we hun consensus in onze aanbevelingen verwerken.
+        CoreBuild spreekt dezelfde taal als de bouwcommunity. Bekijk hieronder builds die de community
+        heeft gedeeld, de subreddits waar ervaren bouwers samenkomen, en hoe we hun consensus in onze
+        aanbevelingen verwerken.
       </p>
+
+      {/* Gedeelde builds (voorheen de losse /galerij-pagina) */}
+      <div className="mb-12">
+        <GalleryClient />
+      </div>
 
       {/* Subreddits */}
       <h2 className="font-title-md text-title-md text-on-surface mb-4 flex items-center gap-2">

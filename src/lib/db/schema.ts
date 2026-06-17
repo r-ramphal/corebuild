@@ -97,7 +97,7 @@ export const builds = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     components: jsonb("components").notNull(),
-    /** Opt-in: zichtbaar in de publieke buildgalerij (/galerij). */
+    /** Opt-in: zichtbaar in de publieke build-community (/community). */
     published: boolean("published").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

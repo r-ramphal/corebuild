@@ -175,14 +175,14 @@ export default function BuildsPage() {
                   <button
                     onClick={() => handlePublish(build)}
                     aria-pressed={build.published}
-                    title={build.published ? "Verbergen uit de galerij" : "Publiceren in de galerij"}
+                    title={build.published ? "Verbergen uit de community" : "Publiceren in de community"}
                     className={`px-4 py-2 rounded-lg font-label-technical text-label-technical flex items-center gap-2 transition-colors ${
                       build.published
                         ? "bg-success-emerald/10 text-success-emerald border border-success-emerald/30"
                         : "border border-outline-variant text-on-surface hover:border-primary hover:text-primary"
                     }`}
                   >
-                    <Globe className="w-3.5 h-3.5" /> {build.published ? "In galerij" : "Publiceer"}
+                    <Globe className="w-3.5 h-3.5" /> {build.published ? "In community" : "Publiceer"}
                   </button>
                   <button
                     onClick={() => handleDelete(build)}

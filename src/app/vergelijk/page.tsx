@@ -4,7 +4,7 @@ import { CompareClient } from "@/components/CompareClient";
 
 export const metadata: Metadata = {
   title: "Builds vergelijken",
-  description: "Vergelijk twee PC-builds uit de galerij onderdeel voor onderdeel, met prijzen en totalen.",
+  description: "Vergelijk twee PC-builds uit de community onderdeel voor onderdeel, met prijzen en totalen.",
   alternates: { canonical: "/vergelijk" },
   robots: { index: false }, // querystring-pagina, niet indexeren
 };

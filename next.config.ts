@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
       { protocol: "https" as const, hostname: `**.${hostname}` },
     ]),
   },
+  // De buildgalerij is opgegaan in /community; oude (geïndexeerde) links 301'en
+  // we door zodat ze niet 404'en en de SEO-waarde behouden blijft.
+  async redirects() {
+    return [{ source: "/galerij", destination: "/community", permanent: true }];
+  },
 };
 
 export default nextConfig;

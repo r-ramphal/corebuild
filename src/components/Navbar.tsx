@@ -13,7 +13,6 @@ const NAV_LINKS = [
   { href: "/builder", label: "Builder" },
   { href: "/voorbeeldbuilds", label: "Voorbeeldbuilds" },
   { href: "/categorie", label: "Categorieën" },
-  { href: "/galerij", label: "Galerij" },
   { href: "/community", label: "Community" },
   { href: "/volglijst", label: "Volglijst" },
   { href: "/blog", label: "Blog" },

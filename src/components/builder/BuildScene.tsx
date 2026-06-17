@@ -10,9 +10,16 @@
  */
 import { useFrame } from "@react-three/fiber";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, ContactShadows } from "@react-three/drei";
+import {
+  OrbitControls,
+  ContactShadows,
+  Environment,
+  Lightformer,
+  MeshTransmissionMaterial,
+} from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import type { ComponentRef } from "react";
+import { ACESFilmicToneMapping } from "three";
 import type { Group } from "three";
 import type { BuildModel, PartModel, Vec3 } from "@/lib/specs/build-model";
 import type { ComponentType } from "@/lib/types";
@@ -393,12 +400,51 @@ function CaseShell({ model, hot, handlers }: { model: BuildModel; hot: boolean; 
           {steel}
         </mesh>
       ))}
-      {/* getint glazen zijpaneel (+x) */}
+      {/* getint glazen zijpaneel (+x) — echt tempered-glass via transmission:
+          breekt de internals subtiel en vangt de studio-reflecties op. Lage
+          samples/resolution houden de extra transmission-pass betaalbaar. */}
       <mesh position={[w / 2, 0, 0]}>
         <boxGeometry args={[2, h - t, d - t]} />
-        <meshStandardMaterial color={C.glass} metalness={0.1} roughness={0.05} transparent opacity={0.1} />
+        <MeshTransmissionMaterial
+          transmission={1}
+          thickness={0.3}
+          roughness={0.06}
+          ior={1.5}
+          chromaticAberration={0.03}
+          anisotropy={0.1}
+          distortion={0}
+          temporalDistortion={0}
+          color="#cfe0f2"
+          attenuationColor="#9bc2e6"
+          attenuationDistance={2}
+          samples={6}
+          resolution={256}
+          backside={false}
+        />
       </mesh>
     </group>
+  );
+}
+
+/**
+ * Procedurele studio-omgeving: een paar emissive vlakken die als image-based
+ * lighting de reflecties op het glas en het aluminium verzorgen. Geen externe
+ * HDRI/CDN — alles wordt in-scene naar een kleine env-map gebakken. De
+ * lightformers wijzen naar de oorsprong (target) zodat hun reflectie naar de
+ * internals strijkt. background blijft uit: de canvas houdt zijn alpha.
+ */
+function StudioEnvironment() {
+  return (
+    <Environment resolution={256} environmentIntensity={0.5}>
+      {/* grote zachte key vanaf de glas-/kijkkant */}
+      <Lightformer form="rect" intensity={2.2} color="#eef3ff" position={[6, 4, 6]} scale={[9, 9, 1]} target={[0, 0, 0]} />
+      {/* lange witte rim-strook die over glas en metaal strijkt */}
+      <Lightformer form="rect" intensity={3} color="#ffffff" position={[0, 5, -2]} scale={[12, 1.5, 1]} target={[0, 0, 0]} />
+      {/* koel tegenlicht achter de kast */}
+      <Lightformer form="rect" intensity={1.2} color="#bcd2ff" position={[-6, 2, -5]} scale={[7, 7, 1]} target={[0, 0, 0]} />
+      {/* subtiele oranje merk-accentreflectie laag bij de kijkkant */}
+      <Lightformer form="rect" intensity={1.6} color={ORANGE} position={[3, -3, 5]} scale={[4, 4, 1]} target={[0, 0, 0]} />
+    </Environment>
   );
 }
 
@@ -434,13 +480,16 @@ function Scene({ model, hot, setHot, onSelectSlot, reducedMotion, resetSignal }:
 
   return (
     <>
-      <ambientLight intensity={0.95} />
-      <hemisphereLight intensity={0.6} groundColor="#11141a" color="#eaf0fb" />
+      {/* IBL uit de procedurele studio levert nu de fill + reflecties; de
+          expliciete lichten zijn navenant gedimd zodat niets uitblaast. */}
+      <StudioEnvironment />
+      <ambientLight intensity={0.35} />
+      <hemisphereLight intensity={0.35} groundColor="#11141a" color="#eaf0fb" />
       {/* keylight vanaf de kijk-/glaskant zodat de internals oplichten */}
-      <directionalLight position={[7, 8, 7]} intensity={2.1} castShadow={false} />
-      <directionalLight position={[-5, 4, -4]} intensity={0.7} color="#cfe0ff" />
-      <pointLight position={[3, 1, 5]} intensity={22} color="#ffffff" distance={11} />
-      <pointLight position={[1, -1, 4]} intensity={12} color={ORANGE} distance={8} />
+      <directionalLight position={[7, 8, 7]} intensity={1.6} castShadow={false} />
+      <directionalLight position={[-5, 4, -4]} intensity={0.5} color="#cfe0ff" />
+      <pointLight position={[3, 1, 5]} intensity={14} color="#ffffff" distance={11} />
+      <pointLight position={[1, -1, 4]} intensity={9} color={ORANGE} distance={8} />
 
       <group scale={[SCALE, SCALE, SCALE]}>
         <CaseShell model={model} hot={hot === "case"} handlers={H.case} />
@@ -477,7 +526,7 @@ export default function BuildScene(props: Props) {
       dpr={[1, 2]}
       frameloop={props.reducedMotion ? "demand" : "always"}
       camera={{ position: [6.6, 2.1, 5.0], fov: 31 }}
-      gl={{ antialias: true, alpha: true }}
+      gl={{ antialias: true, alpha: true, toneMapping: ACESFilmicToneMapping, toneMappingExposure: 1.1 }}
       style={{ width: "100%", height: "100%", touchAction: "none" }}
     >
       <Scene {...props} />

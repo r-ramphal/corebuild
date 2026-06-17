@@ -92,6 +92,22 @@ export function priceDropEmail(items: PriceDropItem[]): string {
   );
 }
 
+/** E-mailverificatie: knop om het account te activeren + platte-tekst-fallback. */
+export function verifyEmail(url: string): string {
+  return layout(
+    "Bevestig je e-mailadres",
+    `<p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:${MUTED};">
+       Welkom bij CoreBuild! Klik op de knop hieronder om je e-mailadres te
+       bevestigen en je account te activeren.
+     </p>
+     <p style="margin:0 0 24px;">${button(url, "E-mailadres bevestigen")}</p>
+     <p style="margin:0;font-size:12px;line-height:1.6;color:${MUTED};">
+       Werkt de knop niet? Kopieer dan deze link naar je browser:<br/>
+       <a href="${url}" style="color:${PRIMARY};word-break:break-all;">${url}</a>
+     </p>`
+  );
+}
+
 /** Wachtwoord-reset: knop + platte-tekst-fallback van de link. */
 export function resetPasswordEmail(url: string): string {
   return layout(

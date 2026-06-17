@@ -40,7 +40,8 @@ export function GiastHero() {
 
             <p className="font-plex text-[14px] sm:text-[15px] leading-relaxed text-gp-ink-soft max-w-xl mt-8">
               <span className="text-gp-orange">_</span>Compatibiliteit automatisch gecheckt. Live prijzen
-              van 5 retailers, per onderdeel. Geen standaardoplossingen — jouw build, jouw regels.
+              van 5 retailers per onderdeel. En je build slim verdeeld over winkels — zodat je het láágste
+              totaal betaalt.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-10">

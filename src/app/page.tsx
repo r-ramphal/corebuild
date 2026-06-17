@@ -1,5 +1,6 @@
 import { GiastHero } from "@/components/home/GiastHero";
 import { GiastMarquee } from "@/components/home/GiastMarquee";
+import { GiastSlimKopen } from "@/components/home/GiastSlimKopen";
 import { GiastTerminal } from "@/components/home/GiastTerminal";
 import { GiastCategories } from "@/components/home/GiastCategories";
 import { GiastManifest } from "@/components/home/GiastManifest";
@@ -48,6 +49,9 @@ export default function Home() {
         <JsonLd data={siteLd} />
         <GiastHero />
         <GiastMarquee />
+        <Reveal>
+          <GiastSlimKopen />
+        </Reveal>
         <Reveal>
           <GiastTerminal />
         </Reveal>

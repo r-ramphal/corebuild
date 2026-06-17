@@ -5,6 +5,7 @@ import { CATALOG_TTL_MS } from "./listings";
 import type { ComponentType } from "@/lib/types";
 import { computeBuildIndex, type PartDayPoints } from "@/lib/specs/build-index";
 import { cheapestOffer, type PartOffers, type Offer } from "@/lib/specs/split-cart";
+import { productMatches } from "@/lib/specs/match-product";
 
 /** Eén gekozen onderdeel uit de build (de aanbieding die de gebruiker koos). */
 export interface BuildPart {
@@ -15,12 +16,6 @@ export interface BuildPart {
   retailer: string;
   priceCents: number;
 }
-
-/** Genormaliseerde productnaam — spiegelt `watchId()` / `alertProductId()`. */
-function normName(name: string): string {
-  return name.trim().toLowerCase().replace(/\s+/g, " ");
-}
-const MIN_KEY_LEN = 6;
 
 export interface BuildPricingData {
   offers: PartOffers[];
@@ -62,11 +57,10 @@ export async function getBuildPricingData(
   const urlsByPart: string[][] = [];
 
   for (const part of parts) {
-    const key = normName(part.name);
     const matches = rows.filter(
       (r) =>
         r.category === part.category &&
-        (r.url === part.url || (key.length >= MIN_KEY_LEN && normName(r.name).includes(key)))
+        (r.url === part.url || productMatches(part.name, r.name, part.category))
     );
 
     // Eén aanbieding per retailer: op voorraad heeft voorrang, dan de laagste prijs.

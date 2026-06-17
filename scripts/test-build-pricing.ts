@@ -15,6 +15,7 @@ import {
   type PartDayPoints,
 } from "../src/lib/specs/build-index";
 import { partsFromComponents } from "../src/lib/db/build-alerts";
+import { productMatches } from "../src/lib/specs/match-product";
 
 let failed = 0;
 function check(label: string, cond: boolean) {
@@ -147,6 +148,34 @@ check("partsFromComponents: mock wordt overgeslagen", !fp.some((p) => p.slot ===
 check("partsFromComponents: zonder url overgeslagen", !fp.some((p) => p.slot === "ram"));
 check("partsFromComponents: randapparaat (monitor) is geen build-slot", !fp.some((p) => p.slot === "monitor"));
 check("partsFromComponents: lege input → []", partsFromComponents(null).length === 0 && partsFromComponents({}).length === 0);
+
+// ── productMatches (model/token-matcher) ─────────────────────────────────────
+const M = (p: string, l: string, c: string) => productMatches(p, l, c);
+// CPU/GPU via modeldetectie (onderscheidt varianten)
+check("cpu: zelfde model matcht ondanks extra woorden", M("AMD Ryzen 7 9800X3D", "AMD Ryzen 7 9800X3D Processor (boxed)", "cpu"));
+check("cpu: ander model matcht niet", !M("AMD Ryzen 7 9800X3D", "AMD Ryzen 7 9700X", "cpu"));
+check("gpu: zelfde model matcht", M("GeForce RTX 5070", "GIGABYTE GeForce RTX 5070 AERO OC 12G", "gpu"));
+check("gpu: Ti-variant matcht niet de non-Ti", !M("GeForce RTX 5070", "MSI GeForce RTX 5070 Ti Gaming", "gpu"));
+// Moederbord: chipset + formfactor
+check("mobo: B650 ATX matcht een B650 ATX-bord", M("B650 ATX moederbord", "ASUS PRIME B650-PLUS ATX", "motherboard"));
+check("mobo: B650 ATX matcht GEEN micro-ATX-bord", !M("B650 ATX moederbord", "ASUS PRIME B650M-A Micro-ATX", "motherboard"));
+// RAM: capaciteit + DDR + snelheid
+check("ram: 32GB DDR5-6000 matcht gelijkwaardige kit", M("32GB DDR5-6000", "Corsair Vengeance 32GB (2x16GB) DDR5 6000MHz", "ram"));
+check("ram: andere capaciteit matcht niet", !M("32GB DDR5-6000", "Corsair Vengeance 16GB DDR5 6000MHz", "ram"));
+check("ram: andere snelheid matcht niet", !M("32GB DDR5-6000", "Corsair Vengeance 32GB DDR5 5600MHz", "ram"));
+// PSU: wattage + rating
+check("psu: 750W 80+ Gold matcht", M("750W 80+ Gold", "Corsair RM750x 750W 80+ Gold", "psu"));
+check("psu: andere rating matcht niet", !M("750W 80+ Gold", "Corsair CV750 750W 80+ Bronze", "psu"));
+check("psu: ander wattage matcht niet", !M("750W 80+ Gold", "Corsair RM650x 650W 80+ Gold", "psu"));
+// Opslag: capaciteit + ssd-marker (geen HDD)
+check("storage: 2TB NVMe SSD matcht een M.2 NVMe", M("2TB NVMe SSD", "Samsung 990 Pro 2TB M.2 NVMe", "storage"));
+check("storage: matcht GEEN HDD met zelfde capaciteit", !M("2TB NVMe SSD", "Seagate Barracuda 2TB HDD", "storage"));
+check("storage: andere capaciteit matcht niet", !M("2TB NVMe SSD", "Samsung 990 Pro 1TB NVMe SSD", "storage"));
+// Case/cooling: merk + modelnaam
+check("case: merk+model matcht ondanks kleur-suffix", M("Fractal Design North", "Fractal Design North Charcoal Black", "case"));
+check("cooling: merk+model+maat matcht", M("Thermalright Phantom Spirit 120", "Thermalright Phantom Spirit 120 SE ARGB", "cooling"));
+// Numerieke grens: "120" matcht niet "1200"
+check("getal-grens: 120 matcht niet 1200", !M("Assassin X 120", "NZXT Kraken 1200 cooler", "cooling"));
 
 console.log(failed === 0 ? "\nALLE cases — OK" : `\n${failed} FAILS`);
 process.exit(failed === 0 ? 0 : 1);

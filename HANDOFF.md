@@ -2,6 +2,27 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 43) — model/token-matcher voor "Slim Kopen" (dekking omhoog)
+
+De naïeve substring-match (volledige onderdeelnaam moet in de listing-titel staan) miste generiek/
+Nederlandstalig benoemde onderdelen. Vervangen door een **pure, geteste matcher**
+`src/lib/specs/match-product.ts` (`productMatches` + `tokenize`):
+- **CPU/GPU** → de bestaande `detect.ts`-modeldetectie; spec-objecten zijn referentie-gelijk per model,
+  dus "zelfde model" = `===` (onderscheidt RTX 5070 vs 5070 Ti, 9700X vs 9800X3D betrouwbaar).
+- **Overige categorieën** → onderscheidende tokens met normalisatie: formfactor (micro-atx→matx, e-atx→
+  eatx, itx), "750 watt"/"750w"→`750w`, "32 gb"→`32gb`, 80+-rating→`80plus`, en **nvme/m.2→`ssd`-marker**
+  (zodat een SSD-onderdeel geen HDD matcht). Vulwoorden (moederbord/behuizing/voeding…) zijn stopwords.
+  Token-dekking via "gelijk of begint-met-gevolgd-door-niet-cijfer" → "b650"→"b650m", "6000"→"6000mhz",
+  maar "120"≠"1200".
+- **Toegepast in `getBuildPricingData`** (vervangt de oude `normName(...).includes(key)` + `MIN_KEY_LEN`).
+  Profiteert dus overal: voorbeeldbuilds, de cross-retailer-split in de builder, én de build-alert.
+- **Effect (live):** 1440p-voorbeeldbuild **4/8 → 7/8** gedekt (€1186 → €1879,90, nu consistent met de
+  ~€1950 indicatie); Budget gamer 6/8. Resterende gaten = catalogus-beschikbaarheid (cooling/psu/case),
+  geen matcher-fouten. Gate groen: `tsc` + `eslint src` + `npm run test` (26 nieuwe matcher-cases) + `next build`.
+- **Nog open (optioneel):** `siblingUrls` in `src/lib/db/alerts.ts` (de per-product cross-retailer
+  prijsalert, deel 17) gebruikt nog de oude substring-match — kan met dezelfde `productMatches` worden
+  opgewaardeerd voor bredere alert-dekking (raakt de deel-17 tests).
+
 ## ▶ Nieuw (17 juni 2026, deel 42) — "Slim Kopen" op /voorbeeldbuilds
 
 De curated voorbeeldbuilds krijgen nu dezelfde koop-USP (split-cart + build-prijsindex), on-demand per kaart.

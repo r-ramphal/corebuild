@@ -12,11 +12,12 @@ import type { ComponentType } from "./types";
  * tegen de markt. De onderdeelnamen sluiten aan op cpu-data/gpu-data en de
  * FEATURED-build op de homepage. Bijwerken = een rij aanpassen.
  *
- * Laatst gekalibreerd 16 juni 2026 tegen de live catalogus (goedkoopste in-stock,
- * echte NVMe/legit listings) met `npx tsx scripts/calibrate-example-builds.ts`.
- * Onderdelen die toen niet in de catalogus zaten (RTX 5070 Ti, Montech AIR 903,
- * de specifieke Thermalright-koelers, full-size O11 Dynamic) zijn conservatief op
- * marktprijs geschat — vandaar dat sommige budgetten boven de pure catalogus-som liggen.
+ * Laatst herijkt 17 juni 2026 tegen de live "Slim Kopen"-totalen (goedkoopste
+ * aanbieding per onderdeel via /api/build-pricing). De richtprijzen liggen ~2-4%
+ * boven de gedekte cheapest-som als marge voor dagprijs-schommelingen en de niet
+ * altijd in de catalogus aanwezige onderdelen (specifieke koelers/cases). Let op:
+ * DDR5 staat hoog (16GB ~€200, 32GB ~€369, 64GB ~€769) en de junk-listing
+ * "X670E … LGA1150" €52 is genegeerd (reële X670E ~€220-250). Bijwerken = een rij aanpassen.
  */
 export interface ExampleBuildPart {
   type: ComponentType;
@@ -44,7 +45,7 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "Budget gamer",
     tagline: "Vlot 1080p gamen zonder te veel uit te geven.",
     useCase: "1080p gaming",
-    budgetEur: 1150,
+    budgetEur: 1125,
     parts: [
       { type: "cpu", name: "AMD Ryzen 5 7600" },
       { type: "gpu", name: "GeForce RTX 5060" },

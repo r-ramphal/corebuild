@@ -99,6 +99,14 @@ export const builds = pgTable(
     components: jsonb("components").notNull(),
     /** Opt-in: zichtbaar in de publieke build-community (/community). */
     published: boolean("published").notNull().default(false),
+    /**
+     * Hele-build prijsalert: mail de eigenaar zodra de actuele laagste totaalprijs
+     * (onderdelen, excl. verzending) op/onder deze drempel komt. Null = geen alert.
+     * `lastNotified*` = anti-spam (laatst gemailde prijs + tijdstip), net als price_alerts.
+     */
+    alertTargetCents: integer("alert_target_cents"),
+    alertLastNotifiedCents: integer("alert_last_notified_cents"),
+    alertLastNotifiedAt: timestamp("alert_last_notified_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

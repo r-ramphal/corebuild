@@ -14,6 +14,7 @@ import {
   summarizeBuildIndex,
   type PartDayPoints,
 } from "../src/lib/specs/build-index";
+import { partsFromComponents } from "../src/lib/db/build-alerts";
 
 let failed = 0;
 function check(label: string, cond: boolean) {
@@ -131,6 +132,21 @@ check("summary: laagste = 132000 op 06-04 → signaal 'low'", sum?.minCents === 
 const onlyOne: PartDayPoints[] = [{ slot: "cpu", byDay: new Map() }];
 check("geen historie → lege index", computeBuildIndex(onlyOne, "2026-06-04").points.length === 0);
 check("minder dan 2 punten → geen summary", summarizeBuildIndex([{ day: "2026-06-01", totalCents: 1 }]) === null);
+
+// ── partsFromComponents (build-snapshot → BuildParts voor de alert) ───────────
+const comps = {
+  cpu: { name: "Ryzen 7 9800X3D", url: "https://a/cpu", retailer: "azerty", priceEur: 450 },
+  gpu: { name: "RTX 5070 Ti", url: "https://a/gpu", retailer: "megekko", priceEur: 900, mock: true },
+  ram: { name: "DDR5 32GB", url: "", retailer: "bol", priceEur: 110 }, // geen url
+  monitor: { name: "27 inch", url: "https://a/mon", retailer: "bol", priceEur: 300 }, // geen build-slot
+};
+const fp = partsFromComponents(comps);
+check("partsFromComponents: alleen geldige build-slots (cpu)", fp.length === 1 && fp[0].slot === "cpu");
+check("partsFromComponents: priceEur → priceCents", fp[0].priceCents === 45000);
+check("partsFromComponents: mock wordt overgeslagen", !fp.some((p) => p.slot === "gpu"));
+check("partsFromComponents: zonder url overgeslagen", !fp.some((p) => p.slot === "ram"));
+check("partsFromComponents: randapparaat (monitor) is geen build-slot", !fp.some((p) => p.slot === "monitor"));
+check("partsFromComponents: lege input → []", partsFromComponents(null).length === 0 && partsFromComponents({}).length === 0);
 
 console.log(failed === 0 ? "\nALLE cases — OK" : `\n${failed} FAILS`);
 process.exit(failed === 0 ? 0 : 1);

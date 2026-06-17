@@ -43,6 +43,13 @@
       "when": 1781436632106,
       "tag": "0005_small_ronan",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781710686731,
+      "tag": "0006_magenta_centennial",
+      "breakpoints": true
     }
   ]
 }

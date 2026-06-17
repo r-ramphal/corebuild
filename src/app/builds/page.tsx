@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FolderOpen, Trash2, Link as LinkIcon, Check, Upload, Globe } from "lucide-react";
+import { FolderOpen, Trash2, Link as LinkIcon, Check, Upload, Globe, Bell, X } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { useBuildStore, type BuildComponents } from "@/lib/store/build";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
@@ -15,6 +15,7 @@ interface SavedBuild {
   name: string;
   components: BuildComponents;
   published: boolean;
+  alertTargetCents: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -76,6 +77,17 @@ export default function BuildsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   }
 
+  async function handleSetAlert(build: SavedBuild, eur: number | null) {
+    const cents = eur != null ? Math.round(eur * 100) : null;
+    setBuilds((prev) => prev?.map((b) => (b.id === build.id ? { ...b, alertTargetCents: cents } : b)) ?? null);
+    const res = await fetch(`/api/builds/${build.publicId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ alertTargetEur: eur }),
+    }).catch(() => null);
+    if (!res || !res.ok) fetchBuilds(); // terugdraaien naar server-staat bij fout
+  }
+
   if (isPending || !session) {
     return (
       <main className="pt-16 min-h-screen">
@@ -123,8 +135,9 @@ export default function BuildsPage() {
             return (
               <div
                 key={build.id}
-                className="flex flex-col md:flex-row md:items-center gap-4 p-6 bg-surface-container-lowest border border-outline-variant rounded-xl hover:border-primary transition-colors"
+                className="p-6 bg-surface-container-lowest border border-outline-variant rounded-xl hover:border-primary transition-colors"
               >
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-3 flex-wrap">
                     <h2 className="font-title-md text-title-md text-on-surface">{build.name}</h2>
@@ -192,11 +205,107 @@ export default function BuildsPage() {
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
+                </div>
+
+                <BuildAlertRow build={build} onSet={(eur) => handleSetAlert(build, eur)} />
               </div>
             );
           })}
         </div>
       </div>
     </main>
+  );
+}
+
+/** Prijsalert-rij per build: mail me zodra de laagste totaalprijs onder een bedrag zakt. */
+function BuildAlertRow({
+  build,
+  onSet,
+}: {
+  build: SavedBuild;
+  onSet: (eur: number | null) => void;
+}) {
+  const active = build.alertTargetCents != null;
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState("");
+
+  function submit() {
+    const eur = Math.round(parseFloat(value.replace(",", ".")));
+    if (!isFinite(eur) || eur <= 0) return;
+    onSet(eur);
+    setEditing(false);
+    setValue("");
+  }
+
+  if (active && !editing) {
+    return (
+      <div className="mt-4 pt-4 border-t border-outline-variant/60 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span className="inline-flex items-center gap-1.5 font-label-technical text-label-technical text-success-emerald">
+          <Bell className="w-3.5 h-3.5" /> Mail bij ≤ {formatEur(build.alertTargetCents! / 100)}
+        </span>
+        <span className="font-body-sm text-[12px] text-on-surface-variant">
+          we mailen je zodra de laagste totaalprijs hieronder zakt
+        </span>
+        <div className="flex items-center gap-2 ml-auto">
+          <button
+            onClick={() => {
+              setValue(String(Math.round(build.alertTargetCents! / 100)));
+              setEditing(true);
+            }}
+            className="font-label-technical text-label-technical text-primary hover:underline"
+          >
+            Wijzig
+          </button>
+          <button
+            onClick={() => onSet(null)}
+            className="font-label-technical text-label-technical text-on-surface-variant hover:text-error-crimson inline-flex items-center gap-1"
+          >
+            <X className="w-3 h-3" /> Uit
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 pt-4 border-t border-outline-variant/60 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <span className="inline-flex items-center gap-1.5 font-label-technical text-label-technical text-on-surface-variant">
+        <Bell className="w-3.5 h-3.5" /> Prijsalert
+      </span>
+      <span className="font-body-sm text-[12px] text-on-surface-variant">Mail me als deze build onder</span>
+      <div className="inline-flex items-center gap-1.5">
+        <span className="font-body-sm text-[13px] text-on-surface-variant">€</span>
+        <input
+          type="number"
+          inputMode="numeric"
+          min={1}
+          autoFocus={editing}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && submit()}
+          placeholder="1500"
+          className="w-24 h-9 px-2.5 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+        />
+        <span className="font-body-sm text-[12px] text-on-surface-variant">zakt</span>
+      </div>
+      <button
+        onClick={submit}
+        disabled={!value}
+        className="px-3 py-1.5 bg-primary text-on-primary rounded-lg font-label-technical text-label-technical hover:opacity-90 disabled:opacity-50"
+      >
+        Zet alert
+      </button>
+      {editing && (
+        <button
+          onClick={() => {
+            setEditing(false);
+            setValue("");
+          }}
+          className="font-label-technical text-label-technical text-on-surface-variant hover:text-primary"
+        >
+          Annuleer
+        </button>
+      )}
+    </div>
   );
 }

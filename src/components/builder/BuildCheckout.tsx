@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
-  Sparkles, Store, Split, Truck, ExternalLink, Info, TrendingDown, Copy, Check,
+  Sparkles, Store, Split, Truck, ExternalLink, Info, TrendingDown, Copy, Check, Bell,
 } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
 import type { BuildComponents } from "@/lib/store/build";
 import { COMPONENT_META, COMPONENT_TYPES } from "@/lib/categories";
 import { RetailerLogo } from "@/components/RetailerLogo";
@@ -49,6 +51,7 @@ function CopyButton({ text }: { text: string }) {
 
 export function BuildCheckout({ components }: { components: BuildComponents }) {
   const { data, loading, error, run } = useBuildPricing();
+  const { data: session } = useSession();
 
   // Alleen échte (niet-demo) aanbiedingen met een link kunnen we live prijzen.
   const parts = useMemo<BuildPricingPart[]>(
@@ -282,6 +285,22 @@ export function BuildCheckout({ components }: { components: BuildComponents }) {
                 catalogus ververst elke paar uur.
               </p>
             )}
+
+            {/* CTA naar de hele-build prijsalert */}
+            <div className="rounded-lg border border-outline-variant bg-surface-container-low/40 p-3.5 flex flex-wrap items-center gap-2">
+              <Bell className="w-4 h-4 text-primary shrink-0" />
+              {session ? (
+                <span className="font-body-sm text-[12px] text-on-surface-variant">
+                  Wil je een seintje als deze build goedkoper wordt? Bewaar &lsquo;m en zet een prijsalert op{" "}
+                  <Link href="/builds" className="text-primary hover:underline">Mijn builds</Link>.
+                </span>
+              ) : (
+                <span className="font-body-sm text-[12px] text-on-surface-variant">
+                  <Link href="/inloggen" className="text-primary hover:underline">Log in</Link> om een prijsalert
+                  op deze build te zetten en een mail te krijgen bij een prijsdaling.
+                </span>
+              )}
+            </div>
 
             <button
               onClick={() => run(realParts)}

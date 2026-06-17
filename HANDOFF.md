@@ -2,6 +2,31 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 41) — hele-build prijsalert (vervolg op "Slim Kopen")
+
+Re-engagement-laag bovenop deel 40: ingelogde gebruikers krijgen een mail zodra de **actuele laagste
+totaalprijs van een opgeslagen build** op/onder hun drempel zakt. Hergebruikt maximaal: cron-patroon +
+Resend + auth + `getBuildPricingData` + de pure `alertFires` (deel 17). Gate groen: `tsc` + `eslint src` +
+`npm run test` (nieuw: `partsFromComponents`-cases, 29 totaal) + `next build`; cron-route live geverifieerd
+(401 zonder secret, `{fired:0,sent:0}` mét).
+- **Schema (✅ migratie toegepast op Neon):** 3 nullable kolommen op `builds`: `alert_target_cents`,
+  `alert_last_notified_cents`, `alert_last_notified_at`. Migratie `drizzle/0006_magenta_centennial.sql`
+  (additief, idempotent `ADD COLUMN IF NOT EXISTS` toegepast). Alert hangt aan een **opgeslagen** build.
+- **Repo:** `src/lib/db/build-alerts.ts` — `partsFromComponents` (snapshot → BuildParts, puur+getest),
+  `currentBuildTotalCents` (= split-onderdeelprijs, zelfde bron als de index-"Nu"), `setBuildAlert`
+  (zet/wist + reset anti-spam), `findFiredBuildAlerts` (drempelcheck via `alertFires`), `markBuildAlertNotified`.
+- **API:** `PATCH /api/builds/[publicId]` uitgebreid — accepteert nu óók `alertTargetEur` (number>0 of null)
+  naast `published`. Validatie + eigenaarscheck. De publieke GET lekt de drempel niet.
+- **Cron:** `/api/cron/build-alerts` (CRON_SECRET-Bearer, groepeert per e-mail, anti-spam). `vercel.json`:
+  `0 3,9,15,21` UTC (1u na de catalogus-refresh → verse prijzen). E-mail `buildPriceDropEmail` in de
+  bestaande templatestijl (link naar de build).
+- **UI:** prijsalert-control per build op **`/builds`** (`BuildAlertRow`: drempel zetten/wijzigen/uit) +
+  CTA in het Slim-Kopen-paneel (`BuildCheckout`, sessie-bewust → /builds of /inloggen). `/api/builds`-lijst
+  geeft `alertTargetCents` mee.
+- **Open:** échte mail e2e (account → build opslaan → alert → prijsdaling → cron) = handmatig, zoals de
+  per-product-alert. Geen opgeslagen builds in de DB om `currentBuildTotalCents` live te valideren (pad is
+  unit-getest + hergebruikt geverifieerde functies).
+
 ## ▶ Nieuw (17 juni 2026, deel 40) — USP "Slim Kopen" in de builder (split-cart + build-prijsindex)
 
 Nieuwe USP om de builder-funnel te sluiten: een affiliate-gedreven "laatste klik"-laag. Een PC koop je

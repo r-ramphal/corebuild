@@ -92,6 +92,54 @@ export function priceDropEmail(items: PriceDropItem[]): string {
   );
 }
 
+export interface BuildDropItem {
+  name: string;
+  oldCents: number;
+  newCents: number;
+  targetCents: number;
+  buildUrl: string;
+}
+
+/** Build-prijsdaling: de hele build is op/onder de ingestelde drempel gezakt. */
+export function buildPriceDropEmail(items: BuildDropItem[]): string {
+  const rows = items
+    .map(
+      (it) => `
+      <tr>
+        <td style="padding:14px 0;border-bottom:1px solid ${BORDER};">
+          <div style="font-size:14px;font-weight:600;color:${TEXT};margin-bottom:4px;">${it.name}</div>
+          <div style="font-size:13px;color:${MUTED};">
+            <span style="text-decoration:line-through;">${euro(it.oldCents)}</span>
+            &rarr; <span style="color:${EMERALD};font-weight:700;">${euro(it.newCents)}</span>
+            <span style="color:${MUTED};"> (drempel ${euro(it.targetCents)})</span>
+          </div>
+        </td>
+        <td style="padding:14px 0;border-bottom:1px solid ${BORDER};text-align:right;vertical-align:middle;">
+          <a href="${it.buildUrl}" style="color:${PRIMARY};font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;">Bekijk &rarr;</a>
+        </td>
+      </tr>`
+    )
+    .join("");
+
+  const heading =
+    items.length === 1 ? "Je build is goedkoper geworden" : "Je builds zijn goedkoper geworden";
+
+  return layout(
+    heading,
+    `<p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:${MUTED};">
+       Goed nieuws — de laagste totaalprijs van je onderdelen is op of onder je drempel gezakt:
+     </p>
+     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+       ${rows}
+     </table>
+     <p style="margin:0 0 24px;">${button("https://corebuildnl.com/builds", "Naar mijn builds")}</p>
+     <p style="margin:0;font-size:12px;line-height:1.6;color:${MUTED};">
+       Je krijgt deze melding omdat je een prijsalert op deze build hebt gezet. Bedragen zijn
+       indicatief (onderdeelprijzen, excl. verzending). Zet de alert uit op Mijn builds.
+     </p>`
+  );
+}
+
 /** E-mailverificatie: knop om het account te activeren + platte-tekst-fallback. */
 export function verifyEmail(url: string): string {
   return layout(

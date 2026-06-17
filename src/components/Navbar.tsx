@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Save, LogOut, Menu, X, ArrowUpRight, Search, ChevronDown } from "lucide-react";
+import { Save, LogOut, Menu, X, ArrowUpRight, Search, ChevronDown, ShieldCheck } from "lucide-react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { SearchSuggest } from "@/components/SearchSuggest";
 import { cn } from "@/lib/utils";
@@ -143,6 +143,14 @@ export function Navbar() {
                   >
                     <Save className="w-4 h-4" /> Mijn builds
                   </Link>
+                  <Link
+                    href="/account"
+                    role="menuitem"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex items-center gap-2 px-4 py-3 border-t border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:bg-gp-bg-soft hover:text-gp-orange transition-colors"
+                  >
+                    <ShieldCheck className="w-4 h-4" /> Account &amp; beveiliging
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     role="menuitem"
@@ -214,6 +222,13 @@ export function Navbar() {
                     className="inline-flex items-center gap-2 px-5 py-3 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors"
                   >
                     <Save className="w-4 h-4" /> Mijn builds
+                  </Link>
+                  <Link
+                    href="/account"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex items-center gap-2 px-5 py-3 border border-gp-line font-plex text-[12px] uppercase tracking-wider text-gp-ink hover:border-gp-orange hover:text-gp-orange transition-colors"
+                  >
+                    <ShieldCheck className="w-4 h-4" /> Account
                   </Link>
                   <button
                     onClick={handleSignOut}

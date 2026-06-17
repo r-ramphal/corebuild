@@ -1,6 +1,6 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { captcha } from "better-auth/plugins";
+import { captcha, twoFactor } from "better-auth/plugins";
 import { APIError } from "better-auth/api";
 import { getDb } from "./db";
 import { sendEmail } from "./email";
@@ -56,15 +56,19 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
  * (die pagina heeft geen widget en is al rate-limited). De client stuurt de
  * token mee via de header `x-captcha-response`.
  */
-const plugins: BetterAuthOptions["plugins"] = process.env.TURNSTILE_SECRET_KEY
-  ? [
-      captcha({
-        provider: "cloudflare-turnstile",
-        secretKey: process.env.TURNSTILE_SECRET_KEY,
-        endpoints: ["/sign-up/email", "/sign-in/email"],
-      }),
-    ]
-  : [];
+// 2FA (TOTP) staat altijd aan: gebruikers kunnen het zelf inschakelen (opt-in).
+// `issuer` is de naam die in de authenticator-app verschijnt. Captcha blijft
+// env-gated — alleen actief met een Turnstile-secret.
+const plugins: BetterAuthOptions["plugins"] = [twoFactor({ issuer: "CoreBuild" })];
+if (process.env.TURNSTILE_SECRET_KEY) {
+  plugins.push(
+    captcha({
+      provider: "cloudflare-turnstile",
+      secretKey: process.env.TURNSTILE_SECRET_KEY,
+      endpoints: ["/sign-up/email", "/sign-in/email"],
+    })
+  );
+}
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {

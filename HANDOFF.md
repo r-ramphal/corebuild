@@ -2,6 +2,38 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 47) — security-audit stap 2: 2FA/TOTP (LIVE)
+
+Tweede stap van de hardening: tweestapsverificatie via better-auth's `twoFactor`-plugin. Opt-in per
+gebruiker (nog geen admin-rol → niet verplicht; verplichting volgt met de admin-rol in een latere stap).
+`tsc` + `next build` (65 pagina's) groen; migratie idempotent toegepast + geverifieerd op Neon; endpoints
+gesmoke-test (enable→400, verify-totp→schone 401 `INVALID_TWO_FACTOR_COOKIE`, geen lek); pagina's 200.
+
+- **Backend:** `src/lib/auth.ts` → `twoFactor({ issuer: "CoreBuild" })` (plugins is nu een array; captcha
+  blijft env-gated). `src/lib/auth-client.ts` → `twoFactorClient({ onTwoFactorRedirect })` stuurt na een
+  juist wachtwoord naar `/twee-factor`. Client-exports incl. `twoFactor`.
+- **Schema/migratie:** `src/lib/db/auth-schema.ts` → `user.twoFactorEnabled` + nieuwe `twoFactor`-tabel
+  (`secret`/`backupCodes`/`userId`→user.id cascade/`verified`). `drizzle/0007_add_two_factor.sql`
+  (additief + **idempotent** gemaakt: `CREATE TABLE IF NOT EXISTS` / `ADD COLUMN IF NOT EXISTS` / guarded FK).
+  **Let op de toepas-methode:** géén `drizzle-kit migrate` (de bestaande tabellen zijn via `db:push`
+  aangemaakt, geen `__drizzle_migrations`-journal in de DB → migrate zou 0000..N opnieuw draaien). Nieuw
+  hulpmiddel **`scripts/apply-migration.ts`** voert exact één .sql-bestand uit via de pg-Pool:
+  `npx tsx scripts/apply-migration.ts drizzle/0007_add_two_factor.sql`.
+- **UI:** `src/app/account/page.tsx` ("Account & beveiliging") — inschakelen (wachtwoord → QR + handmatige
+  sleutel + backup-codes → eerste code bevestigen), uitschakelen, nieuwe backup-codes. QR rendert
+  **client-side** (`qrcode.react` → `QRCodeSVG`, inline SVG, CSP-vriendelijk) zodat het secret de browser
+  nooit verlaat. `src/app/twee-factor/page.tsx` — login-stap (TOTP + "vertrouw dit apparaat 30 dagen" +
+  backup-code-terugval). `Navbar.tsx` — "Account & beveiliging"-link in het sessie-menu (desktop + mobiel).
+- **Nieuwe dependency:** `qrcode.react` (1 package, geen transitieve deps).
+- **Veiligheidsontwerp:** activeren is verificatie-gated (geldige TOTP vereist vóór 2FA aan → geen
+  lock-out door verkeerd scannen); uitschakelen met alleen wachtwoord (herstelbaar via reset); bestaande
+  gebruikers onaangeroerd (`twoFactorEnabled` default false). Noodluik: `two_factor`-rij in Neon wissen.
+- **Nog handmatig (kan ik niet autonoom):** échte e2e met een authenticator-app (QR scannen → code →
+  uitloggen → opnieuw inloggen met verse TOTP) op de live site. Edge: social-only accounts (geen wachtwoord)
+  kunnen 2FA nog niet zelf aanzetten (`allowPasswordless` staat uit — bewust).
+- **Klein vervolgpunt:** pg waarschuwt dat `sslmode=prefer/require/verify-ca` straks (pg v9) andere
+  semantiek krijgen; t.z.t. de Neon-URL/`ssl`-config expliciet op `verify-full` zetten.
+
 ## ▶ Nieuw (17 juni 2026, deel 46) — security-audit: stap 1 HTTP-beveiligingsheaders (LIVE)
 
 Start van een stapsgewijze security-hardening (audit tegen 4 categorieën: injectie/input, auth,

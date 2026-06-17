@@ -4,10 +4,13 @@
 
 ## ▶ VOLGENDE SESSIE — open punten / TODO (bijgewerkt 17 juni 2026)
 
-**AF: mobiel-first traject (deel 38), Fase 0–5 compleet** — fundament (viewport/safe-area/fluïde type),
-bottom-tabbar, conversie-pagina's (sticky koop-balk + filter-bottom-sheets), landing & ontdekking, account
-& secundair, cross-device sweep. `tsc`+`eslint src`+`next build` groen. **Enige restpunt:** eyeballen op
-een echt toestel (checklist staat in deel 38). Aanpak was Tailwind-native (geen Konsta/Ionic/MUI).
+**AF: mobiel-first traject (deel 38), Fase 0–5 compleet + LIVE op master** — fundament (viewport/safe-area/
+fluïde type), bottom-tabbar, conversie-pagina's (sticky koop-balk + filter-bottom-sheets), landing &
+ontdekking, account & secundair, cross-device sweep. `tsc`+`eslint src`+`next build` groen. Gecommit +
+gepusht (commit `cba05b5`). **Enige restpunt:** eyeballen op een echt toestel (checklist staat in deel 38).
+Aanpak was Tailwind-native (geen Konsta/Ionic/MUI).
+**Na livegang (deel 39, ook live):** zoekpagina mobiel gefixt (sorteerbalk + dubbele padding, `73a18f9`)
+en het "Featured build"-blok (`GiastShowcase`) van de homepage gehaald (`7b081d5`).
 
 Optioneel, in volgorde van waarde:
 1. **Voorbeeldbuild-prijzen periodiek herdraaien.** Bijgesteld in deel 30; DDR5/GPU schommelen, dus af en toe
@@ -57,6 +60,20 @@ _Vorige sessie (16 juni 2026):_
 
 Eerder al open (vereist account/inbox/toestel): reset-mail + mobiele weergave handmatig; Search Console
 sitemap indienen + Rich Results-test.
+
+## ▶ Nieuw (17 juni 2026, deel 39) — mobiel-fixes na livegang + Featured build eraf
+
+Kleine vervolgwijzigingen na het mobiel-traject (deel 38), elk los gecommit + gepusht naar `master`:
+- **Zoekpagina mobiel gefixt** (commit `73a18f9`): de sorteerbalk stapelt nu op mobiel en de 3-knops
+  segmented control ("Laagste/Hoogste prijs/Relevantie") wordt onder 640px een compacte `<select>`
+  (`sm:hidden` ↔ `hidden sm:flex`) — die overliep eerder op een smal scherm. Dubbele top-padding weg:
+  `pt-24` stond zowel op de pagina-`<main>` (`zoeken/page.tsx`) als de `ZoekenClient`-container (~176px
+  loze ruimte) → nu eenmaal `pt-24` op de main, container zonder eigen `pt`/`pb`. (Beide bestonden al
+  vóór deel 38; vielen op bij het mobiel testen.)
+- **"Featured build"-blok van de homepage** (commit `7b081d5`): op gebruikersverzoek (`GiastShowcase`
+  voelde overbodig). Import + render uit `src/app/page.tsx` gehaald én de component `GiastShowcase.tsx`
+  verwijderd (git bewaart 'm). **Homepage is nu: Hero → Marquee → Terminal → Categorieën → Manifest.**
+  `/voorbeeldbuilds` (waar het blok naartoe linkte) blijft bereikbaar via navbar + footer.
 
 ## ▶ Nieuw (17 juni 2026, deel 38) — mobiel-first traject (Fase 0–5 COMPLEET)
 
@@ -517,7 +534,8 @@ De data/logica-laag is overal ongemoeid (scrapers, Neon+Drizzle, `/api/*`, auth,
   grayscale→kleur foto's, hero featured-build-foto, featured-build-band (oranje pixel-kop). De foto's
   zijn gemapt per categorie (cpu/gpu/motherboard/ram/storage/psu/case/cooling).
 - **Homepage-componenten**: `home/GiastHero` (kinetisch roterend woord + `GiastBlueprint`-element),
-  `GiastMarquee`, `GiastTerminal`, `GiastCategories` (foto-bento), `GiastShowcase`, `GiastManifest`.
+  `GiastMarquee`, `GiastTerminal`, `GiastCategories` (foto-bento), ~~`GiastShowcase`~~ (verwijderd in
+  deel 39), `GiastManifest`.
 - **Navbar** (laatste ronde): logo **gecentreerd** (`grid-cols-3`) + **hamburger-uitklapmenu** (genummerde
   links, alle schermen) — giastpc-stijl. Hero-foto vervangen door geanimeerd **`GiastBlueprint`** (8 slots
   rond core + radar-sweep). Footer mono+oranje.

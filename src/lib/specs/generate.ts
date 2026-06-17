@@ -240,6 +240,7 @@ export function generateBuild(input: GenerateInput): GenerateResult {
   if (caseItem) components.case = caseItem;
 
   // 8. Koeling — alleen bij een warme CPU (X-serie); anders volstaat de boxed koeler.
+  //    Office krijgt nooit een losse koeler (zuinige iGPU-CPU met meegeleverde koeler).
   const needsCooler = useCase !== "office" && (cpuSpec?.tdp ?? 0) >= 95;
   if (needsCooler && get("cooling").length > 0) {
     // Weer accessoires (beugels, koelpasta, pads) die als 'koeling' binnenkwamen.
@@ -248,7 +249,10 @@ export function generateBuild(input: GenerateInput): GenerateResult {
     const cooler = pickCheapest(get("cooling"), cap("cooling"), notAccessory, (c) => isRecommended("cooling", c.name))
       ?? pickCheapest(get("cooling"), cap("cooling"));
     if (cooler) components.cooling = cooler;
-  } else if (cpuSpec && (cpuSpec.tdp < 95)) {
+  } else if (useCase === "office" && cpuSpec) {
+    // Altijd toelichten waarom de koeler-slot leeg blijft — ook als de CPU ≥95W zou zijn.
+    notes.push(`De ${cpuSpec.label} (${cpuSpec.tdp}W) komt met een meegeleverde boxed koeler — een losse koeler is niet nodig.`);
+  } else if (cpuSpec && cpuSpec.tdp < 95) {
     notes.push(`De ${cpuSpec.label} (${cpuSpec.tdp}W) komt meestal met een boxed koeler — losse koeler optioneel.`);
   }
 

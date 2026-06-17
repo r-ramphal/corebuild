@@ -102,6 +102,8 @@ function ok(label: string, cond: boolean, extra = "") {
   console.log("\n[office €800] total €" + r.total);
   ok("Geen videokaart (iGPU)", r.components.gpu == null);
   ok("CPU gekozen", r.components.cpu != null, `(${r.components.cpu?.name})`);
+  ok("Geen losse koeler (office)", r.components.cooling == null);
+  ok("Boxed-koeler-toelichting aanwezig", r.notes.some((n) => /boxed koeler/i.test(n)));
 }
 
 // — Test 3: budget gaming 1080p €700 (fallback naar goedkoopste GPU) —

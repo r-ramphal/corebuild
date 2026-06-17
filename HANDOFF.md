@@ -2,6 +2,39 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 46) — security-audit: stap 1 HTTP-beveiligingsheaders (LIVE)
+
+Start van een stapsgewijze security-hardening (audit tegen 4 categorieën: injectie/input, auth,
+server-config, bestanden/back-ups). **Bevinding: de app-code is solide** — alle SQL is geparametriseerd
+(Drizzle query-builder + `sql`-tag met bindings, ook de `WHERE url IN (...)`-joins), input-validatie op
+álle write-endpoints (`sanitizeComponents` etc.), React-escaping overal, enige `dangerouslySetInnerHTML`
+is `JsonLd` die `<`→`<` escaped, en `/api/product-info` heeft een SSRF-allowlist. Zwaktes zitten in
+de **config-laag**.
+
+- **Stap 1 (deze, commit `cda6b97`, gepusht + LIVE + geverifieerd op productie):** `next.config.ts` zet nu
+  via `headers()` op elke route: **HSTS** (`max-age=63072000; includeSubDomains`), **X-Frame-Options DENY**,
+  **X-Content-Type-Options nosniff**, **Referrer-Policy** `strict-origin-when-cross-origin`,
+  **Permissions-Policy** (camera/mic/geo uit). De **CSP staat bewust op `Content-Security-Policy-Report-Only`**
+  (rapporteert, blokkeert niet) zodat we 'm veilig op de live site valideren vóór enforcing. CSP afgestemd op
+  de echte bronnen: next/font (self-hosted), Vercel Analytics/Speed Insights (same-origin + `va.vercel-scripts.com`),
+  Cloudflare Turnstile (`challenges.cloudflare.com` script+iframe+connect), retailer-images (`img-src https:`),
+  three.js (`worker-src 'self' blob:`). `tsc` + `next build` (58 pagina's) groen; headers lokaal via `next start`
+  én live op corebuildnl.com bevestigd.
+  - **`'unsafe-inline'` op script-src** is voorlopig nodig (Next injecteert inline bootstrap/hydration zonder
+    nonce). Verharding later: nonce via `middleware.ts` → dan kan `'unsafe-inline'` eraf.
+  - **TODO vóór stap 1b (CSP enforcing):** browser-console checken op CSP-(Report-Only)-violations op `/`,
+    `/inloggen` (Turnstile), `/builder` (3D-canvas), `/categorie/gpu` (images). Geen meldingen → header-key
+    hernoemen `Content-Security-Policy-Report-Only` → `Content-Security-Policy`.
+
+- **Roadmap resterende stappen (afgesproken volgorde):** 2) **2FA/TOTP** (better-auth `twoFactor`-plugin +
+  migratie + enrollment-UI met QR/backup-codes, verplicht voor admin) · 3) **rate limiting** naar gedeelde
+  store (Upstash) / Vercel WAF — de huidige in-memory `Map` in `/api/search` + better-auth default-storage
+  lekken op serverless · 4) **dependency-scanning** (Dependabot + `npm audit` CI-gate + secret scanning) ·
+  5) **least-privilege DB-rol** (Neon: aparte app-rol zonder DDL) + **externe, geteste, versleutelde back-up**.
+  Kleinere punten: cron-secret-vergelijking naar `timingSafeEqual`; `/api/search` `errors`-veld generaliseren
+  (geen `String(reason)`-leak); wachtwoordbeleid (min 8 → 12 + HIBP-breachcheck in de bestaande
+  `databaseHooks.user.create.before`).
+
 ## ▶ Nieuw (17 juni 2026, deel 45) — junk-listing: tegenstrijdige platforms gefilterd
 
 De junk-listing "X670E … LGA 1150 … B85" €52 (deel 30) matchte als goedkoopste X670E-moederbord in

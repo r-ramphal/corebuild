@@ -22,7 +22,13 @@ te laten opslaan (gedeeld over alle instances) + strakke per-IP-regels op de aut
   dan 429); get-session → 8×200 (nooit 429); en een rij in `rate_limit` (`key=<ip>|/sign-in/email count=5`)
   bevestigt dat de tellers écht in de DB landen. **Let op:** moet ná elke config-wijziging eerst `next build`
   voor `next start` 'm oppikt (anders test je de oude bundel — kostte hier één misleidende run).
-- **IP-bron:** better-auth leest de client-IP uit `x-forwarded-for` (Vercel zet die); lokaal is dat ::1.
+- **IP-bron:** better-auth leest de client-IP uit `x-forwarded-for` (default in `getIp`; Vercel zet die
+  altijd met een geldige IP) → IP-resolutie werkt op serverless, geen extra config nodig. Lokaal is dat ::1.
+- **Live-testnuance:** een token-loze probe op de live `/sign-in/email` geeft **400** (Turnstile-captcha
+  `MISSING_RESPONSE`), niet 429 — de captcha vangt 'm vóór de rate-limit-laag. Dat is defense-in-depth:
+  token-loze bots → goedkope captcha-400; requests mét geldig captcha-token + fout wachtwoord tellen wél mee
+  → 429 na 5. De rate-limiter zelf is daarom lokaal (zonder Turnstile) end-to-end geverifieerd, niet via een
+  live token-loze HTTP-probe.
 - **Nog aanbevolen (dashboard, geen code):** zet **Vercel Firewall**-rate limiting aan (Pro) voor edge-niveau
   bescherming op `/api/*` — vangt volumetrisch/DoS-verkeer vóór de functions. De in-memory `Map` in
   `/api/search` (deel: search-fanout) blijft als goedkope soft-layer; bewust geen DB-write per zoekrequest.

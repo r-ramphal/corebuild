@@ -14,9 +14,10 @@ al-opgeslagen junk-rij direct uit Slim Kopen verdwijnt (geen DB-write nodig). Te
 72/72 (3 nieuwe cases incl. multi-socket koeler) + Python-asserts. `tsc`+`eslint src`+`npm run test`+`next build`
 groen. **Effect:** X670E matcht nu een echt bord (€493) i.p.v. €52-junk; junk ook geweerd op categoriepagina's
 (`/api/search` past matchesCategory toe) en bij toekomstige scrapes (refresh.py).
-- **Gevolg (open product-keuze):** door het correcte X670E-bord lopen Creator (€2944) en 4K (€2999) nu boven
-  hun budgetten (€2750/€2800). Keuze: budgetten bijstellen naar ~€2950/€3000, óf de voorbeeldbuilds een
-  goedkopere bord-klasse geven (X670/B650), óf laten. (`clean-listings.ts` kan de fysieke junk-rij later wissen.)
+- **Opgevolgd (gebruikerskeuze: bord → B650):** Creator/4K kregen een B650-bord i.p.v. X670E (catalogus dun
+  op betaalbare X670/X670E; "X670 ATX" matchte hetzelfde €493-bord). B650 (€125) is prima voor 9900X/9800X3D
+  en past bij de prijs-prestatie-USP. Budgetten herijkt: Creator €2750→**€2650** (floor €2576), 4K €2800→**€2700**
+  (floor €2631). (`clean-listings.ts` kan de fysieke junk-rij later wissen; functioneel al overal geweerd.)
 
 ## ▶ Nieuw (17 juni 2026, deel 44) — verzendtarieven getuned tegen echte cijfers
 

@@ -16,8 +16,8 @@ import type { ComponentType } from "./types";
  * aanbieding per onderdeel via /api/build-pricing). De richtprijzen liggen ~2-4%
  * boven de gedekte cheapest-som als marge voor dagprijs-schommelingen en de niet
  * altijd in de catalogus aanwezige onderdelen (specifieke koelers/cases). Let op:
- * DDR5 staat hoog (16GB ~€200, 32GB ~€369, 64GB ~€769) en de junk-listing
- * "X670E … LGA1150" €52 is genegeerd (reële X670E ~€220-250). Bijwerken = een rij aanpassen.
+ * DDR5 staat hoog (16GB ~€200, 32GB ~€369, 64GB ~€769). Creator/4K gebruiken een
+ * B650-bord (de catalogus is dun op betaalbare X670/X670E). Bijwerken = een rij aanpassen.
  */
 export interface ExampleBuildPart {
   type: ComponentType;
@@ -113,11 +113,11 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "Creator",
     tagline: "Editen, renderen en 3D-werk met veel geheugen en cores.",
     useCase: "creator / workstation",
-    budgetEur: 2750,
+    budgetEur: 2650,
     parts: [
       { type: "cpu", name: "AMD Ryzen 9 9900X" },
       { type: "gpu", name: "GeForce RTX 5070 Ti" },
-      { type: "motherboard", name: "X670E ATX moederbord" },
+      { type: "motherboard", name: "B650 ATX moederbord" },
       { type: "ram", name: "64GB DDR5-6000" },
       { type: "storage", name: "2TB NVMe SSD" },
       { type: "psu", name: "850W 80+ Gold" },
@@ -130,11 +130,11 @@ export const EXAMPLE_BUILDS: ExampleBuild[] = [
     name: "4K powerhouse",
     tagline: "Maximale beeldkwaliteit op 4K, alles op ultra.",
     useCase: "4K gaming",
-    budgetEur: 2800,
+    budgetEur: 2700,
     parts: [
       { type: "cpu", name: "AMD Ryzen 7 9800X3D" },
       { type: "gpu", name: "GeForce RTX 5080" },
-      { type: "motherboard", name: "X670E ATX moederbord" },
+      { type: "motherboard", name: "B650 ATX moederbord" },
       { type: "ram", name: "32GB DDR5-6000" },
       { type: "storage", name: "2TB NVMe SSD" },
       { type: "psu", name: "1000W 80+ Gold" },

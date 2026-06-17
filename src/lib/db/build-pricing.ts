@@ -6,6 +6,7 @@ import type { ComponentType } from "@/lib/types";
 import { computeBuildIndex, type PartDayPoints } from "@/lib/specs/build-index";
 import { cheapestOffer, type PartOffers, type Offer } from "@/lib/specs/split-cart";
 import { productMatches } from "@/lib/specs/match-product";
+import { hasContradictorySocket } from "@/lib/relevance";
 
 /** Eén gekozen onderdeel uit de build (de aanbieding die de gebruiker koos). */
 export interface BuildPart {
@@ -41,7 +42,7 @@ export async function getBuildPricingData(
 
   const categories = [...new Set(parts.map((p) => p.category))];
   const cutoff = new Date(Date.now() - CATALOG_TTL_MS);
-  const rows = await db
+  const rawRows = await db
     .select({
       retailer: listings.retailer,
       name: listings.name,
@@ -52,6 +53,13 @@ export async function getBuildPricingData(
     })
     .from(listings)
     .where(and(inArray(listings.category, categories), eq(listings.mock, false), gt(listings.scrapedAt, cutoff)));
+
+  // Vangnet tegen junk-rijen die nog in de DB staan (geschreven vóór de
+  // relevance-regel): een moederbord/CPU-titel met twee onverenigbare platforms
+  // (bv. "X670E … LGA1150 … B85") is spam en mag de split niet vervuilen.
+  const rows = rawRows.filter(
+    (r) => !((r.category === "motherboard" || r.category === "cpu") && hasContradictorySocket(r.name))
+  );
 
   const offers: PartOffers[] = [];
   const urlsByPart: string[][] = [];

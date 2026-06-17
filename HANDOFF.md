@@ -2,6 +2,22 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 45) — junk-listing: tegenstrijdige platforms gefilterd
+
+De junk-listing "X670E … LGA 1150 … B85" €52 (deel 30) matchte als goedkoopste X670E-moederbord in
+Slim Kopen. Root cause: één bord/CPU = één platform, maar deze titel noemt zowel een AMD-chipset (X670E)
+als een Intel-socket (LGA1150). Nieuwe `hasContradictorySocket()` in `src/lib/relevance.ts` **+ Python-
+spiegel** `relevance.py` (`has_contradictory_socket`): AMD-platform-regex én Intel-platform-regex beide raak
+= junk. Ingehaakt in `matchesCategory`/`matches_category` **alleen voor motherboard/cpu** (een CPU-koeler mag
+wél AM5 + LGA1700 noemen — daarom niet universeel). Plus een **read-filter in `getBuildPricingData`** zodat de
+al-opgeslagen junk-rij direct uit Slim Kopen verdwijnt (geen DB-write nodig). Tests: TS `test-relevance.ts`
+72/72 (3 nieuwe cases incl. multi-socket koeler) + Python-asserts. `tsc`+`eslint src`+`npm run test`+`next build`
+groen. **Effect:** X670E matcht nu een echt bord (€493) i.p.v. €52-junk; junk ook geweerd op categoriepagina's
+(`/api/search` past matchesCategory toe) en bij toekomstige scrapes (refresh.py).
+- **Gevolg (open product-keuze):** door het correcte X670E-bord lopen Creator (€2944) en 4K (€2999) nu boven
+  hun budgetten (€2750/€2800). Keuze: budgetten bijstellen naar ~€2950/€3000, óf de voorbeeldbuilds een
+  goedkopere bord-klasse geven (X670/B650), óf laten. (`clean-listings.ts` kan de fysieke junk-rij later wissen.)
+
 ## ▶ Nieuw (17 juni 2026, deel 44) — verzendtarieven getuned tegen echte cijfers
 
 `src/lib/retailers.ts` (`RETAILER_SHIPPING`) bijgewerkt van schattingen naar de werkelijke NL-tarieven

@@ -23,6 +23,28 @@ _JUNK = re.compile(
     re.IGNORECASE,
 )
 
+# Onverenigbare platforms: een moederbord of CPU hoort bij precies één socket.
+# Een titel die zowel een AMD-platform (AM4/AM5-socket of -chipset) als een
+# Intel-platform (LGA-socket of Intel-chipset) noemt, is een junk-/spamtitel
+# (bv. "X670E ... LGA 1150 ... B85"). Geldt bewust NIET voor koelers/pasta e.d.,
+# die legitiem meerdere sockets ondersteunen -> alleen op motherboard/cpu.
+_AMD_PLATFORM = re.compile(
+    r"\b(am5|am4|am3\+?|x870e?|x670e?|b850|b840|b650e?|a620|x570|b550|a520|b450|x470|b350|a320|trx40|trx50|wrx80|tr4)\b",
+    re.I,
+)
+_INTEL_PLATFORM = re.compile(
+    r"\b(lga\s?(?:1150|1151|1155|1156|1200|1700|1851|2011|2066)|socket\s?115\d|h81|b85|h87|z87|h97|z97"
+    r"|h110|b150|h170|z170|b250|z270|z370|z390|b360|h310|b365|z490|b460|h410|z590|b560|h510|b660|z690"
+    r"|b760|z790|h610|b860|z890)\b",
+    re.I,
+)
+
+
+def has_contradictory_socket(name: str) -> bool:
+    """True als een titel sockets/chipsets van twee onverenigbare platforms noemt."""
+    return bool(_AMD_PLATFORM.search(name) and _INTEL_PLATFORM.search(name))
+
+
 # Per categorie: (require-patronen waarvan er minstens één moet matchen, exclude-patroon)
 _RULES: dict[str, tuple[list[re.Pattern], re.Pattern]] = {
     "cpu": (
@@ -278,6 +300,9 @@ def matches_category(name: str, category: str) -> bool:
         return True
     require, exclude = rule
     if exclude.search(name):
+        return False
+    # Eén moederbord/CPU = één platform; twee onverenigbare platforms = junk.
+    if category in ("motherboard", "cpu") and has_contradictory_socket(name):
         return False
     return any(p.search(name) for p in require)
 

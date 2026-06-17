@@ -26,6 +26,11 @@ const CASES: { name: string; cat: ComponentType; expect: boolean }[] = [
   { name: "MSI PRO B850-S WIFI6E - Moederbord - Socket AM5 - ATX", cat: "motherboard", expect: true },
   { name: "Motherboard Asus PRIME B760M-A-CSM DDR5 LGA1700 Intel B760", cat: "motherboard", expect: true },
   { name: "GIGABYTE X870E AERO X3D WOOD AMD X870E Socket AM5 ATX moederbord", cat: "motherboard", expect: true },
+  // tegenstrijdige platforms (AMD-chipset + Intel-socket) = junk-/spamtitel
+  { name: "Moederbord X670E B85 Socket LGA 1150 ATX DDR4 gaming", cat: "motherboard", expect: false },
+  { name: "AMD AM5 X670E / Intel LGA1700 Z790 combo moederbord", cat: "motherboard", expect: false },
+  // multi-socket CPU-koeler mag WEL meerdere platforms noemen (geen mobo/cpu)
+  { name: "Noctua NH-D15 chromax.black CPU-koeler (AM5, AM4, LGA1700, LGA1200)", cat: "cooling", expect: true },
   // — ram —
   { name: "Corsair Vengeance - RAM-geheugen - 32GB - DDR5 - 6000 CL30", cat: "ram", expect: true },
   { name: "Kingston DDR5 FURY Beast 2x32GB 6000 KF560C36BBEK2-64 geheugenmodule", cat: "ram", expect: true },

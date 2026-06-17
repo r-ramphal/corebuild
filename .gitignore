@@ -53,3 +53,6 @@ __pycache__/
 # lokale screenshots/chrome-profielen (niet scannen/committen)
 .shots/
 .shots*
+
+# least-privilege app-rol connection string (geheim, lokaal) — zie scripts/setup-app-role.ts
+.app-role-url

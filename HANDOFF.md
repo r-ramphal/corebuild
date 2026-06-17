@@ -2,6 +2,34 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 50) — security-audit stap 5a: least-privilege DB-rol (LIVE)
+
+Vijfde hardening-stap, deel a: de runtime draait niet meer als `neondb_owner` (volledige DDL — bij een
+leak/RCE kon een aanvaller `DROP TABLE`), maar als een rol met alléén DML. **Back-ups (5b) volgen nog.**
+
+- **Rol `corebuild_app`** (login, NOSUPERUSER/NOCREATEDB/NOCREATEROLE) — aangemaakt + geverifieerd tegen de
+  live Neon-DB via **`scripts/setup-app-role.ts`** (genereert wachtwoord, maakt rol, past grants toe,
+  verifieert ALS de rol: SELECT + INSERT/UPDATE/DELETE in een teruggedraaide transactie + bevestigt dat
+  **CREATE TABLE correct GEWEIGERD** wordt). Verbindt via de Neon-pooler (SQL-rol werkt prima met Neon).
+- **Rechten** (`scripts/sql/least-privilege-grants.sql`, idempotent): CONNECT + USAGE op schema (geen CREATE),
+  SELECT/INSERT/UPDATE/DELETE op alle tabellen (geen TRUNCATE/DDL/ownership), USAGE/SELECT op de sequences,
+  én `ALTER DEFAULT PRIVILEGES FOR ROLE neondb_owner` zodat toekomstige migratie-tabellen automatisch dezelfde
+  DML-rechten krijgen (geen her-grant per migratie).
+- **Productie-switch:** nieuwe **`DATABASE_URL`** (app-rol) in Vercel-**Production** gezet. `getDb()` verkiest
+  `DATABASE_URL` boven de Neon-integratie's `STORAGE_DATABASE_URL` (owner), dus dit overschrijft schoon.
+  **Rollback** = `DATABASE_URL` uit Vercel verwijderen → valt terug op owner. Connection string staat lokaal
+  in het gitignored `.app-role-url`.
+- **Taakverdeling rollen:** runtime (Vercel-Production) = `corebuild_app`; **migraties + lokaal dev** =
+  `neondb_owner` via `.env.local` (drizzle-kit + `scripts/apply-migration.ts` blijven owner gebruiken — die
+  hebben DDL nodig). Preview/Development draaien nog op `STORAGE_DATABASE_URL` (owner); optioneel later ook
+  omzetten.
+- **Let op:** een volgende migratie (nieuwe tabel) is dankzij ALTER DEFAULT PRIVILEGES meteen leesbaar/
+  schrijfbaar voor de app-rol. Maar verandert een migratie iets aan ownership/grants buiten dat patroon, check
+  dan of `corebuild_app` de juiste DML houdt. Wachtwoord verversen: `npx tsx scripts/setup-app-role.ts`
+  opnieuw draaien (zet een nieuw wachtwoord + schrijft `.app-role-url`) → daarna Vercel-`DATABASE_URL` bijwerken.
+- **Nog te doen (5b):** externe, versleutelde, geteste back-up (pg_dump → encrypt → offsite/immutable) +
+  Neon PITR-retentie checken + restore-drill.
+
 ## ▶ Nieuw (17 juni 2026, deel 49) — security-audit stap 4: dependency-/CVE-scanning (CI)
 
 Vierde hardening-stap: afhankelijkheden + code automatisch op kwetsbaarheden scannen. Repo is **public**

@@ -2,6 +2,25 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 52) — Slim Kopen-USP naar de homepage gehaald (LIVE)
+
+De "Slim Kopen"-USP (deel 40–45) stond alleen in de builder (achter een on-demand knop) en op
+`/voorbeeldbuilds`. Nu ook prominent op de homepage zodat een bezoeker de waarde meteen ziet.
+`tsc` + `eslint src` + `next build` groen (homepage blijft statisch `○`); SSR + teksten live geverifieerd.
+Commit `7058e71`.
+
+- **Nieuwe sectie `src/components/home/GiastSlimKopen.tsx`** — giastpc-stijl, server-component (geen
+  `"use client"`). Legt de USP uit (split-cart: "alles bij 1 winkel" vs "slim verdeeld" + **bespaar-badge**,
+  verzending meegerekend, + prijsverloop-strip met sparkline) met CTA's naar `/builder` en `/voorbeeldbuilds`.
+  Cijfers zijn een **statisch 1440p-voorbeeld** (€1.890 vs €1.780, bespaar €110) met een "ter illustratie"-
+  disclaimer; de echte berekening blijft live in de builder (`BuildCheckout`).
+- **Plaatsing** in `src/app/page.tsx`: hoog in de flow → Hero → Marquee → **Slim Kopen** → Terminal →
+  Categorieën → Manifest (gewrapt in `<Reveal>` zoals de andere secties).
+- **Hero-haak** (`GiastHero.tsx`): subtekst kreeg Slim Kopen als derde kernbelofte ("…je build slim verdeeld
+  over winkels — zodat je het láágste totaal betaalt").
+- **Eyeball nog door jou:** live homepage, m.n. **mobiel** (de 2-koloms grid stapelt; check de visual-kaart +
+  CTA's op smal scherm) en de scroll-reveal. Rollback = sectie uit `page.tsx` + de hero-zin terugdraaien.
+
 ## ▶ Nieuw (17 juni 2026, deel 51) — security-audit stap 5b: versleutelde off-site back-ups (TOOLING)
 
 Laatste hardening-stap: externe, versleutelde, geteste back-ups bovenop Neon PITR. **Tooling staat klaar;

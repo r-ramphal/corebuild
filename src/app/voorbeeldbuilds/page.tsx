@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { EXAMPLE_BUILDS } from "@/lib/example-builds";
 import { COMPONENT_META } from "@/lib/categories";
+import { ExampleBuildBuy } from "@/components/ExampleBuildBuy";
 
 export const metadata: Metadata = {
   title: "Voorbeeldbuilds — complete pc's per budget",
@@ -97,6 +98,8 @@ export default function VoorbeeldbuildsPage() {
                     Stel samen <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
+
+                <ExampleBuildBuy parts={build.parts} />
               </div>
             </article>
           ))}

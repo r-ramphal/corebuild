@@ -34,7 +34,12 @@ function safeUrl(u: unknown): string | null {
   }
 }
 
-/** Valideer de client-side build naar een lijst veilige BuildParts (geen mock). */
+/**
+ * Valideer de client-side build naar veilige BuildParts (geen mock). `url` en
+ * `priceEur` zijn optioneel: de builder stuurt ze mee (gekozen aanbieding), maar
+ * de voorbeeldbuilds sturen alleen `slot` + `name` — die worden in de DB op naam
+ * gematcht. Een ongeldige/ontbrekende url wordt "" (matching valt terug op de naam).
+ */
 function parseParts(raw: unknown): BuildPart[] {
   if (!Array.isArray(raw)) return [];
   const out: BuildPart[] = [];
@@ -43,18 +48,17 @@ function parseParts(raw: unknown): BuildPart[] {
     const v = item as Record<string, unknown>;
     if (v.mock === true) continue;
     if (!isComponentType(v.slot)) continue;
-    const name = typeof v.name === "string" ? v.name.slice(0, MAX_NAME_LENGTH) : "";
-    const url = safeUrl(v.url);
+    const name = typeof v.name === "string" ? v.name.slice(0, MAX_NAME_LENGTH).trim() : "";
+    if (!name) continue;
     const priceEur =
       typeof v.priceEur === "number" && isFinite(v.priceEur) && v.priceEur >= 0 && v.priceEur < 1_000_000
         ? v.priceEur
-        : null;
-    if (!name || !url || priceEur === null) continue;
+        : 0;
     out.push({
       slot: v.slot,
       category: v.slot,
       name,
-      url,
+      url: safeUrl(v.url) ?? "",
       retailer: typeof v.retailer === "string" ? v.retailer.slice(0, 40) : "onbekend",
       priceCents: Math.round(priceEur * 100),
     });

@@ -2,6 +2,27 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 42) — "Slim Kopen" op /voorbeeldbuilds
+
+De curated voorbeeldbuilds krijgen nu dezelfde koop-USP (split-cart + build-prijsindex), on-demand per kaart.
+SEO/landing-winst, geen migratie. Gate groen: `tsc` + `eslint src` + `npm run test` + `next build`
+(`/voorbeeldbuilds` blijft statisch ○); live geverifieerd + gescreenshot.
+- **Refactor (reuse):** de resultaat-rendering (index + split) uit `BuildCheckout` geëxtraheerd naar
+  `src/components/builder/BuildPricingResult.tsx` (puur presentatie, geen knoppen/sessie). `BuildCheckout`
+  gebruikt 'm nu; `ExampleBuildBuy` ook.
+- **Endpoint versoepeld (backward compatible):** `parseParts` in `/api/build-pricing` accepteert nu
+  **name-only** parts (url/prijs optioneel) — de voorbeeldbuilds sturen alleen `slot`+`name`, die in de DB
+  op naam worden gematcht. De builder stuurt nog steeds de volledige gekozen aanbieding. `BuildPricingPart`:
+  url/retailer/priceEur optioneel.
+- **UI:** `src/components/ExampleBuildBuy.tsx` (giastpc-stijl knop) per kaart op `/voorbeeldbuilds`.
+- **Dekkingsframing:** de split-kaart toont nu "**voor N/P onderdelen**" als niet alles gematcht is
+  (voorkomt een misleidend laag totaal naast de indicatie-richtprijs). Voorbeeld: 1440p-build matcht 4/8
+  (CPU/GPU/PSU/case wel; generiek benoemde parts als "B650 ATX moederbord"/"32GB DDR5-6000" niet verbatim).
+- **Bewuste grens / volgende verbetering:** de naam-matching is substring (`listing.name` bevat de volledige
+  genormaliseerde part-naam). Generieke/Nederlandstalige namen ("moederbord", "behuizing") matchen daardoor
+  niet altijd. Een **model/token-gebaseerde matcher** (via `detect.ts`/`clean-name`) zou de dekking op de
+  voorbeeldbuilds **én** de cross-retailer-split in de builder verbeteren — losse vervolgstap.
+
 ## ▶ Nieuw (17 juni 2026, deel 41) — hele-build prijsalert (vervolg op "Slim Kopen")
 
 Re-engagement-laag bovenop deel 40: ingelogde gebruikers krijgen een mail zodra de **actuele laagste

@@ -7,9 +7,10 @@ import type { BuildIndexSummary } from "@/lib/specs/build-index";
 export interface BuildPricingPart {
   slot: string;
   name: string;
-  url: string;
-  retailer: string;
-  priceEur: number;
+  /** Optioneel — de builder stuurt de gekozen aanbieding mee; voorbeeldbuilds alleen naam. */
+  url?: string;
+  retailer?: string;
+  priceEur?: number;
   mock?: boolean;
 }
 

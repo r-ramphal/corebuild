@@ -5,9 +5,20 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { PriceList } from "./PriceList";
 import { SearchSuggest } from "@/components/SearchSuggest";
+import { FacetFilters } from "@/components/FacetFilters";
 import { useBuildStore } from "@/lib/store/build";
 import { useSearch } from "@/lib/use-search";
 import { getSuggestions } from "@/lib/search-suggestions";
+import { matchesCategory } from "@/lib/relevance";
+import { CATALOG_TYPES, COMPONENT_META } from "@/lib/categories";
+import {
+  getFacetGroups,
+  itemMatchesFacets,
+  itemMatchesTiers,
+  priceTiersFor,
+  DEFAULT_PRICE_TIERS,
+  type FacetSelection,
+} from "@/lib/specs/facets";
 import type { SearchResults, Retailer, ComponentType } from "@/lib/types";
 
 const ALL_RETAILERS: Retailer[] = ["amazon", "bol", "megekko", "azerty", "alternate"];
@@ -21,16 +32,33 @@ const RETAILER_LABEL: Record<Retailer, string> = {
 };
 
 type SortMode = "asc" | "desc" | "relevance";
+type CategoryFilter = ComponentType | "all";
+
+/** Bovengrens van de prijs-slider; daarboven = "geen limiet". */
+const PRICE_CAP = 2500;
 
 export function ZoekenClient() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") ?? "";
   const { setComponent } = useBuildStore();
 
+  // Categorie + sortering werken direct (categorie bepaalt welke facetten tonen).
+  const [category, setCategory] = useState<CategoryFilter>("all");
+  const [sortBy, setSortBy] = useState<SortMode>("asc");
+
+  // Concept-selectie (gebonden aan de inputs).
   const [selectedRetailers, setSelectedRetailers] = useState<Retailer[]>(ALL_RETAILERS);
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [maxPrice, setMaxPrice] = useState(2000);
-  const [sortBy, setSortBy] = useState<SortMode>("asc");
+  const [maxPrice, setMaxPrice] = useState(PRICE_CAP);
+  const [facetSel, setFacetSel] = useState<FacetSelection>({});
+  const [selectedTiers, setSelectedTiers] = useState<string[]>([]);
+
+  // Toegepaste filters (sturen de resultaten) — pas na "Filters toepassen".
+  const [appliedRetailers, setAppliedRetailers] = useState<Retailer[]>(ALL_RETAILERS);
+  const [appliedInStock, setAppliedInStock] = useState(false);
+  const [appliedMax, setAppliedMax] = useState(PRICE_CAP);
+  const [appliedSel, setAppliedSel] = useState<FacetSelection>({});
+  const [appliedTiers, setAppliedTiers] = useState<string[]>([]);
 
   const { results, loading } = useSearch(
     query ? `/api/search?q=${encodeURIComponent(query)}` : null,
@@ -39,35 +67,83 @@ export function ZoekenClient() {
 
   function toggleRetailer(retailer: Retailer) {
     setSelectedRetailers((prev) =>
-      prev.includes(retailer)
-        ? prev.filter((r) => r !== retailer)
-        : [...prev, retailer],
+      prev.includes(retailer) ? prev.filter((r) => r !== retailer) : [...prev, retailer]
     );
   }
 
-  function resetFilters() {
+  function toggleFacet(key: string, value: string) {
+    setFacetSel((prev) => {
+      const cur = prev[key] ?? [];
+      const next = cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value];
+      const out = { ...prev, [key]: next };
+      if (next.length === 0) delete out[key];
+      return out;
+    });
+  }
+
+  function toggleTier(id: string) {
+    setSelectedTiers((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
+  }
+
+  // Wisselen van categorie reset de (categorie-specifieke) facet-/tier-selectie,
+  // anders zou een oude socket-keuze de nieuwe categorie leegfilteren.
+  function changeCategory(value: CategoryFilter) {
+    setCategory(value);
+    setFacetSel({});
+    setSelectedTiers([]);
+    setAppliedSel({});
+    setAppliedTiers([]);
+  }
+
+  function applyFilters() {
+    setAppliedRetailers(selectedRetailers);
+    setAppliedInStock(inStockOnly);
+    setAppliedMax(maxPrice);
+    setAppliedSel(facetSel);
+    setAppliedTiers(selectedTiers);
+  }
+
+  function clearAll() {
+    setCategory("all");
     setSelectedRetailers(ALL_RETAILERS);
     setInStockOnly(false);
-    setMaxPrice(2000);
+    setMaxPrice(PRICE_CAP);
+    setFacetSel({});
+    setSelectedTiers([]);
+    setAppliedRetailers(ALL_RETAILERS);
+    setAppliedInStock(false);
+    setAppliedMax(PRICE_CAP);
+    setAppliedSel({});
+    setAppliedTiers([]);
     setSortBy("asc");
   }
 
-  const filteredResults: SearchResults | null = results
-    ? {
-        ...results,
-        results: results.results
-          .filter((item) => selectedRetailers.includes(item.retailer))
-          .filter((item) => !inStockOnly || item.inStock)
-          .filter((item) => maxPrice >= 2000 || item.priceEur <= maxPrice)
-          .sort((a, b) =>
-            sortBy === "relevance"
-              ? 0
-              : sortBy === "asc"
-                ? a.priceEur - b.priceEur
-                : b.priceEur - a.priceEur,
-          ),
-      }
-    : null;
+  // Facetten alleen tonen bij een specifieke categorie (binnen die subset).
+  const facetGroups = useMemo(() => {
+    if (category === "all" || !results) return [];
+    const scoped = results.results.filter((i) => matchesCategory(i.name, category));
+    return getFacetGroups(category, scoped);
+  }, [results, category]);
+
+  const tiers = useMemo(
+    () => (category === "all" ? DEFAULT_PRICE_TIERS : priceTiersFor(category)),
+    [category]
+  );
+
+  const filteredResults: SearchResults | null = useMemo(() => {
+    if (!results) return null;
+    const list = results.results
+      .filter((i) => category === "all" || matchesCategory(i.name, category))
+      .filter((i) => appliedRetailers.includes(i.retailer))
+      .filter((i) => !appliedInStock || i.inStock)
+      .filter((i) => category === "all" || itemMatchesFacets(category, i, appliedSel))
+      .filter((i) => itemMatchesTiers(i, tiers, appliedTiers))
+      .filter((i) => appliedMax >= PRICE_CAP || i.priceEur <= appliedMax)
+      .sort((a, b) =>
+        sortBy === "relevance" ? 0 : sortBy === "asc" ? a.priceEur - b.priceEur : b.priceEur - a.priceEur
+      );
+    return { ...results, results: list };
+  }, [results, category, appliedRetailers, appliedInStock, appliedSel, tiers, appliedTiers, appliedMax, sortBy]);
 
   const sortOptions: { mode: SortMode; label: string }[] = [
     { mode: "asc", label: "Laagste prijs" },
@@ -88,78 +164,76 @@ export function ZoekenClient() {
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-24 pb-16 flex flex-col md:flex-row gap-8">
       {/* Filters Sidebar */}
-      <aside className="w-full md:w-1/4 space-y-8 md:sticky top-24 h-fit">
-        <div className="flex justify-between items-center pb-4 border-b border-outline-variant">
-          <h2 className="font-title-md text-title-md text-on-surface">Filters</h2>
-          <button
-            onClick={resetFilters}
-            className="font-label-technical text-label-technical text-primary hover:underline"
-          >
-            Wissen
-          </button>
-        </div>
-
-        {/* Price Range */}
-        <div>
-          <h3 className="font-label-technical text-label-technical text-on-surface-variant mb-4 uppercase tracking-wider">
-            Prijsbereik
-          </h3>
-          <input
-            type="range"
-            min={0}
-            max={2000}
-            step={50}
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(Number(e.target.value))}
-            aria-label="Maximale prijs"
-            aria-valuetext={maxPrice >= 2000 ? "Geen limiet" : `€${maxPrice}`}
-            className="custom-slider mb-2"
-          />
-          <div className="flex justify-between items-center">
-            <span className="font-body-sm text-body-sm border border-outline-variant px-3 py-1 rounded bg-surface-container-lowest">
-              € 0
-            </span>
-            <span className="font-body-sm text-body-sm border border-outline-variant px-3 py-1 rounded bg-surface-container-lowest">
-              {maxPrice >= 2000 ? "€ 2.000+" : `€ ${maxPrice.toLocaleString("nl-NL")}`}
-            </span>
+      <aside className="w-full md:w-1/4 space-y-6 md:sticky top-24 h-fit">
+        <FacetFilters
+          groups={facetGroups}
+          selected={facetSel}
+          onToggle={toggleFacet}
+          tiers={tiers}
+          selectedTiers={selectedTiers}
+          onToggleTier={toggleTier}
+          maxPrice={maxPrice}
+          priceCap={PRICE_CAP}
+          onMaxPrice={setMaxPrice}
+          onApply={applyFilters}
+          onClear={clearAll}
+        >
+          {/* Categorie-keuze (werkt direct) */}
+          <div className="mb-8">
+            <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
+              Categorie
+            </h4>
+            <select
+              value={category}
+              onChange={(e) => changeCategory(e.target.value as CategoryFilter)}
+              aria-label="Filter op categorie"
+              className="w-full h-10 px-3 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none cursor-pointer"
+            >
+              <option value="all">Alle categorieën</option>
+              {CATALOG_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {COMPONENT_META[t].label}
+                </option>
+              ))}
+            </select>
           </div>
-        </div>
 
-        {/* Retailers */}
-        <div>
-          <h3 className="font-label-technical text-label-technical text-on-surface-variant mb-4 uppercase tracking-wider">
-            Retailers
-          </h3>
-          <div className="space-y-3">
-            {ALL_RETAILERS.map((retailer) => (
-              <label key={retailer} className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={selectedRetailers.includes(retailer)}
-                  onChange={() => toggleRetailer(retailer)}
-                  className="w-4 h-4 rounded text-primary border-outline-variant focus:ring-primary"
-                />
-                <span className="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">
-                  {RETAILER_LABEL[retailer]}
-                </span>
-              </label>
-            ))}
+          {/* Retailers */}
+          <div className="mb-8">
+            <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
+              Retailers
+            </h4>
+            <div className="space-y-2.5">
+              {ALL_RETAILERS.map((retailer) => (
+                <label key={retailer} className="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={selectedRetailers.includes(retailer)}
+                    onChange={() => toggleRetailer(retailer)}
+                    className="w-4 h-4 rounded text-primary border-outline-variant focus:ring-primary"
+                  />
+                  <span className="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">
+                    {RETAILER_LABEL[retailer]}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Toggle */}
-        <div className="flex items-center justify-between py-4 border-t border-outline-variant">
-          <span className="font-body-sm text-body-sm text-on-surface">Alleen op voorraad</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={inStockOnly}
-              onChange={(e) => setInStockOnly(e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
-          </label>
-        </div>
+          {/* Alleen op voorraad */}
+          <div className="flex items-center justify-between mb-8">
+            <span className="font-body-sm text-body-sm text-on-surface">Alleen op voorraad</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => setInStockOnly(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+            </label>
+          </div>
+        </FacetFilters>
       </aside>
 
       {/* Results Column */}
@@ -235,7 +309,7 @@ export function ZoekenClient() {
               </p>
             ) : (
               <p className="font-body-sm text-body-sm text-on-surface-variant">
-                Probeer een andere zoekterm of merk.
+                Probeer een andere zoekterm, categorie of filter.
               </p>
             )}
           </div>

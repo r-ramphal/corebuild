@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -18,6 +18,14 @@ import { SearchBox } from "@/components/SearchBox";
 import { WatchButton } from "@/components/WatchButton";
 import { bestValueIndex, hasValueMetric } from "@/lib/specs/value";
 import { useSearch } from "@/lib/use-search";
+import { FacetFilters } from "@/components/FacetFilters";
+import {
+  getFacetGroups,
+  itemMatchesFacets,
+  itemMatchesTiers,
+  priceTiersFor,
+  type FacetSelection,
+} from "@/lib/specs/facets";
 import type { ComponentType, PriceResult } from "@/lib/types";
 
 const RETAILER_LABEL: Record<string, string> = {
@@ -27,6 +35,9 @@ const RETAILER_LABEL: Record<string, string> = {
   azerty: "Azerty",
   alternate: "Alternate",
 };
+
+/** Bovengrens van de prijs-slider; daarboven = "geen limiet". */
+const PRICE_CAP = 2500;
 
 interface CategoryResultCardProps {
   item: PriceResult;
@@ -214,8 +225,15 @@ export function CategorieClient() {
 
   const [query, setQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
-  const [maxPrice, setMaxPrice] = useState(2500);
+  const [maxPrice, setMaxPrice] = useState(PRICE_CAP);
   const [sortBy, setSortBy] = useState<"asc" | "desc">("asc");
+  const [facetSel, setFacetSel] = useState<FacetSelection>({});
+  const [selectedTiers, setSelectedTiers] = useState<string[]>([]);
+  // "Applied" = de filters die de resultaten echt sturen; bovenstaande zijn de
+  // concept-selectie tot de gebruiker op "Filters toepassen" klikt.
+  const [appliedSel, setAppliedSel] = useState<FacetSelection>({});
+  const [appliedTiers, setAppliedTiers] = useState<string[]>([]);
+  const [appliedMax, setAppliedMax] = useState(PRICE_CAP);
   // Toon eerst een beperkt aantal kaarten (sneller laden: minder DOM + minder
   // afbeeldingen tegelijk). "Toon meer" laadt de rest in stappen bij.
   const PAGE = 24;
@@ -248,6 +266,54 @@ export function CategorieClient() {
     setVisible(PAGE);
   }
 
+  function toggleFacet(key: string, value: string) {
+    setFacetSel((prev) => {
+      const cur = prev[key] ?? [];
+      const next = cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value];
+      const out = { ...prev, [key]: next };
+      if (next.length === 0) delete out[key];
+      return out;
+    });
+  }
+
+  function toggleTier(id: string) {
+    setSelectedTiers((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
+  }
+
+  function applyFilters() {
+    setAppliedSel(facetSel);
+    setAppliedTiers(selectedTiers);
+    setAppliedMax(maxPrice);
+    setVisible(PAGE);
+  }
+
+  function clearAll() {
+    setFacetSel({});
+    setSelectedTiers([]);
+    setMaxPrice(PRICE_CAP);
+    setAppliedSel({});
+    setAppliedTiers([]);
+    setAppliedMax(PRICE_CAP);
+    setSortBy("asc");
+    setQuery("");
+    setActiveQuery("");
+    setVisible(PAGE);
+  }
+
+  const facetGroups = useMemo(
+    () => getFacetGroups(componentType, results?.results ?? []),
+    [results, componentType]
+  );
+  const tiers = useMemo(() => priceTiersFor(componentType), [componentType]);
+  const filtered = useMemo(() => {
+    const list = results?.results ?? [];
+    return list
+      .filter((i) => itemMatchesFacets(componentType, i, appliedSel))
+      .filter((i) => itemMatchesTiers(i, tiers, appliedTiers))
+      .filter((i) => appliedMax >= PRICE_CAP || i.priceEur <= appliedMax)
+      .sort((a, b) => (sortBy === "asc" ? a.priceEur - b.priceEur : b.priceEur - a.priceEur));
+  }, [results, componentType, appliedSel, tiers, appliedTiers, appliedMax, sortBy]);
+
   if (!meta) {
     return (
       <main className="mt-16 max-w-[1280px] mx-auto px-4 sm:px-8 py-8 min-h-screen">
@@ -263,10 +329,6 @@ export function CategorieClient() {
 
   const CategoryIcon = CATEGORY_ICONS[componentType] ?? HardDrive;
   const heroImg = CATEGORY_IMAGES[componentType];
-
-  const filtered = (results?.results ?? [])
-    .filter((i) => maxPrice >= 2500 || i.priceEur <= maxPrice)
-    .sort((a, b) => (sortBy === "asc" ? a.priceEur - b.priceEur : b.priceEur - a.priceEur));
 
   const cheapestPrice =
     filtered.find((i) => i.inStock)?.priceEur ?? filtered[0]?.priceEur;
@@ -341,24 +403,20 @@ export function CategorieClient() {
       <div className="grid grid-cols-12 gap-4">
         {/* Filter Sidebar */}
         <aside className="col-span-12 md:col-span-3 space-y-6">
-          <div className="p-6 bg-surface-container-lowest border border-outline-variant rounded-xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-title-md text-title-md text-on-surface">Filters</h3>
-              <button
-                onClick={() => {
-                  setMaxPrice(2500);
-                  setSortBy("asc");
-                  setQuery("");
-                  setActiveQuery("");
-                  setVisible(PAGE);
-                }}
-                className="text-primary font-label-technical text-label-technical hover:underline"
-              >
-                Wis alles
-              </button>
-            </div>
-
-            {/* Filter Group: Zoekterm */}
+          <FacetFilters
+            groups={facetGroups}
+            selected={facetSel}
+            onToggle={toggleFacet}
+            tiers={tiers}
+            selectedTiers={selectedTiers}
+            onToggleTier={toggleTier}
+            maxPrice={maxPrice}
+            priceCap={PRICE_CAP}
+            onMaxPrice={setMaxPrice}
+            onApply={applyFilters}
+            onClear={clearAll}
+          >
+            {/* Zoekterm binnen deze categorie */}
             <div className="mb-8">
               <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
                 Zoekterm
@@ -384,29 +442,7 @@ export function CategorieClient() {
                 </button>
               </form>
             </div>
-
-            {/* Filter Group: Prijs */}
-            <div>
-              <h4 className="font-label-technical text-label-technical uppercase tracking-wider text-outline mb-4">
-                Prijs
-              </h4>
-              <input
-                type="range"
-                min={0}
-                max={2500}
-                step={50}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                aria-label="Maximale prijs"
-                aria-valuetext={maxPrice >= 2500 ? "Geen limiet" : `€${maxPrice}`}
-                className="w-full h-1 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary"
-              />
-              <div className="flex justify-between mt-2 font-label-technical text-label-technical text-on-surface-variant">
-                <span>€0</span>
-                <span>{maxPrice >= 2500 ? "€2.500+" : `€${maxPrice.toLocaleString("nl-NL")}`}</span>
-              </div>
-            </div>
-          </div>
+          </FacetFilters>
 
           {/* Builder CTA */}
           <Link

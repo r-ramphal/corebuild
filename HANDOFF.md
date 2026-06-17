@@ -2,6 +2,17 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (17 juni 2026, deel 44) — verzendtarieven getuned tegen echte cijfers
+
+`src/lib/retailers.ts` (`RETAILER_SHIPPING`) bijgewerkt van schattingen naar de werkelijke NL-tarieven
+(standaardpakket <10kg, geverifieerd juni 2026 via de bezorgpagina's). Belangrijkste correcties:
+**Azerty (€5,95) en Alternate (€4,95) hebben GEEN gratis-drempel** → rekenen altijd verzending
+(`NOOIT_GRATIS = Number.MAX_SAFE_INTEGER`); **bol** gratis-drempel €20→**€25** (fee €2,99); **amazon** gratis
+v.a. €20, fee €2,99; **megekko** gratis v.a. €50 (was €75), fee €3,95. De split-cart rekent nu eerlijker:
+1440p-voorbeeldbuild kreeg €10,90 verzending (azerty+alternate) → totaal €1.890,80, split wint nog €110,13
+van één winkel. `tsc` + `eslint src` + `npm run test` groen (split-cart-test gebruikt eigen config). Tarieven
+blijven actie-/lidmaatschap-afhankelijk (bol Select / Amazon Prime) — periodiek herijken.
+
 ## ▶ Nieuw (17 juni 2026, deel 43) — model/token-matcher voor "Slim Kopen" (dekking omhoog)
 
 De naïeve substring-match (volledige onderdeelnaam moet in de listing-titel staan) miste generiek/

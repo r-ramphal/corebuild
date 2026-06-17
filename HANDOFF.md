@@ -16,13 +16,23 @@ _(Catalogus-verversingscron → deel 29; voorbeeldbuild-prijzen herijkt → deel
 
 **Op productie verifiëren / eyeballen (kan ik niet autonoom):**
 
-_Deze sessie (17 juni 2026, deel 31):_
-- **Speed Insights (deel 31)**: Vercel → Project → tab **Speed Insights** → *Enable* (anders komt er geen
-  Core-Web-Vitals-data binnen). `<SpeedInsights />` zit al in de layout.
-- **Google Search Console (deel 31)**: voeg een **URL-prefix**-property toe (`https://corebuildnl.com`) en
-  verifieer met methode **HTML-tag** — de `google-site-verification`-meta-tag staat nu op elke pagina. De
-  eerdere **Domein**-property faalde; die kán alléén via DNS-TXT bij de domeinprovider.
-  _(De 3D-viewer-fidelity-poging is op feedback teruggedraaid — zie deel 31; niets meer te verifiëren daar.)_
+_Deze sessie (17 juni 2026):_
+- **Auth — social login afmaken (deel 34)**: OAuth-apps aanmaken voor Google/Microsoft/Discord en de keys in
+  Vercel zetten (project is gelinkt → ik kan ze via de CLI plaatsen; plak Client ID + secret per provider).
+  Callback-URL's voor **www én non-www**: `https://(www.)corebuildnl.com/api/auth/callback/<provider>`
+  (+ `http://localhost:3000/...`). Daarna `NEXT_PUBLIC_SOCIAL_PROVIDERS=google,microsoft,discord` + redeploy.
+  Vereiste env per provider staat in `.env.example`. (Google/MS/Discord OAuth + Turnstile zijn gratis; alleen
+  Apple zou betaald zijn — niet gekozen.)
+- **Auth — al LIVE (deel 34)**: e-mailverificatie (verplicht — `RESEND_API_KEY` + `EMAIL_FROM` stonden al in
+  Vercel-Production), wegwerp-mailblokkade, en Cloudflare Turnstile-captcha (keys via CLI gezet + geredeployed;
+  geverifieerd met een token-loze sign-in → `400 MISSING_RESPONSE`). Optioneel `BETTER_AUTH_URL=http://localhost:3000`
+  in `.env.local` voor dev (haalt de "Base URL"-warning weg).
+- **Intro-preloader (deel 33)**: live op de homepage; check 'm op een **echt mobiel toestel** (responsive
+  opgezet, maar niet visueel door mij geverifieerd).
+- **Speed Insights (deel 31)**: Vercel → Project → tab **Speed Insights** → *Enable* (anders geen Core-Web-Vitals-
+  data). `<SpeedInsights />` zit al in de layout.
+- **Google Search Console (deel 31)**: URL-prefix-property `https://corebuildnl.com` → methode **HTML-tag**
+  (meta-tag staat op elke pagina). De eerdere **Domein**-property faalde; die kán alléén via DNS-TXT.
 
 _Vorige sessie (16 juni 2026):_
 - **Catalogus-cron (deel 29)**: Vercel → Cron Jobs toont nu óók `/api/cron/refresh-catalog` (02/08/14/20 UTC).
@@ -39,6 +49,48 @@ _Vorige sessie (16 juni 2026):_
 
 Eerder al open (vereist account/inbox/toestel): reset-mail + mobiele weergave handmatig; Search Console
 sitemap indienen + Rich Results-test.
+
+## ▶ Nieuw (17 juni 2026, deel 34) — Auth: social login + anti-spam
+
+Better Auth uitgebreid tegen spam/nepaccounts + voorbereid op social login. `tsc` + `eslint` + `next build`
+groen (commit `1d5ffc6`). Geen schemawijziging (bestaande `account`/`verification`-tabellen volstaan).
+- **E-mailverificatie**: `emailVerification` (sendOnSignUp + autoSignInAfterVerification) + `requireEmailVerification`
+  in `emailAndPassword`, met nieuwe `verifyEmail()`-mailtemplate. Gegate op `RESEND_API_KEY` — verificatie is
+  alleen verplicht als Resend bestaat (anders zou niemand kunnen bevestigen). RESEND_API_KEY + EMAIL_FROM stonden
+  al in Vercel-Production → **verificatie is dus live**. Dev-vangnet: zonder Resend wordt de verificatielink in de
+  console gelogd.
+- **Wegwerp-mailblokkade**: `src/lib/disposable-email.ts` (curated set) via `databaseHooks.user.create.before`
+  → `APIError` bij een wegwerp-domein. Direct actief, geen config.
+- **Captcha (Cloudflare Turnstile)**: `captcha`-plugin op `/sign-up/email` + `/sign-in/email` (bewust niet op
+  password-reset). Client-widget `src/components/auth/Turnstile.tsx` stuurt de token via header
+  `x-captcha-response`. Gegate op `TURNSTILE_SECRET_KEY`. **Live**: keys via CLI in Vercel-Production gezet +
+  geredeployed; geverifieerd (token-loze sign-in → `400 MISSING_RESPONSE`). Bewust alleen Production (Turnstile-
+  hostnames dekken geen `*.vercel.app`).
+- **Social login (Google/Microsoft/Discord)**: `socialProviders` in `auth.ts`, env-gated per provider (alleen
+  actief met clientId+secret). Knoppen `src/components/auth/SocialButtons.tsx` volgen
+  `NEXT_PUBLIC_SOCIAL_PROVIDERS`. **Nog te doen** — OAuth-apps + keys (zie verifieer-lijst). Apple bewust niet
+  (enige betaalde optie).
+- **Inlogpagina** (`src/app/inloggen/page.tsx`): social-knoppen + scheiding, Turnstile-widget, "bevestig je
+  e-mail"-scherm met opnieuw-versturen; detecteert via de sessie-token of verificatie vereist is.
+- **Infra**: Vercel-project is nu lokaal **gelinkt** (`.vercel`, gitignored) → env-vars kunnen via de CLI.
+  `.env.example` uitgebreid met alle auth-keys + callback-URL's. CLI-scope-tip: deployments horen bij team
+  `r-ramphals-projects` (gebruik `--scope r-ramphals-projects` bij `vercel redeploy`).
+
+## ▶ Nieuw (17 juni 2026, deel 33) — Swiss-brutal intro-preloader
+
+GSAP-overlay op de homepage (`src/components/motion/Preloader.tsx`, gemount in `page.tsx`; commit `d715377`).
+Donker, blueprint-grid, oranje `gp-bar`-header, teller 0→100 met blokkige voortgangsbalk, en de 8 PC-onderdelen
+(CPU…COOL) die progressief oplichten; daarna veegt het paneel omhoog weg. Toont alleen het **eerste bezoek per
+sessie** (sessionStorage `cb_intro_shown`), wacht op `window.load` (cap 3,5s), reduced-motion-safe, fluïde
+responsive. Eerst was een minimalistische/glossy variant (HDRI/bloom) geprobeerd — op feedback teruggebracht naar
+deze schone Swiss-brutal stijl (zie memory `corebuild-3d-viewer-style`).
+
+## ▶ Nieuw (17 juni 2026, deel 32) — Office-snelstart licht lege koeler-slot toe
+
+Kleine fix in de build-generator (`src/lib/specs/generate.ts`, commit `0ad5b99`): de boxed-koeler-note hing aan
+de generieke `tdp<95`-tak, waardoor een (hypothetische ≥95W) office-CPU géén koeler én géén uitleg kreeg. Aparte
+office-tak licht nu altijd toe dat de meegeleverde boxed koeler volstaat (zonder de iGPU-regel uit stap 2 te
+dubbelen). Twee asserts toegevoegd in `test-generate.ts`.
 
 ## ▶ Nieuw (17 juni 2026, deel 31) — Speed Insights, GSC-verificatie & 3D-viewer opgepoetst
 

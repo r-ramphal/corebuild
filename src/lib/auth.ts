@@ -1,11 +1,12 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { captcha, haveIBeenPwned, twoFactor } from "better-auth/plugins";
-import { APIError } from "better-auth/api";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { getDb } from "./db";
 import { sendEmail } from "./email";
 import { resetPasswordEmail, verifyEmail } from "./email-templates";
 import { isDisposableEmail } from "./disposable-email";
+import { failingPasswordRules } from "./password-policy";
 import * as authSchema from "./db/auth-schema";
 
 const db = getDb();
@@ -135,6 +136,29 @@ export const auth = betterAuth({
         },
       },
     },
+  },
+  // Wachtwoordbeleid serverside afdwingen op elke plek waar een wachtwoord
+  // gezet wordt — zodat een omzeilde client-validatie alsnog geweigerd wordt.
+  // (Lengte dekt better-auth's minPasswordLength al af; hier de samenstelling.)
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      const passwordField: Record<string, "password" | "newPassword"> = {
+        "/sign-up/email": "password",
+        "/reset-password": "newPassword",
+        "/change-password": "newPassword",
+      };
+      const field = passwordField[ctx.path];
+      if (!field) return;
+      const body = ctx.body as Record<string, unknown> | undefined;
+      const password = body?.[field];
+      if (typeof password !== "string") return;
+      const failing = failingPasswordRules(password);
+      if (failing.length > 0) {
+        throw new APIError("BAD_REQUEST", {
+          message: `Wachtwoord voldoet niet aan de eisen (${failing.join(", ")}).`,
+        });
+      }
+    }),
   },
   // Brute-force/credential-stuffing-bescherming. Expliciet aan (ook in previews).
   rateLimit: {

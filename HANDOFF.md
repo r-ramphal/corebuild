@@ -2,6 +2,35 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (18 juni 2026, deel 55) — wachtwoordeisen vooraf zichtbaar (live checklist)
+
+Vervolg op deel 54: de gebruiker zag pas ná het indienen "dit wachtwoord komt voor in een datalek". Nu
+staan de **eisen vooraf** op het formulier als een live checklist (vinkjes kleuren groen terwijl je typt;
+de knop wordt pas actief als alles klopt). De HIBP-breachcheck blijft als serverside vangnet eronder.
+`tsc` + `eslint src` + `next build` (65 pagina's, `/inloggen` + `/wachtwoord-herstellen` statisch) groen.
+**Nog niet gecommit/gepusht** (gebruiker beslist).
+
+- **Beleid (keuze gebruiker = "Volledig"):** min. 12 tekens · hoofdletter · kleine letter · cijfer · symbool.
+  Eén bron van waarheid in **`src/lib/password-policy.ts`** (puur): `PASSWORD_RULES` (id/label/test),
+  `failingPasswordRules()`, `passwordMeetsPolicy()`, `PASSWORD_MIN_LENGTH = 12` (spiegelt `minPasswordLength`
+  in `auth.ts`). Client én server gebruiken exact dezelfde regels.
+- **Checklist-component `src/components/auth/PasswordRequirements.tsx`** (client): toont elke regel met een
+  vinkje dat groen wordt zodra 'ie gehaald is (giastpc-tokens: `success-emerald` / `on-surface-variant`).
+- **Ingehaakt:** `/inloggen` (alleen register-mode) — checklist onder het wachtwoordveld + submit `disabled`
+  tot `passwordMeetsPolicy`. `WachtwoordHerstellenClient` — checklist onder het nieuwe-wachtwoordveld +
+  submit `disabled` tot beleid gehaald én beide velden gelijk. Placeholders/helpteksten aangepast
+  ("Kies een sterk wachtwoord").
+- **Serverside afdwinging (echt, niet alleen client):** nieuwe `hooks.before` (`createAuthMiddleware`) in
+  `auth.ts` valideert de samenstelling op **`/sign-up/email`, `/reset-password`, `/change-password`** —
+  leest het wachtwoord uit `ctx.body` (`password` resp. `newPassword`) en gooit `BAD_REQUEST` met de
+  ontbrekende eisen. Botst niet met de `haveIBeenPwned`-`password.hash`-wrap (aparte hook). De
+  disposable-mailcheck blijft in `databaseHooks.user.create.before`.
+- **Let op (gedrag):** een wachtwoord dat aan álle eisen voldoet maar tóch gelekt is (bv. `Password123!` =
+  12 tekens + alle klassen) geeft nog steeds de HIBP-melding — bewust; de checklist toont de eisen vooraf,
+  de breachcheck blijft het extra net. Login-mode houdt `minLength` 8 (bestaande gebruikers niet buitensluiten).
+- **Te verifiëren op productie:** registreren — checklist vinkt live af, knop pas actief bij groen; reset-
+  formulier idem; en een client-bypass (direct `/sign-up/email` met zwak wachtwoord) → `BAD_REQUEST`.
+
 ## ▶ Nieuw (18 juni 2026, deel 54) — security-audit: de drie kleinere restpunten afgerond
 
 De "kleinere punten" uit de security-roadmap (deel 46) zijn nu gedaan. `tsc` + `eslint src` + `npm run test`

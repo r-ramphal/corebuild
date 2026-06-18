@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { resetPassword } from "@/lib/auth-client";
+import { PasswordRequirements } from "@/components/auth/PasswordRequirements";
+import { passwordMeetsPolicy } from "@/lib/password-policy";
 
 export function WachtwoordHerstellenClient() {
   const router = useRouter();
@@ -23,8 +25,8 @@ export function WachtwoordHerstellenClient() {
     e.preventDefault();
     setError(null);
 
-    if (password.length < 12) {
-      setError("Wachtwoord moet minimaal 12 tekens zijn.");
+    if (!passwordMeetsPolicy(password)) {
+      setError("Wachtwoord voldoet nog niet aan alle eisen.");
       return;
     }
     if (password !== confirm) {
@@ -71,7 +73,7 @@ export function WachtwoordHerstellenClient() {
           ) : (
             <>
               <p className="font-body-sm text-body-sm text-on-surface-variant mb-8">
-                Kies een nieuw wachtwoord van minimaal 12 tekens.
+                Kies een sterk nieuw wachtwoord.
               </p>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div>
@@ -84,9 +86,10 @@ export function WachtwoordHerstellenClient() {
                     minLength={12}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Minimaal 12 tekens"
+                    placeholder="Kies een sterk wachtwoord"
                     className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
                   />
+                  <PasswordRequirements password={password} />
                 </div>
                 <div>
                   <label className="font-label-technical text-label-technical text-on-surface-variant uppercase tracking-wider block mb-2">
@@ -111,7 +114,7 @@ export function WachtwoordHerstellenClient() {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !passwordMeetsPolicy(password) || password !== confirm}
                   className="w-full h-12 bg-primary text-on-primary rounded-lg font-label-technical text-label-technical hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
                 >
                   {loading ? "Bezig..." : "Wachtwoord opslaan"}

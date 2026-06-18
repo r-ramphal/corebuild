@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { signIn, signUp, authClient } from "@/lib/auth-client";
 import { SocialButtons } from "@/components/auth/SocialButtons";
 import { Turnstile } from "@/components/auth/Turnstile";
+import { PasswordRequirements } from "@/components/auth/PasswordRequirements";
+import { passwordMeetsPolicy } from "@/lib/password-policy";
 
 type Mode = "login" | "register";
 
@@ -191,9 +193,10 @@ export default function InloggenPage() {
                 minLength={mode === "register" ? 12 : 8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={mode === "register" ? "Minimaal 12 tekens" : "Je wachtwoord"}
+                placeholder={mode === "register" ? "Kies een sterk wachtwoord" : "Je wachtwoord"}
                 className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
               />
+              {mode === "register" && <PasswordRequirements password={password} />}
             </div>
 
             {mode === "login" && (
@@ -236,7 +239,11 @@ export default function InloggenPage() {
 
             <button
               type="submit"
-              disabled={loading || (captchaRequired && !captchaToken)}
+              disabled={
+                loading ||
+                (captchaRequired && !captchaToken) ||
+                (mode === "register" && !passwordMeetsPolicy(password))
+              }
               className="w-full h-12 bg-primary text-on-primary rounded-lg font-label-technical text-label-technical hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
             >
               {loading ? "Bezig..." : mode === "login" ? "Inloggen" : "Account aanmaken"}

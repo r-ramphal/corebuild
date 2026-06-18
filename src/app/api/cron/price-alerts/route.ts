@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkCronAuth } from "@/lib/cron-auth";
 import { getDb } from "@/lib/db";
 import { findFiredAlerts, markAlertNotified, type FiredAlert } from "@/lib/db/alerts";
 import { sendEmail } from "@/lib/email";
@@ -19,13 +20,8 @@ export const maxDuration = 60;
 const BASE_URL = "https://corebuildnl.com";
 
 export async function GET(req: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) {
-    return NextResponse.json({ error: "CRON_SECRET niet geconfigureerd" }, { status: 503 });
-  }
-  if (req.headers.get("authorization") !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
-  }
+  const unauthorized = checkCronAuth(req);
+  if (unauthorized) return unauthorized;
 
   const db = getDb();
   if (!db) return NextResponse.json({ error: "Database niet beschikbaar" }, { status: 503 });

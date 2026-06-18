@@ -2,6 +2,44 @@
 
 > Lees dit bestand aan het begin van elke sessie. Werk het bij aan het einde.
 
+## ▶ Nieuw (18 juni 2026, deel 54) — security-audit: de drie kleinere restpunten afgerond
+
+De "kleinere punten" uit de security-roadmap (deel 46) zijn nu gedaan. `tsc` + `eslint src` + `npm run test`
++ `next build` groen. **Nog niet gecommit/gepusht** (gebruiker beslist).
+
+- **1) Cron-secret constant-time vergelijken.** Alle 3 cron-routes deden `authorization !== "Bearer …"`
+  (timing-gevoelig → secret raadbaar via een side-channel). Nieuwe **`src/lib/cron-auth.ts`** met
+  `checkCronAuth(req)`: hasht header + verwachte waarde naar SHA-256 (altijd 32 bytes → gelijke lengte, geen
+  lengte-leak) en vergelijkt met `crypto.timingSafeEqual`. Geeft 503 (secret ontbreekt) / 401 (mismatch) /
+  `null` (ok). `price-alerts`, `build-alerts` en `refresh-catalog` gebruiken 'm nu (de inline `secret`-check
+  weg). Gedrag/statuscodes identiek.
+- **2) Wachtwoordbeleid: 8 → 12 + HIBP-breachcheck.** `src/lib/auth.ts` `minPasswordLength: 8 → 12`. Voor de
+  breachcheck **better-auth's ingebouwde `haveIBeenPwned`-plugin** toegevoegd (geen eigen code). Gebruikt
+  HIBP **k-anonymity** (alleen de eerste 5 tekens van de SHA-1-hash gaan naar `api.pwnedpasswords.com`, met
+  padding; het wachtwoord verlaat de server nooit) en dekt **`/sign-up/email`, `/reset-password`,
+  `/change-password`**. NL custom-message bij een gelekt wachtwoord. Client-hints meegetrokken: `/inloggen`
+  register-mode `minLength` 8→12 + placeholder "Minimaal 12 tekens" (**login blijft 8** zodat bestaande
+  gebruikers met een 8-teken wachtwoord niet buitengesloten worden); `WachtwoordHerstellenClient` overal
+  8→12 (validatie + helptekst + beide inputs).
+  - **Afwijking van het handoff-plan:** dit zou in `databaseHooks.user.create.before` komen, maar die hook
+    krijgt het **plaintext-wachtwoord niet** (het is daar al gehasht) — de officiële plugin hookt op
+    `password.hash` en is strikt beter (privacy-preserving + dekt ook reset/change). De disposable-mailcheck
+    blijft wél in `user.create.before`.
+  - **Let op (fail-closed):** is `api.pwnedpasswords.com` onbereikbaar, dan gooit de plugin
+    `INTERNAL_SERVER_ERROR` → registratie/reset wordt geblokkeerd tot HIBP weer up is. Bewuste
+    security-tradeoff; de plugin biedt geen fail-open. De call is **server-side** (geen CSP-impact — CSP is
+    een browser-policy).
+- **3) `/api/search` `errors`-veld generaliseren.** Stuurde per gefaalde retailer `String(reason)` naar de
+  client (interne details/URLs konden lekken). Nu: de echte reden alleen `console.error` server-side, naar de
+  client een vaste `"Tijdelijk niet beschikbaar"`. **Geen UI-impact** — `PriceList` toont alleen
+  `e.retailer`, nooit `e.message`.
+- **Status security-audit:** alle 5 hoofdstappen (deel 46–51) + deze 3 kleinere punten zijn nu **codematig
+  af**. Resteert puur handmatig/dashboard: back-up activeren (age-keypair + R2 + 6 GitHub-secrets, zie
+  `docs/backups.md`), 2FA e2e met authenticator-app, secret-scanning push-protection, Vercel Firewall.
+- **Te verifiëren op productie (na deploy):** registreren met een bekend-gelekt wachtwoord (bv. `Password123!`)
+  → moet de HIBP-melding geven; registreren <12 tekens → geweigerd; cron-routes nog steeds 401 zonder /
+  200-JSON mét geldig `CRON_SECRET`.
+
 ## ▶ Nieuw (17 juni 2026, deel 53) — Slim Kopen-homepage: live cijfers i.p.v. statisch voorbeeld
 
 De homepage-sectie (deel 52) toont nu **echte, actuele** split-cart-cijfers voor de 1440p-demobuild i.p.v.

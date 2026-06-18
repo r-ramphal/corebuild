@@ -188,10 +188,10 @@ export default function InloggenPage() {
               <input
                 type="password"
                 required
-                minLength={8}
+                minLength={mode === "register" ? 12 : 8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={mode === "register" ? "Minimaal 8 tekens" : "Je wachtwoord"}
+                placeholder={mode === "register" ? "Minimaal 12 tekens" : "Je wachtwoord"}
                 className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
               />
             </div>

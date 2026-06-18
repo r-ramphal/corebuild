@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkCronAuth } from "@/lib/cron-auth";
 import { searchMegekko } from "@/lib/scrapers/megekko";
 import { searchAzerty } from "@/lib/scrapers/azerty";
 import { searchAlternate } from "@/lib/scrapers/alternate";
@@ -61,13 +62,8 @@ function scrape(retailer: Retailer, term: string): Promise<PriceResult[]> {
 }
 
 export async function GET(req: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) {
-    return NextResponse.json({ error: "CRON_SECRET niet geconfigureerd" }, { status: 503 });
-  }
-  if (req.headers.get("authorization") !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
-  }
+  const unauthorized = checkCronAuth(req);
+  if (unauthorized) return unauthorized;
 
   const db = getDb();
   if (!db) return NextResponse.json({ error: "Database niet beschikbaar" }, { status: 503 });

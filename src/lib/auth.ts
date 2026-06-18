@@ -1,6 +1,6 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { captcha, twoFactor } from "better-auth/plugins";
+import { captcha, haveIBeenPwned, twoFactor } from "better-auth/plugins";
 import { APIError } from "better-auth/api";
 import { getDb } from "./db";
 import { sendEmail } from "./email";
@@ -59,7 +59,16 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
 // 2FA (TOTP) staat altijd aan: gebruikers kunnen het zelf inschakelen (opt-in).
 // `issuer` is de naam die in de authenticator-app verschijnt. Captcha blijft
 // env-gated — alleen actief met een Turnstile-secret.
-const plugins: BetterAuthOptions["plugins"] = [twoFactor({ issuer: "CoreBuild" })];
+const plugins: BetterAuthOptions["plugins"] = [
+  twoFactor({ issuer: "CoreBuild" }),
+  // Weiger wachtwoorden die in een bekend datalek voorkomen. HIBP-k-anonymity:
+  // alleen de eerste 5 tekens van de SHA-1-hash gaan naar de API, het wachtwoord
+  // zelf verlaat de server nooit. Dekt sign-up, wachtwoord-reset en -wijziging.
+  haveIBeenPwned({
+    customPasswordCompromisedMessage:
+      "Dit wachtwoord komt voor in een bekend datalek. Kies een ander, uniek wachtwoord.",
+  }),
+];
 if (process.env.TURNSTILE_SECRET_KEY) {
   plugins.push(
     captcha({
@@ -77,7 +86,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    minPasswordLength: 8,
+    minPasswordLength: 12,
     // Account moet eerst de e-mail bevestigen vóór inloggen — grootste rem op
     // spam-/nepaccounts. Alleen actief als Resend geconfigureerd is (zie boven).
     requireEmailVerification: emailConfigured,

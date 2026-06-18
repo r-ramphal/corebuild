@@ -188,10 +188,15 @@ export async function GET(req: NextRequest) {
 
   const errors = sources
     .filter((s) => s.outcome.status === "rejected")
-    .map((s) => ({
-      retailer: s.retailer,
-      message: String((s.outcome as PromiseRejectedResult).reason),
-    }));
+    .map((s) => {
+      // De echte reden alleen server-side loggen; naar de client gaat een
+      // generieke melding zodat interne details (URLs, stacktraces) niet lekken.
+      console.error(
+        `Zoeken bij ${s.retailer} mislukt:`,
+        (s.outcome as PromiseRejectedResult).reason
+      );
+      return { retailer: s.retailer, message: "Tijdelijk niet beschikbaar" };
+    });
 
   // 3. Write-through naar de database (best-effort, blokkeert het antwoord niet lang)
   if (db && results.length > 0) {

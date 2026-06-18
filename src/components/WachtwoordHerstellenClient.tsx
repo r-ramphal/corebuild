@@ -23,8 +23,8 @@ export function WachtwoordHerstellenClient() {
     e.preventDefault();
     setError(null);
 
-    if (password.length < 8) {
-      setError("Wachtwoord moet minimaal 8 tekens zijn.");
+    if (password.length < 12) {
+      setError("Wachtwoord moet minimaal 12 tekens zijn.");
       return;
     }
     if (password !== confirm) {
@@ -71,7 +71,7 @@ export function WachtwoordHerstellenClient() {
           ) : (
             <>
               <p className="font-body-sm text-body-sm text-on-surface-variant mb-8">
-                Kies een nieuw wachtwoord van minimaal 8 tekens.
+                Kies een nieuw wachtwoord van minimaal 12 tekens.
               </p>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div>
@@ -81,10 +81,10 @@ export function WachtwoordHerstellenClient() {
                   <input
                     type="password"
                     required
-                    minLength={8}
+                    minLength={12}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Minimaal 8 tekens"
+                    placeholder="Minimaal 12 tekens"
                     className="w-full h-11 px-4 bg-white border border-outline-variant rounded-lg font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none"
                   />
                 </div>
@@ -95,7 +95,7 @@ export function WachtwoordHerstellenClient() {
                   <input
                     type="password"
                     required
-                    minLength={8}
+                    minLength={12}
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     placeholder="Nogmaals je nieuwe wachtwoord"

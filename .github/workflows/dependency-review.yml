@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Review afhankelijkheden in de PR-diff
-        uses: actions/dependency-review-action@v4
+        uses: actions/dependency-review-action@v5
         with:
           # Faal alleen op high/critical zodat de PR niet blokkeert op de
           # bestaande moderate build-tooling-meldingen.
